@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from "react-router-dom";
+import { createHashRouter, Navigate } from "react-router-dom";
 
 import Layout from "@/app/Layout";
 import Login from "@/pages/Login";
@@ -14,7 +14,7 @@ import ListParcels from "@/pages/ListParcels";
 import Reports from "@/pages/Reports";
 import EditParcel from "@/pages/EditParcel";
 
-const router = createBrowserRouter([
+const router = createHashRouter([
   {
     path: "/auth/login",
     element: <Login />,

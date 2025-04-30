@@ -7,7 +7,7 @@ const Dashboard = () => {
     <div className="p-6 bg-dark-900 min-h-screen">
       <h2 className="text-3xl text-white mb-8 text-center">Dashboard</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Link to="/add-driver">
+        <Link to="/drivers">
           <Card className="p-6 bg-dark-800 rounded-lg shadow-md hover:shadow-xl transition-all">
             <h3 className="text-xl text-white mb-4">Add Driver</h3>
             <p className="text-gray-400 mb-4">
@@ -29,7 +29,7 @@ const Dashboard = () => {
           </Card>
         </Link>
 
-        <Link to="/view-parcels">
+        <Link to="/parcels">
           <Card className="p-6 bg-dark-800 rounded-lg shadow-md hover:shadow-xl transition-all">
             <h3 className="text-xl text-white mb-4">View Parcels</h3>
             <p className="text-gray-400 mb-4">Manage your parcel records.</p>
