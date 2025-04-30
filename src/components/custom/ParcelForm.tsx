@@ -1,0 +1,563 @@
+import { useState, useEffect } from "react";
+import { Loader2, User, Phone, Receipt, Save } from "lucide-react";
+import { supabase } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Database } from "@/lib/supabase/types";
+
+// Define types
+type City = Database["public"]["Tables"]["cities"]["Row"];
+export type BusDriverAssignment =
+  Database["public"]["Tables"]["bus_driver_assignments"]["Row"] & {
+    buses: { registration_no: string } | null;
+    drivers: { name: string } | null;
+  };
+
+type ParcelItem = {
+  from_city_id: number | null;
+  to_city_id: number | null;
+  description: string;
+  qty: number;
+  remark: string;
+  amount?: number;
+};
+
+export type ParcelFormData = {
+  nextBillNo: number;
+  parcelDate: Date;
+  busDriverAssignment: BusDriverAssignment | null;
+  senderName: string;
+  senderMobile: string;
+  receiverName: string;
+  receiverMobile: string;
+  parcelItem: ParcelItem;
+  amountGiven: number;
+};
+
+type ParcelFormProps = {
+  formData: ParcelFormData;
+  setFormData: React.Dispatch<React.SetStateAction<ParcelFormData>>;
+  isProcessing?: boolean;
+  onSubmit?: VoidFunction;
+  actionButton?: string;
+};
+
+export default function ParcelForm({
+  formData,
+  setFormData,
+  isProcessing,
+  actionButton: buttonText,
+  onSubmit,
+}: ParcelFormProps) {
+  const [error, setError] = useState<string | null>(null);
+  const [assignments, setAssignments] = useState<BusDriverAssignment[]>([]);
+  const [cities, setCities] = useState<City[]>([]);
+
+  const totalAmount = formData.parcelItem.amount;
+  const amountRemaining =
+    (formData.parcelItem.amount || 0) - formData.amountGiven;
+
+  useEffect(() => {
+    fetchBusDriverAssignments();
+    fetchCities();
+  }, []);
+
+  const fetchBusDriverAssignments = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("bus_driver_assignments")
+        .select(
+          `
+            *,
+            buses (id, registration_no),
+            drivers (id, name)
+          `
+        )
+        .order("assignment_date", { ascending: false });
+
+      if (error) throw error;
+
+      setAssignments(data || []);
+
+      // Set default assignment (first one)
+      if (!formData.busDriverAssignment && data && data.length > 0) {
+        setFormData((prev) => ({
+          ...prev,
+          busDriverAssignment: data[0],
+        }));
+      }
+    } catch (err: any) {
+      console.error("Error fetching assignments:", err);
+      setError(err.message);
+    }
+  };
+
+  const fetchCities = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("cities")
+        .select("*")
+        .order("name");
+
+      if (error) throw error;
+
+      setCities(data || []);
+
+      // Find default FROM and TO cities
+      const fromCity = data?.find((city) => city.is_default_from) || null;
+      const toCity = data?.find((city) => city.is_default_to) || null;
+
+      // Update the first parcel item with default cities
+      if (fromCity || toCity) {
+        setFormData((prev) => ({
+          ...prev,
+          parcelItem: {
+            ...prev.parcelItem,
+            from_city_id: fromCity?.id || null,
+            to_city_id: toCity?.id || null,
+          },
+        }));
+      }
+    } catch (err: any) {
+      console.error("Error fetching cities:", err);
+      setError(err.message);
+    }
+  };
+
+  const updateParcelItem = (field: keyof ParcelItem, value: any) => {
+    setFormData((prev) => ({
+      ...prev,
+      parcelItem: {
+        ...prev.parcelItem,
+        [field]: value,
+      },
+    }));
+  };
+
+  const handleAmountGivenChange = (value: string) => {
+    const amountGiven = parseFloat(value) || 0;
+    setFormData((prev) => ({ ...prev, amountGiven }));
+  };
+
+  const handleSubmit = async () => {
+    const {
+      busDriverAssignment,
+      senderName,
+      senderMobile,
+      receiverName,
+      receiverMobile,
+      parcelItem,
+    } = formData;
+
+    if (!busDriverAssignment) {
+      setError("Please select a bus and driver assignment");
+      return;
+    }
+
+    if (!senderName || !senderMobile || !receiverName || !receiverMobile) {
+      setError("Please fill in all sender and receiver details");
+      return;
+    }
+
+    const hasInvalidItems =
+      !parcelItem.from_city_id ||
+      !parcelItem.to_city_id ||
+      !parcelItem.description ||
+      parcelItem.qty <= 0;
+
+    if (hasInvalidItems) {
+      setError("Please fill in all parcel item details");
+      return;
+    }
+
+    try {
+      onSubmit?.();
+    } catch (err: any) {
+      console.error("Error adding parcel:", err);
+      setError(err.message);
+    }
+  };
+
+  return (
+    <div>
+      {error && (
+        <Alert
+          variant="destructive"
+          className="bg-red-900 border-red-800 text-red-200"
+        >
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+      <Card className="gap-2 mb-4 py-4 bg-gray-900 border-gray-800">
+        <CardHeader>
+          <CardTitle className="text-lg">Parcel Details</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Bill Number and Date Row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="bill-no">Bill No.</Label>
+              <Input
+                id="bill-no"
+                value={formData.nextBillNo || ""}
+                readOnly
+                className="bg-gray-800 border-gray-700"
+              />
+            </div>
+            <div className="flex items-center gap-6 justify-between">
+              <div className="flex-1 space-y-2">
+                <Label htmlFor="date">Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal bg-gray-800 border-gray-700"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {formData.parcelDate ? (
+                        format(formData.parcelDate, "PPP")
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 bg-gray-800 border-gray-700">
+                    <CalendarComponent
+                      mode="single"
+                      selected={formData.parcelDate}
+                      onSelect={(parcelDate) =>
+                        parcelDate &&
+                        setFormData((prev) => ({ ...prev, parcelDate }))
+                      }
+                      initialFocus
+                      className="bg-gray-800"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              {/* Bus and Driver Row */}
+              <div className="space-y-2">
+                <Label htmlFor="bus-driver">Bus & Driver</Label>
+                <Select
+                  value={formData.busDriverAssignment?.id?.toString() || ""}
+                  onValueChange={(value) => {
+                    const busDriverAssignment = assignments.find(
+                      (a) => a.id === parseInt(value)
+                    );
+                    if (busDriverAssignment)
+                      setFormData((prev) => ({ ...prev, busDriverAssignment }));
+                  }}
+                >
+                  <SelectTrigger className="bg-gray-800 border-gray-700">
+                    <SelectValue placeholder="Select bus & driver" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 border-gray-700">
+                    {assignments.map((assignment) => (
+                      <SelectItem
+                        key={assignment.id}
+                        value={assignment.id.toString()}
+                      >
+                        {assignment.buses?.registration_no} -{" "}
+                        {assignment.drivers?.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+
+          {/* Sender Information */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="sender-name">
+                <User className="h-4 w-4 inline mr-1" /> Sender Name
+              </Label>
+              <Input
+                id="sender-name"
+                autoFocus
+                value={formData.senderName}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    senderName: e.target.value,
+                  }))
+                }
+                placeholder="Enter sender name"
+                className="bg-gray-800 border-gray-700"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="sender-mobile">
+                <Phone className="h-4 w-4 inline mr-1" /> Sender Mobile
+              </Label>
+              <Input
+                id="sender-mobile"
+                type="number"
+                value={formData.senderMobile}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    senderMobile: e.target.value,
+                  }))
+                }
+                placeholder="Enter sender mobile number"
+                className="bg-gray-800 border-gray-700"
+              />
+            </div>
+          </div>
+
+          {/* Receiver Information */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="receiver-name">
+                <User className="h-4 w-4 inline mr-1" /> Receiver Name
+              </Label>
+              <Input
+                id="receiver-name"
+                value={formData.receiverName}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    receiverName: e.target.value,
+                  }))
+                }
+                placeholder="Enter receiver name"
+                className="bg-gray-800 border-gray-700"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="receiver-mobile">
+                <Phone className="h-4 w-4 inline mr-1" /> Receiver Mobile
+              </Label>
+              <Input
+                id="receiver-mobile"
+                type="number"
+                value={formData.receiverMobile}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    receiverMobile: e.target.value,
+                  }))
+                }
+                placeholder="Enter receiver mobile number"
+                className="bg-gray-800 border-gray-700"
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="gap-2 mb-4 py-4 bg-gray-900 border-gray-800">
+        <CardHeader>
+          <CardTitle className="text-lg">Parcel Items</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-md border border-gray-800 ">
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:">
+                  <TableHead className="text-gray-300">From</TableHead>
+                  <TableHead className="text-gray-300">To</TableHead>
+                  <TableHead className="text-gray-300">Description</TableHead>
+                  <TableHead className="text-gray-300 w-[80px]">Qty</TableHead>
+                  <TableHead className="text-gray-300">Remark</TableHead>
+                  <TableHead className="text-gray-300">Amount</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow className="hover:bg-gray-800">
+                  <TableCell>
+                    <Select
+                      value={formData.parcelItem.from_city_id?.toString() || ""}
+                      onValueChange={(value) =>
+                        updateParcelItem("from_city_id", parseInt(value))
+                      }
+                    >
+                      <SelectTrigger className="bg-gray-800 border-gray-700 h-8">
+                        <SelectValue placeholder="From" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-700">
+                        {cities.map((city) => (
+                          <SelectItem key={city.id} value={city.id.toString()}>
+                            {city.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                  <TableCell>
+                    <Select
+                      value={formData.parcelItem.to_city_id?.toString() || ""}
+                      onValueChange={(value) =>
+                        updateParcelItem("to_city_id", parseInt(value))
+                      }
+                    >
+                      <SelectTrigger className="bg-gray-800 border-gray-700 h-8">
+                        <SelectValue placeholder="To" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 border-gray-700">
+                        {cities.map((city) => (
+                          <SelectItem key={city.id} value={city.id.toString()}>
+                            {city.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      value={formData.parcelItem.description}
+                      onChange={(e) =>
+                        updateParcelItem("description", e.target.value)
+                      }
+                      placeholder="Description"
+                      className="bg-gray-800 border-gray-700 h-8"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      type="number"
+                      value={formData.parcelItem.qty}
+                      onChange={(e) =>
+                        updateParcelItem("qty", parseInt(e.target.value) || 0)
+                      }
+                      className="bg-gray-800 border-gray-700 h-8"
+                      min={1}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      value={formData.parcelItem.remark}
+                      onChange={(e) =>
+                        updateParcelItem("remark", e.target.value)
+                      }
+                      placeholder="Remark"
+                      className="bg-gray-800 border-gray-700 h-8"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Input
+                      type="number"
+                      value={formData.parcelItem.amount}
+                      onChange={(e) =>
+                        updateParcelItem(
+                          "amount",
+                          parseFloat(e.target.value) || 0
+                        )
+                      }
+                      className="bg-gray-800 border-gray-700 h-8"
+                      min={0}
+                      step={0.01}
+                    />
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="gap-2 mb-4 py-4 bg-gray-900 border-gray-800">
+        <CardHeader>
+          <CardTitle className="text-lg">Payment Details</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="total-amount">
+                <Receipt className="h-4 w-4 inline mr-1" /> Total Amount
+              </Label>
+              <Input
+                id="total-amount"
+                type="number"
+                value={totalAmount}
+                readOnly
+                className="bg-gray-800 border-gray-700"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="amount-given">
+                <Receipt className="h-4 w-4 inline mr-1" /> Amount Given
+              </Label>
+              <Input
+                id="amount-given"
+                type="number"
+                value={formData.amountGiven}
+                onChange={(e) => handleAmountGivenChange(e.target.value)}
+                className="bg-gray-800 border-gray-700"
+                min={0}
+                step={0.01}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="amount-remaining">
+                <Receipt className="h-4 w-4 inline mr-1" /> Amount Remaining
+              </Label>
+              <Input
+                id="amount-remaining"
+                type="number"
+                value={amountRemaining}
+                readOnly
+                className="bg-gray-800 border-gray-700"
+              />
+            </div>
+          </div>
+        </CardContent>
+        {buttonText && (
+          <CardFooter className="flex justify-end">
+            <Button
+              onClick={handleSubmit}
+              disabled={isProcessing}
+              className="bg-gray-700 hover:bg-gray-600"
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  {buttonText}
+                </>
+              )}
+            </Button>
+          </CardFooter>
+        )}
+      </Card>
+    </div>
+  );
+}
