@@ -117,43 +117,43 @@ export default function PrintParcel() {
       <div
         ref={printRef}
         id="print-section"
-        className="bg-white text-black p-4 pt-6 rounded-lg"
+        className="bg-white text-black p-4 rounded-lg mx-auto"
       >
         {/* Print Header */}
-        <div className="border-b-2 border-black pb-2 mb-6">
+        <div className="border-b-2 border-black pb-2 mb-3">
           <div className="text-center">
-            <h1 className="text-2xl font-bold uppercase">
-              SHREE PRAMUKHRAJ TRAVELS & CARGO
+            <h1 className="text-lg font-bold uppercase">
+              SHREENATH TRAVELS & CARGO
             </h1>
-            <p className="text-sm">Address, Phone Number</p>
+            <p className="text-xs">Address, Phone Number</p>
           </div>
         </div>
 
         {/* Receipt Details */}
-        <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-2 gap-2 mb-3 text-sm">
           <table className="table-fixed w-full border-collapse">
             <tbody>
               <tr>
-                <td className="border border-gray-400 px-2 py-1">
+                <td className="border border-gray-400 px-1 py-0.5">
                   <strong>Bill No:</strong>
                 </td>
-                <td className="border border-gray-400 px-2 py-1">
-                  {parcel.bill_no}
+                <td className="border border-gray-400 px-1 py-0.5">
+                  R{parcel.bill_no}
                 </td>
               </tr>
               <tr>
-                <td className="border border-gray-400 px-2 py-1">
+                <td className="border border-gray-400 px-1 py-0.5">
                   <strong>Date:</strong>
                 </td>
-                <td className="border border-gray-400 px-2 py-1">
-                  {format(new Date(parcel.parcel_date), "dd/MM/yy hh:mm aaa")}
+                <td className="border border-gray-400 px-1 py-0.5">
+                  {format(new Date(parcel.parcel_date), "dd/MM/yyyy")}
                 </td>
               </tr>
               <tr>
-                <td className="border border-gray-400 px-2 py-1">
+                <td className="border border-gray-400 px-1 py-0.5">
                   <strong>Bus No:</strong>
                 </td>
-                <td className="border border-gray-400 px-2 py-1">
+                <td className="border border-gray-400 px-1 py-0.5">
                   {parcel.bus_registration}
                 </td>
               </tr>
@@ -162,26 +162,26 @@ export default function PrintParcel() {
           <table className="table-fixed w-full border-collapse">
             <tbody>
               <tr>
-                <td className="border border-gray-400 px-2 py-1">
+                <td className="border border-gray-400 px-1 py-0.5">
                   <strong>From:</strong>
                 </td>
-                <td className="border border-gray-400 px-2 py-1">
+                <td className="border border-gray-400 px-1 py-0.5">
                   {parcel.from_city?.name}
                 </td>
               </tr>
               <tr>
-                <td className="border border-gray-400 px-2 py-1">
+                <td className="border border-gray-400 px-1 py-0.5">
                   <strong>To:</strong>
                 </td>
-                <td className="border border-gray-400 px-2 py-1">
+                <td className="border border-gray-400 px-1 py-0.5">
                   {parcel.to_city?.name}
                 </td>
               </tr>
               <tr>
-                <td className="border border-gray-400 px-2 py-1">
+                <td className="border border-gray-400 px-1 py-0.5">
                   <strong>Driver:</strong>
                 </td>
-                <td className="border border-gray-400 px-2 py-1">
+                <td className="border border-gray-400 px-1 py-0.5">
                   {parcel.driver_name}
                 </td>
               </tr>
@@ -190,27 +190,27 @@ export default function PrintParcel() {
         </div>
 
         {/* Sender and Receiver Details */}
-        <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-2 gap-2 mb-3 text-sm">
           <table className="table-fixed w-full border-collapse">
             <tbody>
               <tr>
-                <td colSpan={2} className="border border-gray-400 px-2 py-1">
-                  <strong>Sender Details</strong>
+                <td colSpan={2} className="border border-gray-400 px-1 py-0.5">
+                  <strong>Mokalnar Details</strong>
                 </td>
               </tr>
               <tr>
-                <td className="border border-gray-400 px-2 py-1">
+                <td className="border border-gray-400 px-1 py-0.5">
                   <strong>Name:</strong>
                 </td>
-                <td className="border border-gray-400 px-2 py-1">
+                <td className="border border-gray-400 px-1 py-0.5">
                   {parcel.sender_name}
                 </td>
               </tr>
               <tr>
-                <td className="border border-gray-400 px-2 py-1">
+                <td className="border border-gray-400 px-1 py-0.5">
                   <strong>Mobile:</strong>
                 </td>
-                <td className="border border-gray-400 px-2 py-1">
+                <td className="border border-gray-400 px-1 py-0.5">
                   {parcel.sender_mobile_no}
                 </td>
               </tr>
@@ -219,23 +219,23 @@ export default function PrintParcel() {
           <table className="table-fixed w-full border-collapse">
             <tbody>
               <tr>
-                <td colSpan={2} className="border border-gray-400 px-2 py-1">
-                  <strong>Receiver Details</strong>
+                <td colSpan={2} className="border border-gray-400 px-1 py-0.5">
+                  <strong>Lenar Details</strong>
                 </td>
               </tr>
               <tr>
-                <td className="border border-gray-400 px-2 py-1">
+                <td className="border border-gray-400 px-1 py-0.5">
                   <strong>Name:</strong>
                 </td>
-                <td className="border border-gray-400 px-2 py-1">
+                <td className="border border-gray-400 px-1 py-0.5">
                   {parcel.receiver_name}
                 </td>
               </tr>
               <tr>
-                <td className="border border-gray-400 px-2 py-1">
+                <td className="border border-gray-400 px-1 py-0.5">
                   <strong>Mobile:</strong>
                 </td>
-                <td className="border border-gray-400 px-2 py-1">
+                <td className="border border-gray-400 px-1 py-0.5">
                   {parcel.receiver_mobile_no}
                 </td>
               </tr>
@@ -244,65 +244,48 @@ export default function PrintParcel() {
         </div>
 
         {/* Parcel Item Details */}
-        <div className="mb-4">
-          <h3 className="font-bold mb-2">Parcel Details</h3>
-          <table className="table-fixed w-full border-collapse">
+        <div className="mb-3">
+          <table className="table-fixed w-full border-collapse text-xs">
             <thead>
               <tr>
-                <th className="border border-gray-400 p-2 text-left">
+                <th
+                  colSpan={4}
+                  className="font-bold mb-1 text-sm border border-gray-400 p-1 text-left"
+                >
+                  Parcel Details
+                </th>
+              </tr>
+              <tr>
+                <th className="border border-gray-400 p-1 text-left">
                   Description
                 </th>
-                <th className="border border-gray-400 p-2 text-left">
+                <th className="border border-gray-400 p-1 text-left">
                   Quantity
                 </th>
-                <th className="border border-gray-400 p-2 text-left">Remark</th>
-                <th className="border border-gray-400 p-2 text-right">
+                <th className="border border-gray-400 p-1 text-left">Remark</th>
+                <th className="border border-gray-400 p-1 text-right">
                   Total Amount
                 </th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td className="border border-gray-400 p-2">
+                <td className="border border-gray-400 p-1">
                   {parcel.description}
                 </td>
-                <td className="border border-gray-400 p-2">{parcel.qty}</td>
-                <td className="border border-gray-400 p-2">{parcel.remark}</td>
-                <td className="border border-gray-400 p-2 text-right">
+                <td className="border border-gray-400 p-1">{parcel.qty}</td>
+                <td className="border border-gray-400 p-1">{parcel.remark}</td>
+                <td className="border border-gray-400 p-1 text-right">
                   {parcel.amount?.toFixed(2)}
                 </td>
               </tr>
             </tbody>
-            <tfoot>
-              <tr>
-                <td
-                  colSpan={3}
-                  className="border border-gray-400 p-2 text-right"
-                >
-                  Amount Paid:
-                </td>
-                <td className="border border-gray-400 p-2 text-right">
-                  - {parcel.amount_given?.toFixed(2)}
-                </td>
-              </tr>
-              <tr>
-                <td
-                  colSpan={3}
-                  className="border border-gray-400 p-2 text-right font-bold"
-                >
-                  Amount Due:
-                </td>
-                <td className="border border-gray-400 p-2 text-right font-bold">
-                  {parcel.amount_remaining?.toFixed(2)}
-                </td>
-              </tr>
-            </tfoot>
           </table>
         </div>
 
         {/* Terms and Conditions */}
-        <div className="text-xs mb-4">
-          <h4 className="font-bold mb-1">Terms & Conditions:</h4>
+        <div className="text-xxs mb-2">
+          <h4 className="font-bold mb-0.5 text-xs">Terms & Conditions:</h4>
           <ol className="list-decimal list-inside">
             <li>
               We are not responsible for any damage during transportation.
@@ -323,11 +306,10 @@ export default function PrintParcel() {
                 visibility: hidden;
               }
 
-      
-
               #print-section, #print-section * {
                 visibility: visible;
               }
+              
               #print-section {
                 position: absolute;
                 left: 0;
@@ -335,6 +317,43 @@ export default function PrintParcel() {
                 width: 100%;
                 background-color: white !important;
                 color: black !important;
+                max-width: 100% !important;
+              }
+              
+              @page {
+                size: A4;
+                margin: 0;
+              }
+              
+              html, body {
+                width: 210mm;
+                height: 297mm;
+              }
+              
+              #print-section {
+                height: 50%; /* Half of A4 height */
+                padding: 10mm;
+                margin: 0;
+                page-break-after: always;
+                font-size: 9pt;
+              }
+              
+              /* Adjust font sizes for print */
+              #print-section h1 {
+                font-size: 14pt;
+              }
+              
+              #print-section p {
+                font-size: 8pt;
+              }
+              
+              #print-section .text-xs, 
+              #print-section table {
+                font-size: 8pt;
+              }
+              
+              #print-section .text-xxs {
+                font-size: 7pt;
               }
             }
           `,

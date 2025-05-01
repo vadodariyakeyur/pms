@@ -91,23 +91,23 @@ const printReport = (data: ParcelReportItem[]) => {
           <tr>
             <th colspan="11">
               <div class="header">
-                <h2>Shree Pramukhraj Travels & Cargo</h2>
+                <h2>Shreenath Travels & Cargo</h2>
                 <p class="date">Date: ${format(new Date(), "dd/MM/yyyy")}</p>
               </div>
             </th>
           </tr>
           <tr>
-            <th>Index</th>
-            <th>Sender Name</th>
-            <th>Sender Mobile</th>
-            <th>Receiver Name</th>
-            <th>Receiver Mobile</th>
-            <th>Bill No</th>
-            <th>Qty</th>
-            <th>Description</th>
-            <th>Given Amount</th>
-            <th>Remaining Amount</th>
-            <th>Signature</th>
+            <th>ક્રમ</th>
+            <th>મોકલનાર</th>
+            <th>મોકલનાર<br/>મોબાઈલ</th>
+            <th>લેનાર</th>
+            <th>લેનાર<br/>મોબાઈલ</th>
+            <th>બિલ નં</th>
+            <th>જથ્થો</th>
+            <th>વર્ણન</th>
+            <th>જમા</th>
+            <th>બાકી</th>
+            <th>સહી</th>
           </tr>
         </thead>
         <tbody>
@@ -120,11 +120,11 @@ const printReport = (data: ParcelReportItem[]) => {
               <td>${parcel.sender_mobile_no || ""}</td>
               <td>${parcel.receiver_name || ""}</td>
               <td>${parcel.receiver_mobile_no || ""}</td>
-              <td>${parcel.bill_no || ""}</td>
+              <td>R${parcel.bill_no || ""}</td>
               <td>${parcel.qty || ""}</td>
               <td>${parcel.description || ""}</td>
-              <td>${parcel.amount_given?.toFixed(2) || "0.00"}</td>
-              <td>${parcel.amount_remaining?.toFixed(2) || "0.00"}</td>
+              <td>${parcel.amount_given || "0"}</td>
+              <td>${parcel.amount_remaining || "0"}</td>
               <td class="signature-cell"></td>
             </tr>
           `

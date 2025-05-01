@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Calendar,
@@ -95,13 +95,15 @@ export default function ListParcels() {
     from: undefined,
     to: undefined,
   });
+  const debounceRef = useRef<NodeJS.Timeout>(null);
 
   useEffect(() => {
     fetchCities();
   }, []);
 
   useEffect(() => {
-    fetchParcels();
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(fetchParcels, 500);
   }, [page, PAGE_SIZE, searchTerm, fromCityId, toCityId, billNo, dateRange]);
 
   const fetchCities = async () => {
@@ -134,8 +136,11 @@ export default function ListParcels() {
         );
       }
 
-      if (billNo) {
-        countQuery = countQuery.eq("bill_no", parseInt(billNo));
+      const updatedBillNo = billNo.toLowerCase().startsWith("r")
+        ? billNo.slice(1)
+        : billNo;
+      if (updatedBillNo) {
+        countQuery = countQuery.eq("bill_no", parseInt(updatedBillNo));
       }
 
       if (fromCityId) {
@@ -186,8 +191,8 @@ export default function ListParcels() {
         );
       }
 
-      if (billNo) {
-        dataQuery = dataQuery.eq("bill_no", parseInt(billNo));
+      if (updatedBillNo) {
+        dataQuery = dataQuery.eq("bill_no", parseInt(updatedBillNo));
       }
 
       if (fromCityId) {
@@ -461,8 +466,8 @@ export default function ListParcels() {
                     <TableHead className="text-gray-300">Date</TableHead>
                     <TableHead className="text-gray-300">From</TableHead>
                     <TableHead className="text-gray-300">To</TableHead>
-                    <TableHead className="text-gray-300">Sender</TableHead>
-                    <TableHead className="text-gray-300">Receiver</TableHead>
+                    <TableHead className="text-gray-300">Mokalnar</TableHead>
+                    <TableHead className="text-gray-300">Lenar</TableHead>
                     <TableHead className="text-gray-300">Amount</TableHead>
                     <TableHead className="text-gray-300">Actions</TableHead>
                   </TableRow>
@@ -471,7 +476,7 @@ export default function ListParcels() {
                   {parcels.map((parcel) => (
                     <TableRow key={parcel.id} className="hover:bg-gray-800">
                       <TableCell className="font-medium">
-                        {parcel.bill_no}
+                        R{parcel.bill_no}
                       </TableCell>
                       <TableCell>
                         {format(new Date(parcel.parcel_date), "MMM dd, yyyy")}

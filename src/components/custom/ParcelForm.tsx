@@ -85,7 +85,6 @@ export default function ParcelForm({
   const [assignments, setAssignments] = useState<BusDriverAssignment[]>([]);
   const [cities, setCities] = useState<City[]>([]);
 
-  const totalAmount = formData.parcelItem.amount;
   const amountRemaining =
     (formData.parcelItem.amount || 0) - formData.amountGiven;
 
@@ -231,7 +230,7 @@ export default function ParcelForm({
               <Label htmlFor="bill-no">Bill No.</Label>
               <Input
                 id="bill-no"
-                value={formData.nextBillNo || ""}
+                value={formData.nextBillNo ? `R${formData.nextBillNo}`: ""}
                 readOnly
                 className="bg-gray-800 border-gray-700"
               />
@@ -303,7 +302,7 @@ export default function ParcelForm({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="sender-name">
-                <User className="h-4 w-4 inline mr-1" /> Sender Name
+                <User className="h-4 w-4 inline mr-1" /> Mokalnar Name
               </Label>
               <Input
                 id="sender-name"
@@ -321,7 +320,7 @@ export default function ParcelForm({
             </div>
             <div className="space-y-2">
               <Label htmlFor="sender-mobile">
-                <Phone className="h-4 w-4 inline mr-1" /> Sender Mobile
+                <Phone className="h-4 w-4 inline mr-1" /> Mokalnar Mobile
               </Label>
               <Input
                 id="sender-mobile"
@@ -343,7 +342,7 @@ export default function ParcelForm({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="receiver-name">
-                <User className="h-4 w-4 inline mr-1" /> Receiver Name
+                <User className="h-4 w-4 inline mr-1" /> Lenar Name
               </Label>
               <Input
                 id="receiver-name"
@@ -360,7 +359,7 @@ export default function ParcelForm({
             </div>
             <div className="space-y-2">
               <Label htmlFor="receiver-mobile">
-                <Phone className="h-4 w-4 inline mr-1" /> Receiver Mobile
+                <Phone className="h-4 w-4 inline mr-1" /> Lenar Mobile
               </Label>
               <Input
                 id="receiver-mobile"
@@ -497,20 +496,8 @@ export default function ParcelForm({
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="total-amount">
-                <Receipt className="h-4 w-4 inline mr-1" /> Total Amount
-              </Label>
-              <Input
-                id="total-amount"
-                type="number"
-                value={totalAmount}
-                readOnly
-                className="bg-gray-800 border-gray-700"
-              />
-            </div>
-            <div className="space-y-2">
               <Label htmlFor="amount-given">
-                <Receipt className="h-4 w-4 inline mr-1" /> Amount Given
+                <Receipt className="h-4 w-4 inline mr-1" /> Jama Rs.
               </Label>
               <Input
                 id="amount-given"
@@ -524,7 +511,7 @@ export default function ParcelForm({
             </div>
             <div className="space-y-2">
               <Label htmlFor="amount-remaining">
-                <Receipt className="h-4 w-4 inline mr-1" /> Amount Remaining
+                <Receipt className="h-4 w-4 inline mr-1" /> Baki Rs.
               </Label>
               <Input
                 id="amount-remaining"

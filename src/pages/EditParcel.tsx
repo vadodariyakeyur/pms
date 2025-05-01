@@ -52,14 +52,16 @@ export default function EditParcel() {
 
       if (error) throw error;
 
-      if (!data?.bus_id || !data?.driver_id) return;
-
-      const { data: busDriverAssignment } = await supabase
-        .from("bus_driver_assignments")
-        .select("*")
-        .eq("bus_id", data.bus_id)
-        .eq("driver_id", data.driver_id)
-        .maybeSingle();
+      let busDriverAssignment;
+      if (data.bus_id && data.driver_id) {
+        const result = await supabase
+          .from("bus_driver_assignments")
+          .select("*")
+          .eq("bus_id", data.bus_id!)
+          .eq("driver_id", data.driver_id!)
+          .maybeSingle();
+        busDriverAssignment = result.data;
+      }
 
       setFormData({
         nextBillNo: data.bill_no,
