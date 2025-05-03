@@ -76,12 +76,11 @@ const printReport = (
       <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+        th, td { border: 1px solid #000; padding: 4px; text-align: center; }
         th { background-color: #f2f2f2; }
         .header { position: relative; text-align: center; margin-bottom: 20px; }
         .city { position: absolute; top: -34px; left: 4px }
         .date { position: absolute; top: -34px; right: 4px }
-        .signature-cell { height: 40px; }
         @media print {
           button { display: none; }
         }
@@ -136,15 +135,13 @@ const printReport = (
           `
             )
             .join("")}
+            <tr>
+              <td colspan="8" style="text-align: right;"><strong>Total</strong></td>
+              <td><strong>${data.reduce((a, c) => a + c.amount_given, 0)}</strong></td>
+              <td><strong>${data.reduce((a, c) => a + c.amount_remaining, 0)}</strong></td>
+              <td></td>
+            </tr>
         </tbody>
-        <tfoot>
-          <tr>
-            <td colspan="8" style="text-align: right;"><strong>Total</strong></td>
-            <td><strong>${data.reduce((a, c) => a + c.amount_given, 0)}</strong></td>
-            <td><strong>${data.reduce((a, c) => a + c.amount_remaining, 0)}</strong></td>
-            <td></td>
-          </tr>
-        </tfoot>
       </table>
     </body>
     </html>

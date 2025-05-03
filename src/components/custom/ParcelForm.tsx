@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Database } from "@/lib/supabase/types";
+import customerDb from "@/db/db";
 
 // Define types
 type City = Database["public"]["Tables"]["cities"]["Row"];
@@ -170,6 +171,31 @@ export default function ParcelForm({
     setFormData((prev) => ({ ...prev, amountGiven }));
   };
 
+  const handleMobileNumberChange =
+    (field: "senderMobile" | "receiverMobile") =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const value = event.target.value;
+      if (value.length <= 10) {
+        const keyToSet =
+          field === "senderMobile" ? "senderName" : "receiverName";
+        if (value.length === 10 && !formData[keyToSet]) {
+          customerDb.getCustomerNameByPhone(value).then((cus) => {
+            setFormData((prev) => {
+              return {
+                ...prev,
+                [keyToSet]: cus?.name,
+              };
+            });
+          });
+        }
+
+        setFormData((prev) => ({
+          ...prev,
+          [field]: value,
+        }));
+      }
+    };
+
   const handleSubmit = async () => {
     const {
       busDriverAssignment,
@@ -202,6 +228,11 @@ export default function ParcelForm({
     }
 
     try {
+      customerDb.addOrUpdateCustomer({ name: senderName, phone: senderMobile });
+      customerDb.addOrUpdateCustomer({
+        name: receiverName,
+        phone: receiverMobile,
+      });
       onSubmit?.();
     } catch (err: any) {
       console.error("Error adding parcel:", err);
@@ -309,15 +340,7 @@ export default function ParcelForm({
                 autoFocus
                 type="number"
                 value={formData.senderMobile}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    senderMobile:
-                      e.target.value.length > 10
-                        ? prev.senderMobile
-                        : e.target.value,
-                  }))
-                }
+                onChange={handleMobileNumberChange("senderMobile")}
                 placeholder="Enter sender mobile number"
                 className="bg-gray-800 border-gray-700"
               />
@@ -352,15 +375,7 @@ export default function ParcelForm({
                 type="number"
                 maxLength={10}
                 value={formData.receiverMobile}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    receiverMobile:
-                      e.target.value.length > 10
-                        ? prev.receiverMobile
-                        : e.target.value,
-                  }))
-                }
+                onChange={handleMobileNumberChange("receiverMobile")}
                 placeholder="Enter receiver mobile number"
                 className="bg-gray-800 border-gray-700"
               />
