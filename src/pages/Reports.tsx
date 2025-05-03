@@ -137,6 +137,14 @@ const printReport = (
             )
             .join("")}
         </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="8" style="text-align: right;"><strong>Total</strong></td>
+            <td><strong>${data.reduce((a, c) => a + c.amount_given, 0)}</strong></td>
+            <td><strong>${data.reduce((a, c) => a + c.amount_remaining, 0)}</strong></td>
+            <td></td>
+          </tr>
+        </tfoot>
       </table>
     </body>
     </html>
