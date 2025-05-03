@@ -264,7 +264,7 @@ export default function Reports() {
         .eq("bus_id", parseInt(dateReportBusId))
         .eq("from_city_id", parseInt(fromCityId))
         .eq("to_city_id", parseInt(toCityId))
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: true });
 
       // Apply date filters based on report type
       let query = baseQuery;

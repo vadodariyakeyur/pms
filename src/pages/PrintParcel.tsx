@@ -127,24 +127,22 @@ export default function PrintParcel() {
             </h1>
             <p className="text-sm">
               રાજકોટ :- 150 ફુટ રિંગ રોડ, ગોવર્ધન ચોક ની પાસે, સ્કાય હેઈટ્સ
-              બિલ્ડીંગ ની સામે
+              બિલ્ડીંગ ની સામે, મો. - 84019 39945 / 81550 66443
             </p>
-            <div className="absolute top-0 right-0 text-sm">
-              <p>84019 39945</p>
-              <p>81550 66443</p>
-            </div>
           </div>
         </div>
 
+        <div className="text-xl font-bold mb-3 text-center">{parcel.from_city?.name} to {parcel.to_city?.name}</div>
+
         {/* Receipt Details */}
-        <div className="grid grid-cols-2 gap-2 mb-3 text-sm">
+        <div className="font-bold grid grid-cols-2 gap-2 mb-3 text-sm">
           <table className="table-fixed w-full border-collapse">
             <tbody>
               <tr>
                 <td className="border border-gray-400 px-1 py-0.5">
                   <strong>Bill No:</strong>
                 </td>
-                <td className="border border-gray-400 px-1 py-0.5">
+                <td className="border border-gray-400 px-1 py-0.5 text-xl">
                   R{parcel.bill_no}
                 </td>
               </tr>
@@ -153,7 +151,7 @@ export default function PrintParcel() {
                   <strong>Date:</strong>
                 </td>
                 <td className="border border-gray-400 px-1 py-0.5">
-                  {format(new Date(parcel.parcel_date), "dd/MM/yyyy")}
+                  {format(new Date(parcel.created_at || parcel.parcel_date), "dd/MM/yyyy hh:mm aa")}
                 </td>
               </tr>
               <tr>
@@ -197,7 +195,7 @@ export default function PrintParcel() {
         </div>
 
         {/* Sender and Receiver Details */}
-        <div className="grid grid-cols-2 gap-2 mb-3 text-sm">
+        <div className="font-bold grid grid-cols-2 gap-2 mb-3 text-sm">
           <table className="table-fixed w-full border-collapse">
             <tbody>
               <tr>
@@ -251,12 +249,12 @@ export default function PrintParcel() {
         </div>
 
         {/* Parcel Item Details */}
-        <div className="mb-3">
-          <table className="table-fixed w-full border-collapse text-xs">
+        <div className="font-bold text-sm mb-3">
+          <table className="table-fixed w-full border-collapse text-sm">
             <thead>
               <tr>
                 <th
-                  colSpan={4}
+                  colSpan={5}
                   className="font-bold mb-1 text-sm border border-gray-400 p-1 text-left"
                 >
                   Parcel Details
@@ -271,7 +269,10 @@ export default function PrintParcel() {
                 </th>
                 <th className="border border-gray-400 p-1 text-left">Remark</th>
                 <th className="border border-gray-400 p-1 text-right">
-                  Total Amount
+                  Jama Rs.
+                </th>
+                <th className="border border-gray-400 p-1 text-right">
+                  Baki Rs.
                 </th>
               </tr>
             </thead>
@@ -283,84 +284,49 @@ export default function PrintParcel() {
                 <td className="border border-gray-400 p-1">{parcel.qty}</td>
                 <td className="border border-gray-400 p-1">{parcel.remark}</td>
                 <td className="border border-gray-400 p-1 text-right">
-                  {parcel.amount?.toFixed(2)}
+                  {parcel.amount_given}
+                </td>
+                <td className="border border-gray-400 p-1 text-right">
+                  {parcel.amount_remaining}
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <div className="text-xxs mb-2">
-          <table className="table-fixed w-full border-collapse text-xs">
-            <tbody>
-              {/* Officies */}
-              <tr>
-                <td className="border border-gray-400 p-1">સુરત</td>
-                <td className="border border-gray-400 p-1">
-                  ઉમિયા ધામ મંદિર ની બાજુમાં, વરાછા રોડ, સુરત
-                </td>
-                <td className="border border-gray-400 p-1">90992 66443</td>
-              </tr>
-              <tr>
-                <td className="border border-gray-400 p-1">વાપી</td>
-                <td className="border border-gray-400 p-1">
-                  ગુંજન ચોકડી, વાપી
-                </td>
-                <td className="border border-gray-400 p-1">94294 25704</td>
-              </tr>
-              <tr>
-                <td className="border border-gray-400 p-1">વલસાડ</td>
-                <td rowSpan={2} className="border border-gray-400 p-1">
-                  ઉમા પાન, ધરમપુર ચોકડી, વલસાડ
-                </td>
-                <td rowSpan={2} className="border border-gray-400 p-1">
-                  96622 67267
-                </td>
-              </tr>
-              <tr>
-                <td className="border border-gray-400 p-1">ધરમપુર</td>
-              </tr>
-              <tr>
-                <td className="border border-gray-400 p-1">ચીખલી</td>
-                <td className="border border-gray-400 p-1">
-                  બંસી પાન, કોલેજ ચોક, ચીખલી
-                </td>
-                <td className="border border-gray-400 p-1">70166 17978 </td>
-              </tr>
-            </tbody>
-          </table>
+        {/* Officies */}
+        <div className="font-bold text-sm border border-gray-400 p-1">
+          <p>
+            સુરત :- ઉમિયા ધામ મંદિર ની બાજુમાં, વરાછા રોડ, સુરત - 90992 66443
+          </p>
+          <p>વાપી :- ગુંજન ચોકડી, વાપી - 94294 25704</p>
+          <p>વલસાડ/ધરમપુર :- ઉમા પાન, ધરમપુર ચોકડી, વલસાડ - 96622 67267</p>
+          <p>ચીખલી :- બંસી પાન, કોલેજ ચોક, ચીખલી - 70166 17978</p>
         </div>
 
         {/* Terms and Conditions */}
-        <div className="text-xxs mb-2">
-          <table className="table-fixed w-full border-collapse text-xs">
-            <tbody>
-              <tr>
-                <td className="border border-gray-400 p-1">
-                  <p>
-                    <strong>નોંધ:</strong> પાર્સલ ગાડીમાં અકસ્માત, ભીજાવું,
-                    ભાંગ-તૂટ, સળગવું વગેરે માટે કંપની ની કોઈ જવાબદારી રહેશે નહિ.
-                  </p>
-                  <p>
-                    સંજોગોવશાત પાર્સલ ખોવાઈ જાય તો જે પાર્સલ ફી લેવામાં આવી હશે
-                    તેજ પરત મળશે.
-                  </p>
-                  <p>
-                    તમારી વસ્તુની કિંમત અંગે કોઈ તકરાર કે કોર્ટ-કેસ ચાલશે નહીં.
-                    બીલ વિના માલ લેવામાં આવશે નહીં.
-                  </p>
-                  <p>
-                    બીલ વિના પકડાયેલ માલ માટે લેનાર પાર્ટી અને મોકલનાર પાર્ટી
-                    જવાબદાર રહેશે.
-                  </p>
-                  <p>
-                    ઉપરના નિયમો અનુસાર હું પાર્સલ મારી જવાબદારી ઉપર મોકલું છું.
-                    પાર્સલ બાબતે કંપની ની કોઈ જવાબદારી નથી.
-                  </p>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <div className="font-bold text-sm border border-gray-400 p-1 border-t-0">
+          <p>
+            <strong className="text-lg">નોંધ:</strong> પાર્સલ ગાડીમાં અકસ્માત,
+            ભીજાવું, ભાંગ-તૂટ, સળગવું વગેરે માટે કંપની ની કોઈ જવાબદારી રહેશે
+            નહિ.
+          </p>
+          <p>
+            સંજોગોવશાત પાર્સલ ખોવાઈ જાય તો જે પાર્સલ ફી લેવામાં આવી હશે તેજ પરત
+            મળશે.
+          </p>
+          <p>
+            તમારી વસ્તુની કિંમત અંગે કોઈ તકરાર કે કોર્ટ-કેસ ચાલશે નહીં. બીલ વિના
+            માલ લેવામાં આવશે નહીં.
+          </p>
+          <p>
+            બીલ વિના પકડાયેલ માલ માટે લેનાર પાર્ટી અને મોકલનાર પાર્ટી જવાબદાર
+            રહેશે.
+          </p>
+          <p>
+            ઉપરના નિયમો અનુસાર હું પાર્સલ મારી જવાબદારી ઉપર મોકલું છું. પાર્સલ
+            બાબતે કંપની ની કોઈ જવાબદારી નથી.
+          </p>
         </div>
       </div>
 

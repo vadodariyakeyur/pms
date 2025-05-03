@@ -214,7 +214,7 @@ export default function ParcelForm({
       {error && (
         <Alert
           variant="destructive"
-          className="bg-red-900 border-red-800 text-red-200"
+          className="bg-red-900 border-red-800 text-red-200 mb-2"
         >
           <AlertDescription>{error}</AlertDescription>
         </Alert>
@@ -230,7 +230,7 @@ export default function ParcelForm({
               <Label htmlFor="bill-no">Bill No.</Label>
               <Input
                 id="bill-no"
-                value={formData.nextBillNo ? `R${formData.nextBillNo}`: ""}
+                value={formData.nextBillNo ? `R${formData.nextBillNo}` : ""}
                 readOnly
                 className="bg-gray-800 border-gray-700"
               />
@@ -301,12 +301,33 @@ export default function ParcelForm({
           {/* Sender Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
+              <Label htmlFor="sender-mobile">
+                <Phone className="h-4 w-4 inline mr-1" /> Mokalnar Mobile
+              </Label>
+              <Input
+                id="sender-mobile"
+                autoFocus
+                type="number"
+                value={formData.senderMobile}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    senderMobile:
+                      e.target.value.length > 10
+                        ? prev.senderMobile
+                        : e.target.value,
+                  }))
+                }
+                placeholder="Enter sender mobile number"
+                className="bg-gray-800 border-gray-700"
+              />
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="sender-name">
                 <User className="h-4 w-4 inline mr-1" /> Mokalnar Name
               </Label>
               <Input
                 id="sender-name"
-                autoFocus
                 value={formData.senderName}
                 onChange={(e) =>
                   setFormData((prev) => ({
@@ -318,28 +339,32 @@ export default function ParcelForm({
                 className="bg-gray-800 border-gray-700"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="sender-mobile">
-                <Phone className="h-4 w-4 inline mr-1" /> Mokalnar Mobile
-              </Label>
-              <Input
-                id="sender-mobile"
-                type="number"
-                value={formData.senderMobile}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    senderMobile: e.target.value,
-                  }))
-                }
-                placeholder="Enter sender mobile number"
-                className="bg-gray-800 border-gray-700"
-              />
-            </div>
           </div>
 
           {/* Receiver Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="receiver-mobile">
+                <Phone className="h-4 w-4 inline mr-1" /> Lenar Mobile
+              </Label>
+              <Input
+                id="receiver-mobile"
+                type="number"
+                maxLength={10}
+                value={formData.receiverMobile}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    receiverMobile:
+                      e.target.value.length > 10
+                        ? prev.receiverMobile
+                        : e.target.value,
+                  }))
+                }
+                placeholder="Enter receiver mobile number"
+                className="bg-gray-800 border-gray-700"
+              />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="receiver-name">
                 <User className="h-4 w-4 inline mr-1" /> Lenar Name
@@ -354,24 +379,6 @@ export default function ParcelForm({
                   }))
                 }
                 placeholder="Enter receiver name"
-                className="bg-gray-800 border-gray-700"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="receiver-mobile">
-                <Phone className="h-4 w-4 inline mr-1" /> Lenar Mobile
-              </Label>
-              <Input
-                id="receiver-mobile"
-                type="number"
-                value={formData.receiverMobile}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    receiverMobile: e.target.value,
-                  }))
-                }
-                placeholder="Enter receiver mobile number"
                 className="bg-gray-800 border-gray-700"
               />
             </div>
