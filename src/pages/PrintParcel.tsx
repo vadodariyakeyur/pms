@@ -117,15 +117,22 @@ export default function PrintParcel() {
       <div
         ref={printRef}
         id="print-section"
-        className="bg-white text-black p-4 rounded-lg mx-auto"
+        className="bg-white text-black p-4 pt-1 rounded-lg mx-auto"
       >
         {/* Print Header */}
         <div className="border-b-2 border-black pb-2 mb-3">
-          <div className="text-center">
+          <div className="relative text-center">
             <h1 className="text-lg font-bold uppercase">
-              SHREENATH TRAVELS & CARGO
+              SHREE NATHJI TRAVELS & CARGO
             </h1>
-            <p className="text-xs">Address, Phone Number</p>
+            <p className="text-sm">
+              રાજકોટ :- 150 ફુટ રિંગ રોડ, ગોવર્ધન ચોક ની પાસે, સ્કાય હેઈટ્સ
+              બિલ્ડીંગ ની સામે
+            </p>
+            <div className="absolute top-0 right-0 text-sm">
+              <p>84019 39945</p>
+              <p>81550 66443</p>
+            </div>
           </div>
         </div>
 
@@ -283,17 +290,77 @@ export default function PrintParcel() {
           </table>
         </div>
 
+        <div className="text-xxs mb-2">
+          <table className="table-fixed w-full border-collapse text-xs">
+            <tbody>
+              {/* Officies */}
+              <tr>
+                <td className="border border-gray-400 p-1">સુરત</td>
+                <td className="border border-gray-400 p-1">
+                  ઉમિયા ધામ મંદિર ની બાજુમાં, વરાછા રોડ, સુરત
+                </td>
+                <td className="border border-gray-400 p-1">90992 66443</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-400 p-1">વાપી</td>
+                <td className="border border-gray-400 p-1">
+                  ગુંજન ચોકડી, વાપી
+                </td>
+                <td className="border border-gray-400 p-1">94294 25704</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-400 p-1">વલસાડ</td>
+                <td rowSpan={2} className="border border-gray-400 p-1">
+                  ઉમા પાન, ધરમપુર ચોકડી, વલસાડ
+                </td>
+                <td rowSpan={2} className="border border-gray-400 p-1">
+                  96622 67267
+                </td>
+              </tr>
+              <tr>
+                <td className="border border-gray-400 p-1">ધરમપુર</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-400 p-1">ચીખલી</td>
+                <td className="border border-gray-400 p-1">
+                  બંસી પાન, કોલેજ ચોક, ચીખલી
+                </td>
+                <td className="border border-gray-400 p-1">70166 17978 </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
         {/* Terms and Conditions */}
         <div className="text-xxs mb-2">
-          <h4 className="font-bold mb-0.5 text-xs">Terms & Conditions:</h4>
-          <ol className="list-decimal list-inside">
-            <li>
-              We are not responsible for any damage during transportation.
-            </li>
-            <li>Parcels must be claimed within 7 days of arrival.</li>
-            <li>Please keep this receipt safe for parcel collection.</li>
-            <li>Any disputes must be raised within 24 hours of delivery.</li>
-          </ol>
+          <table className="table-fixed w-full border-collapse text-xs">
+            <tbody>
+              <tr>
+                <td className="border border-gray-400 p-1">
+                  <p>
+                    <strong>નોંધ:</strong> પાર્સલ ગાડીમાં અકસ્માત, ભીજાવું,
+                    ભાંગ-તૂટ, સળગવું વગેરે માટે કંપની ની કોઈ જવાબદારી રહેશે નહિ.
+                  </p>
+                  <p>
+                    સંજોગોવશાત પાર્સલ ખોવાઈ જાય તો જે પાર્સલ ફી લેવામાં આવી હશે
+                    તેજ પરત મળશે.
+                  </p>
+                  <p>
+                    તમારી વસ્તુની કિંમત અંગે કોઈ તકરાર કે કોર્ટ-કેસ ચાલશે નહીં.
+                    બીલ વિના માલ લેવામાં આવશે નહીં.
+                  </p>
+                  <p>
+                    બીલ વિના પકડાયેલ માલ માટે લેનાર પાર્ટી અને મોકલનાર પાર્ટી
+                    જવાબદાર રહેશે.
+                  </p>
+                  <p>
+                    ઉપરના નિયમો અનુસાર હું પાર્સલ મારી જવાબદારી ઉપર મોકલું છું.
+                    પાર્સલ બાબતે કંપની ની કોઈ જવાબદારી નથી.
+                  </p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 

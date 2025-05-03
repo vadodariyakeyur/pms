@@ -61,10 +61,12 @@ const monthNames = [
   "December",
 ];
 
-const printReport = (data: ParcelReportItem[]) => {
-  // Create a new window for printing
-  const printWindow = window.open("", "_blank");
-
+const printReport = (
+  data: ParcelReportItem[],
+  from_city: string,
+  to_city: string,
+  date: string
+) => {
   // Create the HTML content for the print window
   const printContent = `
     <!DOCTYPE html>
@@ -77,6 +79,7 @@ const printReport = (data: ParcelReportItem[]) => {
         th, td { border: 1px solid #000; padding: 8px; text-align: left; }
         th { background-color: #f2f2f2; }
         .header { position: relative; text-align: center; margin-bottom: 20px; }
+        .city { position: absolute; top: -34px; left: 4px }
         .date { position: absolute; top: -34px; right: 4px }
         .signature-cell { height: 40px; }
         @media print {
@@ -91,8 +94,11 @@ const printReport = (data: ParcelReportItem[]) => {
           <tr>
             <th colspan="11">
               <div class="header">
-                <h2>Shreenath Travels & Cargo</h2>
-                <p class="date">Date: ${format(new Date(), "dd/MM/yyyy")}</p>
+                <h2>Shree Nathji Travels & Cargo</h2>
+                <p class="city">
+                  From ${from_city} to ${to_city}
+                </p>
+                <p class="date">Date: ${date}</p>
               </div>
             </th>
           </tr>
@@ -136,6 +142,9 @@ const printReport = (data: ParcelReportItem[]) => {
     </html>
   `;
 
+  // Create a new window for printing
+  const printWindow = window.open("", "_blank");
+
   // Write the content to the new window and trigger printing
   printWindow?.document.open();
   printWindow?.document.write(printContent);
@@ -171,7 +180,7 @@ export default function Reports() {
 
   // Monthly Report State
   const [monthlyReportMonth, setMonthlyReportMonth] = useState<string>(
-    `${getYear(new Date())}-${getMonth(new Date())}` // Format: YYYY-M
+    `${monthNames[getMonth(new Date())]}-${getYear(new Date())}` // Format: YYYY-M
   );
 
   // --- Fetch Initial Data (Cities, Buses, Defaults) ---
@@ -234,7 +243,12 @@ export default function Reports() {
     try {
       // Prepare date parameters based on report type
       const dateParams = getDateParameters(reportType);
-      if (!dateParams) return;
+      if (!dateParams) {
+        console.error(
+          `cannot get date params from getDateParameters for REPORT TYPE: ${reportType}`
+        );
+        return;
+      }
 
       // Common query parameters
       const baseQuery = supabase
@@ -254,23 +268,42 @@ export default function Reports() {
 
       // Apply date filters based on report type
       let query = baseQuery;
+      let reportDateString = format(new Date(), "dd/MM/yyyy");
       if (reportType === "date" || reportType === "monthly") {
+        if (dateReportStartDate && dateReportEndDate) {
+          reportDateString = `${format(
+            dateReportStartDate,
+            "dd/MM/yyyy"
+          )} - ${format(dateReportEndDate, "dd/MM/yyyy")}`;
+        }
+
         query = query
           .gte("parcel_date", dateParams.startDate)
           .lte("parcel_date", dateParams.endDate);
 
         if (reportType === "monthly") {
+          reportDateString = monthlyReportMonth;
           query = query.order("parcel_date", { ascending: true });
         }
-      } else {
+      } else if (dateParams.date) {
         // Daily report
-        query = query.eq("parcel_date", dateParams.date!);
+        reportDateString = `${format(dateParams.date, "dd/MM/yyyy")}`;
+        query = query.eq("parcel_date", dateParams.date);
       }
 
       const { data, error } = await query;
       if (error) throw error;
 
-      printReport(data || []);
+      const fromCity = cities.find((city) => city.id === parseInt(fromCityId));
+      const toCity = cities.find((city) => city.id === parseInt(toCityId));
+
+      if (fromCity && toCity) {
+        printReport(data || [], fromCity.name, toCity.name, reportDateString);
+      } else {
+        console.error(
+          `Cities with ID FROM:${fromCityId} and TO:${toCityId} not found`
+        );
+      }
     } catch (err) {
       console.error(`Error fetching ${reportType} report:`, err);
     } finally {
@@ -331,9 +364,12 @@ export default function Reports() {
       case "daily":
         return { date: format(dailyReportDate!, "yyyy-MM-dd") };
       case "monthly": {
-        const [year, month] = monthlyReportMonth.split("-").map(Number);
+        const [month, year] = monthlyReportMonth.split("-");
         const startDate = startOfMonth(
-          setYear(setMonth(new Date(), month), year)
+          setYear(
+            setMonth(new Date(), monthNames.indexOf(month) + 1),
+            parseInt(year)
+          )
         );
         const endDate = endOfMonth(startDate);
         return {
@@ -616,7 +652,7 @@ export default function Reports() {
                         );
                         const year = getYear(date);
                         const month = getMonth(date);
-                        const value = `${year}-${month}`;
+                        const value = `${monthNames[month]}-${year}`;
                         const label = `${monthNames[month]} ${year}`;
                         return (
                           <SelectItem key={value} value={value}>
