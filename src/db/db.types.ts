@@ -1,8 +1,8 @@
 import { DBSchema } from "idb";
 
 export interface Customer {
-  phone: string; // Unique key
-  name: string;
+  mobile_no: string; // Unique key
+  customer_name: string;
 }
 
 export interface PmsDB extends DBSchema {

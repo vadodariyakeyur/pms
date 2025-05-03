@@ -132,7 +132,9 @@ export default function PrintParcel() {
           </div>
         </div>
 
-        <div className="text-xl font-bold mb-3 text-center">{parcel.from_city?.name} to {parcel.to_city?.name}</div>
+        <div className="text-xl font-bold mb-3 text-center">
+          {parcel.from_city?.name} to {parcel.to_city?.name}
+        </div>
 
         {/* Receipt Details */}
         <div className="font-bold grid grid-cols-2 gap-2 mb-3 text-sm">
@@ -151,7 +153,10 @@ export default function PrintParcel() {
                   <strong>Date:</strong>
                 </td>
                 <td className="border border-gray-400 px-1 py-0.5">
-                  {format(new Date(parcel.created_at || parcel.parcel_date), "dd/MM/yyyy hh:mm aa")}
+                  {format(
+                    new Date(parcel.created_at || parcel.parcel_date),
+                    "dd/MM/yyyy hh:mm aa"
+                  )}
                 </td>
               </tr>
               <tr>
@@ -295,13 +300,21 @@ export default function PrintParcel() {
         </div>
 
         {/* Officies */}
-        <div className="font-bold text-sm border border-gray-400 p-1">
-          <p>
-            સુરત :- ઉમિયા ધામ મંદિર ની બાજુમાં, વરાછા રોડ, સુરત - 90992 66443
-          </p>
-          <p>વાપી :- ગુંજન ચોકડી, વાપી - 94294 25704</p>
-          <p>વલસાડ/ધરમપુર :- ઉમા પાન, ધરમપુર ચોકડી, વલસાડ - 96622 67267</p>
-          <p>ચીખલી :- બંસી પાન, કોલેજ ચોક, ચીખલી - 70166 17978</p>
+        <div className="font-bold text-sm border border-gray-400 p-1 flex gap-8">
+          <div className="flex-1">
+            <p>
+              સુરત :- ઉમિયા ધામ મંદિર ની બાજુમાં, વરાછા રોડ, સુરત - 90992 66443
+            </p>
+            <p>વાપી :- ગુંજન ચોકડી, વાપી - 94294 25704</p>
+            <p>વલસાડ/ધરમપુર :- ઉમા પાન, ધરમપુર ચોકડી, વલસાડ - 96622 67267</p>
+            <p>ચીખલી :- બંસી પાન, કોલેજ ચોક, ચીખલી - 70166 17978</p>
+          </div>
+          <div className="flex-1 border-l-1 border-gray-400 pl-4">
+            <p>ભીલાડ</p>
+            <p>મુંબઈ :- બોરીવલી નેશનલ પાર્ક.</p>
+            <p>પુના :- પદમાવતી પાર્કિંગ.</p>
+            <p>નાથદ્વારા :- ભીલવાડા</p>
+          </div>
         </div>
 
         {/* Terms and Conditions */}

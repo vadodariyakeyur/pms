@@ -3,7 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase/client";
 
 import { format } from "date-fns";
-import ParcelForm, { type ParcelFormData } from "@/components/custom/ParcelForm";
+import ParcelForm, {
+  type ParcelFormData,
+} from "@/components/custom/ParcelForm";
 import { Loader2 } from "lucide-react";
 
 export default function AddParcel() {
@@ -17,7 +19,7 @@ export default function AddParcel() {
   const fetchNextBillNo = async () => {
     try {
       const { data: nextBillNo, error } = await supabase.rpc(
-        "get_next_bill_no" as never
+        "get_next_bill_no"
       );
 
       if (error) throw error;

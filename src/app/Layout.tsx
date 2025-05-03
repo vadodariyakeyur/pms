@@ -11,6 +11,7 @@ import {
   PackagePlus,
   Package,
   FileText,
+  Contact
 } from "lucide-react";
 import router from "@/app/router";
 import { Link, Outlet } from "react-router-dom";
@@ -111,6 +112,13 @@ export default function Layout() {
             >
               <FileText className="h-4 w-4 mr-2" />
               Reports
+            </Link>
+            <Link
+              to="/customers"
+              className="flex items-center px-4 py-2 rounded-md hover:bg-gray-800 transition"
+            >
+              <Contact className="h-4 w-4 mr-2" />
+              Customers
             </Link>
           </div>
         </nav>

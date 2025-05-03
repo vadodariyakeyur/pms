@@ -7,31 +7,6 @@ export type Json =
   | Json[];
 
 export type Database = {
-  graphql_public: {
-    Tables: {
-      [_ in never]: never;
-    };
-    Views: {
-      [_ in never]: never;
-    };
-    Functions: {
-      graphql: {
-        Args: {
-          operationName?: string;
-          query?: string;
-          variables?: Json;
-          extensions?: Json;
-        };
-        Returns: Json;
-      };
-    };
-    Enums: {
-      [_ in never]: never;
-    };
-    CompositeTypes: {
-      [_ in never]: never;
-    };
-  };
   public: {
     Tables: {
       bus_driver_assignments: {
@@ -146,7 +121,7 @@ export type Database = {
           amount?: number | null;
           amount_given: number;
           amount_remaining: number;
-          bill_no?: number;
+          bill_no: number;
           bus_id?: number | null;
           created_at?: string | null;
           description?: string | null;
@@ -218,7 +193,17 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      get_latest_customer_contacts: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          customer_name: string;
+          mobile_no: string;
+        }[];
+      };
+      get_next_bill_no: {
+        Args: Record<PropertyKey, never>;
+        Returns: number;
+      };
     };
     Enums: {
       [_ in never]: never;
@@ -335,9 +320,6 @@ export type CompositeTypes<
   : never;
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {},
   },

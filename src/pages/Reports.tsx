@@ -137,8 +137,14 @@ const printReport = (
             .join("")}
             <tr>
               <td colspan="8" style="text-align: right;"><strong>Total</strong></td>
-              <td><strong>${data.reduce((a, c) => a + c.amount_given, 0)}</strong></td>
-              <td><strong>${data.reduce((a, c) => a + c.amount_remaining, 0)}</strong></td>
+              <td><strong>${data.reduce(
+                (a, c) => a + c.amount_given,
+                0
+              )}</strong></td>
+              <td><strong>${data.reduce(
+                (a, c) => a + c.amount_remaining,
+                0
+              )}</strong></td>
               <td></td>
             </tr>
         </tbody>
@@ -372,7 +378,7 @@ export default function Reports() {
         const [month, year] = monthlyReportMonth.split("-");
         const startDate = startOfMonth(
           setYear(
-            setMonth(new Date(), monthNames.indexOf(month) + 1),
+            setMonth(new Date(), monthNames.indexOf(month)),
             parseInt(year)
           )
         );

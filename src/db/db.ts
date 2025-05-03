@@ -4,18 +4,24 @@ import type { Customer, PmsDB } from "@/db/db.types";
 export const getDb = () =>
   openDB<PmsDB>("pms-db", 1, {
     upgrade(db) {
-      db.createObjectStore("customers", { keyPath: "phone" });
+      db.createObjectStore("customers", { keyPath: "mobile_no" });
     },
   });
 
 // Add or update customer
-export async function addOrUpdateCustomer(customer: Customer) {
+export async function addOrUpdateCustomer(
+  customer_name: Customer["customer_name"],
+  mobile_no: Customer["mobile_no"]
+) {
   const db = await getDb();
-  await db.put("customers", customer);
+  await db.put("customers", {
+    customer_name,
+    mobile_no,
+  });
 }
 
 // Get customer by phone
-export async function getCustomerNameByPhone(phone: string) {
+export async function getCustomerNameByMobileNo(phone: string) {
   const db = await getDb();
   return db.get("customers", phone);
 }
@@ -28,5 +34,6 @@ export async function getAllCustomers() {
 
 export default {
   addOrUpdateCustomer,
-  getCustomerNameByPhone,
+  getAllCustomers,
+  getCustomerNameByMobileNo,
 };

@@ -13,6 +13,7 @@ import PrintParcel from "@/pages/PrintParcel";
 import ListParcels from "@/pages/ListParcels";
 import Reports from "@/pages/Reports";
 import EditParcel from "@/pages/EditParcel";
+import Customers from "@/pages/Customers";
 
 const router = createHashRouter([
   {
@@ -72,18 +73,10 @@ const router = createHashRouter([
         path: "/reports",
         element: <Reports />,
       },
-      //   {
-      //     path: "add-parcel",
-      //     element: <AddParcel />,
-      //   },
-      //   {
-      //     path: "view-parcels",
-      //     element: <ViewParcels />,
-      //   },
-      //   {
-      //     path: "report",
-      //     element: <Report />,
-      //   },
+      {
+        path: "/customers",
+        element: <Customers />,
+      },
     ],
   },
   {

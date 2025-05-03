@@ -176,23 +176,25 @@ export default function ParcelForm({
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const value = event.target.value;
       if (value.length <= 10) {
-        const keyToSet =
-          field === "senderMobile" ? "senderName" : "receiverName";
-        if (value.length === 10 && !formData[keyToSet]) {
-          customerDb.getCustomerNameByPhone(value).then((cus) => {
-            setFormData((prev) => {
-              return {
-                ...prev,
-                [keyToSet]: cus?.name,
-              };
-            });
-          });
-        }
-
         setFormData((prev) => ({
           ...prev,
           [field]: value,
         }));
+      }
+    };
+
+  const handleMobileNumberBlur =
+    (field: "senderMobile" | "receiverMobile") =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const value = event.target.value;
+      const keyToSet = field === "senderMobile" ? "senderName" : "receiverName";
+      if (value.length) {
+        customerDb.getCustomerNameByMobileNo(value).then((cus) => {
+          setFormData((prev) => ({
+            ...prev,
+            [keyToSet]: cus?.customer_name,
+          }));
+        });
       }
     };
 
@@ -228,11 +230,8 @@ export default function ParcelForm({
     }
 
     try {
-      customerDb.addOrUpdateCustomer({ name: senderName, phone: senderMobile });
-      customerDb.addOrUpdateCustomer({
-        name: receiverName,
-        phone: receiverMobile,
-      });
+      customerDb.addOrUpdateCustomer(senderName, senderMobile);
+      customerDb.addOrUpdateCustomer(receiverName, receiverMobile);
       onSubmit?.();
     } catch (err: any) {
       console.error("Error adding parcel:", err);
@@ -340,6 +339,7 @@ export default function ParcelForm({
                 autoFocus
                 type="number"
                 value={formData.senderMobile}
+                onBlur={handleMobileNumberBlur("senderMobile")}
                 onChange={handleMobileNumberChange("senderMobile")}
                 placeholder="Enter sender mobile number"
                 className="bg-gray-800 border-gray-700"
@@ -375,6 +375,7 @@ export default function ParcelForm({
                 type="number"
                 maxLength={10}
                 value={formData.receiverMobile}
+                onBlur={handleMobileNumberBlur("receiverMobile")}
                 onChange={handleMobileNumberChange("receiverMobile")}
                 placeholder="Enter receiver mobile number"
                 className="bg-gray-800 border-gray-700"
