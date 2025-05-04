@@ -136,15 +136,23 @@ const printReport = (
             )
             .join("")}
             <tr>
-              <td colspan="8" style="text-align: right;"><strong>Total</strong></td>
-              <td><strong>${data.reduce(
-                (a, c) => a + c.amount_given,
-                0
-              )}</strong></td>
-              <td><strong>${data.reduce(
-                (a, c) => a + c.amount_remaining,
-                0
-              )}</strong></td>
+              <td colspan="6" style="text-align: right;"><strong>Total</strong></td>
+              <td>
+                <strong>
+                  ${data.reduce((a, c) => a + (c.qty || 0), 0)}
+                </strong>
+              </td>
+              <td></td>
+              <td>
+                <strong>
+                  ${data.reduce((a, c) => a + c.amount_given, 0)}
+                </strong>
+              </td>
+              <td>
+                <strong>
+                  ${data.reduce((a, c) => a + c.amount_remaining, 0)}
+                </strong>
+              </td>
               <td></td>
             </tr>
         </tbody>

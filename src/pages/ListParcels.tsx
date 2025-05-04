@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Calendar,
   ChevronLeft,
   ChevronRight,
   Edit,
@@ -11,12 +10,13 @@ import {
   X,
   Settings,
   Printer,
+  CalendarIcon,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { format, subDays } from "date-fns";
+import { format } from "date-fns";
 import {
   Select,
   SelectContent,
@@ -38,7 +38,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
   DialogContent,
@@ -92,8 +92,8 @@ export default function ListParcels() {
     from?: Date;
     to?: Date;
   }>({
-    from: undefined,
-    to: undefined,
+    from: new Date(),
+    to: new Date(),
   });
   const debounceRef = useRef<NodeJS.Timeout>(null);
 
@@ -270,7 +270,7 @@ export default function ListParcels() {
     setToCityId(null);
     setBillNo("");
     setDateRange({
-      from: subDays(new Date(), 30),
+      from: new Date(),
       to: new Date(),
     });
     setPage(1);
@@ -388,54 +388,78 @@ export default function ListParcels() {
                   </Select>
                 </div>
 
-                <div className="space-y-2 col-span-2">
-                  <Label>Date Range</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start text-left font-normal bg-gray-800 border-gray-700"
-                      >
-                        <Calendar className="mr-2 h-4 w-4" />
-                        {dateRange.from ? (
-                          dateRange.to ? (
-                            <>
-                              {format(dateRange.from, "LLL dd, y")} -{" "}
-                              {format(dateRange.to, "LLL dd, y")}
-                            </>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 space-y-2 col-span-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="date-report-start-date">From Date</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal bg-gray-800 border-gray-700 hover:bg-gray-700"
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {dateRange.from ? (
+                            format(dateRange.from, "PPP")
                           ) : (
-                            format(dateRange.from, "LLL dd, y")
-                          )
-                        ) : (
-                          <span>Pick a date range</span>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent
-                      className="w-auto p-0 bg-gray-800 border-gray-700"
-                      align="start"
-                    >
-                      <CalendarComponent
-                        initialFocus
-                        mode="range"
-                        defaultMonth={dateRange.from}
-                        selected={{
-                          from: dateRange.from,
-                          to: dateRange.to,
-                        }}
-                        onSelect={(range) => {
-                          if (range?.from && range?.to) {
-                            setDateRange({
-                              from: range.from,
-                              to: range.to,
-                            });
+                            <span className="text-gray-400">
+                              Pick start date
+                            </span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        className="w-auto p-0 bg-gray-800 border-gray-700"
+                        align="start"
+                      >
+                        <Calendar
+                          mode="single"
+                          selected={dateRange.from}
+                          onSelect={(startDate) =>
+                            setDateRange((prev) => ({
+                              ...prev,
+                              from: startDate,
+                            }))
                           }
-                        }}
-                        numberOfMonths={2}
-                        className="bg-gray-800"
-                      />
-                    </PopoverContent>
-                  </Popover>
+                          initialFocus
+                          className="bg-gray-800"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="date-report-end-date">To Date</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start text-left font-normal bg-gray-800 border-gray-700 hover:bg-gray-700"
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {dateRange.to ? (
+                            format(dateRange.to, "PPP")
+                          ) : (
+                            <span className="text-gray-400">Pick end date</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        className="w-auto p-0 bg-gray-800 border-gray-700"
+                        align="start"
+                      >
+                        <Calendar
+                          mode="single"
+                          selected={dateRange.to}
+                          onSelect={(endDate) =>
+                            setDateRange((prev) => ({
+                              ...prev,
+                              to: endDate,
+                            }))
+                          }
+                          className="bg-gray-800"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                 </div>
               </div>
             </CollapsibleContent>

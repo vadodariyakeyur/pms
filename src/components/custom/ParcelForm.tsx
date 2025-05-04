@@ -136,8 +136,12 @@ export default function ParcelForm({
       setCities(data || []);
 
       // Find default FROM and TO cities
-      const fromCity = data?.find((city) => city.is_default_from) || null;
-      const toCity = data?.find((city) => city.is_default_to) || null;
+      const fromCity =
+        formData.parcelItem.from_city_id ||
+        data?.find((city) => city.is_default_from)?.id;
+      const toCity =
+        formData.parcelItem.to_city_id ||
+        data?.find((city) => city.is_default_to)?.id;
 
       // Update the first parcel item with default cities
       if (fromCity || toCity) {
@@ -145,8 +149,8 @@ export default function ParcelForm({
           ...prev,
           parcelItem: {
             ...prev.parcelItem,
-            from_city_id: fromCity?.id || null,
-            to_city_id: toCity?.id || null,
+            from_city_id: fromCity || null,
+            to_city_id: toCity || null,
           },
         }));
       }

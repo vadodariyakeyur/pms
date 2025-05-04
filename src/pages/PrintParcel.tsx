@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Printer, ArrowLeft } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
@@ -19,7 +19,6 @@ type Parcel = Database["public"]["Tables"]["parcels"]["Row"] & {
 export default function PrintParcel() {
   const { billNo } = useParams();
   const navigate = useNavigate();
-  const printRef = useRef<HTMLDivElement>(null);
 
   const [parcel, setParcel] = useState<Parcel | null>(null);
   const [loading, setLoading] = useState(true);
@@ -92,7 +91,7 @@ export default function PrintParcel() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 h-full">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold tracking-tight">Print Preview</h1>
         <div className="space-x-2 print:hidden">
@@ -114,236 +113,180 @@ export default function PrintParcel() {
         </div>
       </div>
 
-      <div
-        ref={printRef}
-        id="print-section"
-        className="bg-white text-black p-4 pt-1 rounded-lg mx-auto"
-      >
-        {/* Print Header */}
-        <div className="border-b-2 border-black pb-2 mb-3">
-          <div className="relative text-center">
-            <h1 className="text-lg font-bold uppercase">
-              SHREE NATHJI TRAVELS & CARGO
-            </h1>
-            <p className="text-sm">
-              રાજકોટ :- 150 ફુટ રિંગ રોડ, ગોવર્ધન ચોક ની પાસે, સ્કાય હેઈટ્સ
-              બિલ્ડીંગ ની સામે, મો. - 84019 39945 / 81550 66443
-            </p>
+      <div className="mx-auto w-[210mm]">
+        <div
+          id="print-section"
+          className="bg-white text-black p-4 rounded mx-auto"
+        >
+          {/* Print Header */}
+          <div className="border-b-2 border-black pb-2 mb-3">
+            <div className="relative text-center">
+              <h1 className="text-3xl font-bold uppercase">
+                SHREE NATHJI TRAVELS & CARGO
+              </h1>
+              <p className="text-sm font-medium">
+                રાજકોટ :- 150 ફુટ રિંગ રોડ, ગોવર્ધન ચોક ની પાસે, સ્કાય હેઈટ્સ
+                બિલ્ડીંગ ની સામે, મો. - 84019 39945 / 81550 66443
+              </p>
+            </div>
           </div>
-        </div>
 
-        <div className="text-xl font-bold mb-3 text-center">
-          {parcel.from_city?.name} to {parcel.to_city?.name}
-        </div>
+          {/* Cities */}
+          <div className="text-xl font-bold mb-3 text-center">
+            {parcel.from_city?.name} to {parcel.to_city?.name}
+          </div>
 
-        {/* Receipt Details */}
-        <div className="font-bold grid grid-cols-2 gap-2 mb-3 text-sm">
-          <table className="table-fixed w-full border-collapse">
-            <tbody>
-              <tr>
-                <td className="border border-gray-400 px-1 py-0.5">
-                  <strong>Bill No:</strong>
-                </td>
-                <td className="border border-gray-400 px-1 py-0.5 text-xl">
-                  R{parcel.bill_no}
-                </td>
-              </tr>
-              <tr>
-                <td className="border border-gray-400 px-1 py-0.5">
-                  <strong>Date:</strong>
-                </td>
-                <td className="border border-gray-400 px-1 py-0.5">
-                  {format(
-                    new Date(parcel.created_at || parcel.parcel_date),
-                    "dd/MM/yyyy hh:mm aa"
-                  )}
-                </td>
-              </tr>
-              <tr>
-                <td className="border border-gray-400 px-1 py-0.5">
-                  <strong>Bus No:</strong>
-                </td>
-                <td className="border border-gray-400 px-1 py-0.5">
-                  {parcel.bus_registration}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <table className="table-fixed w-full border-collapse">
-            <tbody>
-              <tr>
-                <td className="border border-gray-400 px-1 py-0.5">
-                  <strong>From:</strong>
-                </td>
-                <td className="border border-gray-400 px-1 py-0.5">
-                  {parcel.from_city?.name}
-                </td>
-              </tr>
-              <tr>
-                <td className="border border-gray-400 px-1 py-0.5">
-                  <strong>To:</strong>
-                </td>
-                <td className="border border-gray-400 px-1 py-0.5">
-                  {parcel.to_city?.name}
-                </td>
-              </tr>
-              <tr>
-                <td className="border border-gray-400 px-1 py-0.5">
-                  <strong>Driver:</strong>
-                </td>
-                <td className="border border-gray-400 px-1 py-0.5">
-                  {parcel.driver_name}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+          {/* Receipt Details */}
+          <div className="font-bold grid grid-cols-2 gap-2 mb-3 text-sm">
+            <table className="table-fixed w-full border-collapse">
+              <tbody>
+                <tr>
+                  <td className="border-2 border-black px-1 py-0.5">
+                    <strong>Bill No:</strong>
+                  </td>
+                  <td className="border-2 border-black px-1 py-0.5 text-xl">
+                    R{parcel.bill_no}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border-2 border-black px-1 py-0.5">
+                    <strong>Date:</strong>
+                  </td>
+                  <td className="border-2 border-black px-1 py-0.5">
+                    {format(
+                      new Date(parcel.created_at || parcel.parcel_date),
+                      "dd/MM/yyyy hh:mm aa"
+                    )}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border-2 border-black px-1 py-0.5">
+                    <strong>Bus No:</strong>
+                  </td>
+                  <td className="border-2 border-black px-1 py-0.5">
+                    {parcel.bus_registration}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
 
-        {/* Sender and Receiver Details */}
-        <div className="font-bold grid grid-cols-2 gap-2 mb-3 text-sm">
-          <table className="table-fixed w-full border-collapse">
-            <tbody>
-              <tr>
-                <td colSpan={2} className="border border-gray-400 px-1 py-0.5">
-                  <strong>Mokalnar Details</strong>
-                </td>
-              </tr>
-              <tr>
-                <td className="border border-gray-400 px-1 py-0.5">
-                  <strong>Name:</strong>
-                </td>
-                <td className="border border-gray-400 px-1 py-0.5">
-                  {parcel.sender_name}
-                </td>
-              </tr>
-              <tr>
-                <td className="border border-gray-400 px-1 py-0.5">
-                  <strong>Mobile:</strong>
-                </td>
-                <td className="border border-gray-400 px-1 py-0.5">
-                  {parcel.sender_mobile_no}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <table className="table-fixed w-full border-collapse">
-            <tbody>
-              <tr>
-                <td colSpan={2} className="border border-gray-400 px-1 py-0.5">
-                  <strong>Lenar Details</strong>
-                </td>
-              </tr>
-              <tr>
-                <td className="border border-gray-400 px-1 py-0.5">
-                  <strong>Name:</strong>
-                </td>
-                <td className="border border-gray-400 px-1 py-0.5">
-                  {parcel.receiver_name}
-                </td>
-              </tr>
-              <tr>
-                <td className="border border-gray-400 px-1 py-0.5">
-                  <strong>Mobile:</strong>
-                </td>
-                <td className="border border-gray-400 px-1 py-0.5">
-                  {parcel.receiver_mobile_no}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+            {/* Sender and Receiver Details */}
+            <table className="table-fixed w-full border-collapse">
+              <thead>
+                <tr>
+                  <th className="text-left border-2 border-black p-1">
+                    Contact
+                  </th>
+                  <th className="text-left border-2 border-black p-1">Name</th>
+                  <th className="text-left border-2 border-black p-1">
+                    Mobile
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="border-2 border-black px-1 py-0.5">
+                    <strong>Mokalnar</strong>
+                  </td>
+                  <td className="border-2 border-black px-1 py-0.5">
+                    {parcel.sender_name}
+                  </td>
+                  <td className="border-2 border-black px-1 py-0.5">
+                    {parcel.sender_mobile_no}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border-2 border-black px-1 py-0.5">
+                    <strong>Lenar</strong>
+                  </td>
+                  <td className="border-2 border-black px-1 py-0.5">
+                    {parcel.receiver_name}
+                  </td>
+                  <td className="border-2 border-black px-1 py-0.5">
+                    {parcel.receiver_mobile_no}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
-        {/* Parcel Item Details */}
-        <div className="font-bold text-sm mb-3">
-          <table className="table-fixed w-full border-collapse text-sm">
-            <thead>
-              <tr>
-                <th
-                  colSpan={5}
-                  className="font-bold mb-1 text-sm border border-gray-400 p-1 text-left"
-                >
-                  Parcel Details
-                </th>
-              </tr>
-              <tr>
-                <th className="border border-gray-400 p-1 text-left">
-                  Description
-                </th>
-                <th className="border border-gray-400 p-1 text-left">
-                  Quantity
-                </th>
-                <th className="border border-gray-400 p-1 text-left">Remark</th>
-                <th className="border border-gray-400 p-1 text-right">
-                  Jama Rs.
-                </th>
-                <th className="border border-gray-400 p-1 text-right">
-                  Baki Rs.
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="border border-gray-400 p-1">
-                  {parcel.description}
-                </td>
-                <td className="border border-gray-400 p-1">{parcel.qty}</td>
-                <td className="border border-gray-400 p-1">{parcel.remark}</td>
-                <td className="border border-gray-400 p-1 text-right">
-                  {parcel.amount_given}
-                </td>
-                <td className="border border-gray-400 p-1 text-right">
-                  {parcel.amount_remaining}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+          {/* Parcel Item Details */}
+          <div className="font-bold text-sm mb-3">
+            <table className="table-fixed w-full border-collapse text-center">
+              <thead>
+                <tr>
+                  <th className="border-2 border-black p-1">Description</th>
+                  <th className="border-2 border-black p-1">Quantity</th>
+                  <th className="border-2 border-black p-1">Remark</th>
+                  <th className="border-2 border-black p-1">Jama Rs.</th>
+                  <th className="border-2 border-black p-1">Baki Rs.</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="border-2 border-black p-1">
+                    {parcel.description}
+                  </td>
+                  <td className="border-2 border-black p-1">{parcel.qty}</td>
+                  <td className="border-2 border-black p-1">{parcel.remark}</td>
+                  <td className="border-2 border-black p-1">
+                    {parcel.amount_given}
+                  </td>
+                  <td className="border-2 border-black p-1">
+                    {parcel.amount_remaining}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
-        {/* Officies */}
-        <div className="font-bold text-sm border border-gray-400 p-1 flex gap-8">
-          <div className="flex-1">
+          {/* Officies */}
+          <div className="font-bold text-sm border-2 border-black p-1 flex gap-4">
+            <div className="flex-3/5">
+              <p>
+                સુરત :- ઉમિયા ધામ મંદિર ની બાજુમાં, વરાછા રોડ, સુરત - 90992
+                66443
+              </p>
+              <p>વાપી :- ગુંજન ચોકડી, વાપી - 94294 25704</p>
+              <p>વલસાડ/ધરમપુર :- ઉમા પાન, ધરમપુર ચોકડી, વલસાડ - 96622 67267</p>
+              <p>ચીખલી :- બંસી પાન, કોલેજ ચોક, ચીખલી - 70166 17978</p>
+            </div>
+            <div className="flex-2/5 border-l-2 border-black pl-4">
+              <p>ભીલાડ</p>
+              <p>મુંબઈ :- બોરીવલી નેશનલ પાર્ક.</p>
+              <p>પુના :- પદમાવતી પાર્કિંગ.</p>
+              <p>નાથદ્વારા :- ભીલવાડા</p>
+            </div>
+          </div>
+
+          {/* Terms and Conditions */}
+          <div className="font-bold text-xs border-2 border-black p-1 border-t-0">
             <p>
-              સુરત :- ઉમિયા ધામ મંદિર ની બાજુમાં, વરાછા રોડ, સુરત - 90992 66443
+              <strong className="text-base">નોંધ:</strong> પાર્સલ ગાડીમાં
+              અકસ્માત, ભીજાવું, ભાંગ-તૂટ, સળગવું વગેરે માટે કંપની ની કોઈ
+              જવાબદારી રહેશે નહિ.
             </p>
-            <p>વાપી :- ગુંજન ચોકડી, વાપી - 94294 25704</p>
-            <p>વલસાડ/ધરમપુર :- ઉમા પાન, ધરમપુર ચોકડી, વલસાડ - 96622 67267</p>
-            <p>ચીખલી :- બંસી પાન, કોલેજ ચોક, ચીખલી - 70166 17978</p>
+            <p>
+              પાર્સલ બુક કરવા સમયે લેનાર પાર્ટી ના મોબાઈલ નંબર મોકલનાર પાર્ટી એ
+              ફરજીયાત ચેક કરી લેવા.
+            </p>
+            <p>
+              સંજોગોવશાત પાર્સલ ખોવાઈ જાય તો જે પાર્સલ ફી લેવામાં આવી હશે તેજ
+              પરત મળશે.
+            </p>
+            <p>
+              તમારી વસ્તુની કિંમત અંગે કોઈ તકરાર કે કોર્ટ-કેસ ચાલશે નહીં. બીલ
+              વિના માલ લેવામાં આવશે નહીં.
+            </p>
+            <p>
+              બીલ વિના પકડાયેલ માલ માટે લેનાર પાર્ટી અને મોકલનાર પાર્ટી જવાબદાર
+              રહેશે.
+            </p>
+            <p>
+              ઉપરના નિયમો અનુસાર હું પાર્સલ મારી જવાબદારી ઉપર મોકલું છું. પાર્સલ
+              બાબતે કંપની ની કોઈ જવાબદારી નથી.
+            </p>
           </div>
-          <div className="flex-1 border-l-1 border-gray-400 pl-4">
-            <p>ભીલાડ</p>
-            <p>મુંબઈ :- બોરીવલી નેશનલ પાર્ક.</p>
-            <p>પુના :- પદમાવતી પાર્કિંગ.</p>
-            <p>નાથદ્વારા :- ભીલવાડા</p>
-          </div>
-        </div>
-
-        {/* Terms and Conditions */}
-        <div className="font-bold text-sm border border-gray-400 p-1 border-t-0">
-          <p>
-            <strong className="text-lg">નોંધ:</strong> પાર્સલ ગાડીમાં અકસ્માત,
-            ભીજાવું, ભાંગ-તૂટ, સળગવું વગેરે માટે કંપની ની કોઈ જવાબદારી રહેશે
-            નહિ.
-          </p>
-          <p>
-            પાર્સલ બુક કરવા સમયે લેનાર પાર્ટી ના મોબાઈલ નંબર મોકલનાર પાર્ટી એ
-            ફરજીયાત ચેક કરી લેવા.
-          </p>
-          <p>
-            સંજોગોવશાત પાર્સલ ખોવાઈ જાય તો જે પાર્સલ ફી લેવામાં આવી હશે તેજ પરત
-            મળશે.
-          </p>
-          <p>
-            તમારી વસ્તુની કિંમત અંગે કોઈ તકરાર કે કોર્ટ-કેસ ચાલશે નહીં. બીલ વિના
-            માલ લેવામાં આવશે નહીં.
-          </p>
-          <p>
-            બીલ વિના પકડાયેલ માલ માટે લેનાર પાર્ટી અને મોકલનાર પાર્ટી જવાબદાર
-            રહેશે.
-          </p>
-          <p>
-            ઉપરના નિયમો અનુસાર હું પાર્સલ મારી જવાબદારી ઉપર મોકલું છું. પાર્સલ
-            બાબતે કંપની ની કોઈ જવાબદારી નથી.
-          </p>
         </div>
       </div>
 
@@ -381,29 +324,11 @@ export default function PrintParcel() {
               }
               
               #print-section {
-                height: 50%; /* Half of A4 height */
+                height: 148.5mm; /* Half of A4 height */
                 padding: 10mm;
                 margin: 0;
                 page-break-after: always;
                 font-size: 9pt;
-              }
-              
-              /* Adjust font sizes for print */
-              #print-section h1 {
-                font-size: 14pt;
-              }
-              
-              #print-section p {
-                font-size: 8pt;
-              }
-              
-              #print-section .text-xs, 
-              #print-section table {
-                font-size: 8pt;
-              }
-              
-              #print-section .text-xxs {
-                font-size: 7pt;
               }
             }
           `,
