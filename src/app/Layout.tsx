@@ -11,12 +11,63 @@ import {
   PackagePlus,
   Package,
   FileText,
-  Contact
+  Contact,
 } from "lucide-react";
 import router from "@/app/router";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
+import { cn } from "@/lib/utils";
+
+const menuItems = [
+  {
+    title: "Dashboard",
+    link: "/dashboard",
+    Icon: LayoutDashboard,
+  },
+  {
+    title: "Drivers",
+    link: "/drivers",
+    Icon: Users,
+  },
+  {
+    title: "Cities",
+    link: "/cities",
+    Icon: Building,
+  },
+  {
+    title: "Buses",
+    link: "/buses",
+    Icon: Bus,
+  },
+  {
+    title: "Bus & Driver",
+    link: "/assignments",
+    Icon: LinkIcon,
+  },
+  {
+    title: "Add Parcel",
+    link: "/parcels/add",
+    Icon: PackagePlus,
+  },
+  {
+    title: "View Parcels",
+    link: "/parcels",
+    Icon: Package,
+  },
+  {
+    title: "Reports",
+    link: "/reports",
+    Icon: FileText,
+  },
+  {
+    title: "Customers",
+    link: "/customers",
+    Icon: Contact,
+  },
+];
 
 export default function Layout() {
+  const location = useLocation();
+
   useEffect(() => {
     const checkAuth = async () => {
       const { data } = await supabase.auth.getSession();
@@ -57,69 +108,18 @@ export default function Layout() {
         {/* Menu Items */}
         <nav className="mt-6">
           <div className="px-4 space-y-2">
-            <Link
-              to="/dashboard"
-              className="flex items-center px-4 py-2 rounded-md hover:bg-gray-800 transition"
-            >
-              <LayoutDashboard className="h-4 w-4 mr-2" />
-              Dashboard
-            </Link>
-            <Link
-              to="/drivers"
-              className="flex items-center px-4 py-2 rounded-md hover:bg-gray-800 transition"
-            >
-              <Users className="h-4 w-4 mr-2" />
-              Drivers
-            </Link>
-            <Link
-              to="/cities"
-              className="flex items-center px-4 py-2 rounded-md hover:bg-gray-800 transition"
-            >
-              <Building className="h-4 w-4 mr-2" />
-              Cities
-            </Link>
-            <Link
-              to="/buses"
-              className="flex items-center px-4 py-2 rounded-md hover:bg-gray-800 transition"
-            >
-              <Bus className="h-4 w-4 mr-2" />
-              Buses
-            </Link>
-            <Link
-              to="/assignments"
-              className="flex items-center px-4 py-2 rounded-md hover:bg-gray-800 transition"
-            >
-              <LinkIcon className="h-4 w-4 mr-2" />
-              Bus & Driver
-            </Link>
-            <Link
-              to="/parcels/add"
-              className="flex items-center px-4 py-2 rounded-md hover:bg-gray-800 transition"
-            >
-              <PackagePlus className="h-4 w-4 mr-2" />
-              Add Parcel
-            </Link>
-            <Link
-              to="/parcels"
-              className="flex items-center px-4 py-2 rounded-md hover:bg-gray-800 transition"
-            >
-              <Package className="h-4 w-4 mr-2" />
-              View Parcels
-            </Link>
-            <Link
-              to="/reports"
-              className="flex items-center px-4 py-2 rounded-md hover:bg-gray-800 transition"
-            >
-              <FileText className="h-4 w-4 mr-2" />
-              Reports
-            </Link>
-            <Link
-              to="/customers"
-              className="flex items-center px-4 py-2 rounded-md hover:bg-gray-800 transition"
-            >
-              <Contact className="h-4 w-4 mr-2" />
-              Customers
-            </Link>
+            {menuItems.map(({ title, link, Icon }) => (
+              <Link
+                to={link}
+                className={cn(
+                  "flex items-center px-4 py-2 rounded-md hover:bg-gray-800 transition",
+                  location.pathname === link && "bg-gray-800"
+                )}
+              >
+                <Icon className="h-4 w-4 mr-2" />
+                {title}
+              </Link>
+            ))}
           </div>
         </nav>
       </div>

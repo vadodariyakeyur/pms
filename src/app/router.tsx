@@ -1,19 +1,21 @@
+import { lazy } from "react";
 import { createHashRouter, Navigate } from "react-router-dom";
 
 import Layout from "@/app/Layout";
-import Login from "@/pages/Login";
 import { ProtectedRoute } from "@/components/custom/ProtectedRoute";
-import Dashboard from "@/pages/Dashboard";
-import Drivers from "@/pages/Drivers";
-import Cities from "@/pages/Cities";
-import Buses from "@/pages/Buses";
-import BusDriverAssignments from "@/pages/BusDriverAssignments";
-import AddParcel from "@/pages/AddParcel";
-import PrintParcel from "@/pages/PrintParcel";
-import ListParcels from "@/pages/ListParcels";
-import Reports from "@/pages/Reports";
-import EditParcel from "@/pages/EditParcel";
-import Customers from "@/pages/Customers";
+
+const AddParcel = lazy(() => import("@/pages/AddParcel"));
+const Buses = lazy(() => import("@/pages/Buses"));
+const BusDriverAssignments = lazy(() => import("@/pages/BusDriverAssignments"));
+const Customers = lazy(() => import("@/pages/Customers"));
+const Cities = lazy(() => import("@/pages/Cities"));
+const Dashboard = lazy(() => import("@/pages/Dashboard"));
+const Drivers = lazy(() => import("@/pages/Drivers"));
+const EditParcel = lazy(() => import("@/pages/EditParcel"));
+const ListParcels = lazy(() => import("@/pages/ListParcels"));
+const Login = lazy(() => import("@/pages/Login"));
+const PrintParcel = lazy(() => import("@/pages/PrintParcel"));
+const Reports = lazy(() => import("@/pages/Reports"));
 
 const router = createHashRouter([
   {
@@ -35,7 +37,6 @@ const router = createHashRouter([
       {
         path: "dashboard",
         element: <Dashboard />,
-        index: true,
       },
       {
         path: "drivers",
