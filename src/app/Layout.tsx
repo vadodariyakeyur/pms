@@ -145,7 +145,14 @@ export default function Layout() {
 
         {/* Content */}
         <main className="flex-1 overflow-auto bg-gray-950 p-6">
-          <Suspense fallback={<Loader2 />}>
+          <Suspense
+            key={location.pathname}
+            fallback={
+              <div className="flex items-center justify-center h-screen">
+                <Loader2 className="animate-spin w-12 h-12" />
+              </div>
+            }
+          >
             <Outlet />
           </Suspense>
         </main>
