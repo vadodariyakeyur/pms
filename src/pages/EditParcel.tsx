@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase/client";
 
 import { format } from "date-fns";
@@ -8,10 +8,10 @@ import ParcelForm, {
   type ParcelFormData,
 } from "@/components/custom/ParcelForm";
 import { Loader2 } from "lucide-react";
+import router from "@/app/router";
 
 export default function EditParcel() {
   const { billNo } = useParams();
-  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -132,7 +132,7 @@ export default function EditParcel() {
       if (parcelError) throw parcelError;
 
       // Navigate to print preview with parcel data
-      navigate(`/parcel/${nextBillNo}/print`);
+      router.navigate(`/parcel/${nextBillNo}/print`);
     } catch (err: any) {
       console.error("Error adding parcel:", err);
       throw err;

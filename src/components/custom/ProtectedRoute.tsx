@@ -1,10 +1,10 @@
+import router from "@/app/router";
 import { supabase } from "@/lib/supabase/client";
+import { Loader2 } from "lucide-react";
 import { useEffect, useState, PropsWithChildren } from "react";
-import { useNavigate } from "react-router-dom";
 
 export function ProtectedRoute({ children }: PropsWithChildren) {
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const checkSession = async () => {
@@ -12,19 +12,19 @@ export function ProtectedRoute({ children }: PropsWithChildren) {
         data: { session },
       } = await supabase.auth.getSession();
       if (!session) {
-        navigate("/auth/login");
+        router.navigate("/auth/login");
       } else {
         setLoading(false);
       }
     };
 
     checkSession();
-  }, [navigate]);
+  }, []);
 
   if (loading)
     return (
       <div className="flex items-center justify-center min-h-screen">
-        Loading...
+        <Loader2 />
       </div>
     );
 

@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   ChevronLeft,
   ChevronRight,
@@ -59,6 +58,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Database } from "@/lib/supabase/types";
+import router from "@/app/router";
 
 // Define types
 type Parcel = Database["public"]["Tables"]["parcels"]["Row"] & {
@@ -73,7 +73,6 @@ type City = Database["public"]["Tables"]["cities"]["Row"];
 const PAGE_SIZE = 10;
 
 export default function ListParcels() {
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [parcels, setParcels] = useState<Parcel[]>([]);
   const [cities, setCities] = useState<City[]>([]);
@@ -233,11 +232,11 @@ export default function ListParcels() {
   };
 
   const handlePrintParcel = (billNo: number) => {
-    navigate(`/parcel/${billNo}/print`);
+    router.navigate(`/parcel/${billNo}/print`);
   };
 
   const handleEditParcel = (billNo: number) => {
-    navigate(`/parcel/${billNo}/edit`);
+    router.navigate(`/parcel/${billNo}/edit`);
   };
 
   const confirmDeleteParcel = (id: number) => {
@@ -286,7 +285,7 @@ export default function ListParcels() {
           </p>
         </div>
         <Button
-          onClick={() => navigate("/parcels/add")}
+          onClick={() => router.navigate("/parcels/add")}
           className="bg-gray-700 hover:bg-gray-600"
         >
           Add New Parcel

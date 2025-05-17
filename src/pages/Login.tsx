@@ -1,6 +1,5 @@
 // src/pages/Login.tsx
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,9 +14,9 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2, Terminal } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
+import router from "@/app/router";
 
 export default function Login() {
-  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -42,7 +41,7 @@ export default function Login() {
         throw new Error(signInError.message || "Invalid login credentials.");
       }
 
-      navigate("/dashboard");
+      router.navigate("/dashboard");
     } catch (err: any) {
       setError(
         err.message || "An unexpected error occurred. Please try again."

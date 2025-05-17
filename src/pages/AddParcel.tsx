@@ -1,15 +1,14 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "@/lib/supabase/client";
-
 import { format } from "date-fns";
+import { Loader2 } from "lucide-react";
+
+import { supabase } from "@/lib/supabase/client";
 import ParcelForm, {
   type ParcelFormData,
 } from "@/components/custom/ParcelForm";
-import { Loader2 } from "lucide-react";
+import router from "@/app/router";
 
 export default function AddParcel() {
-  const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
@@ -75,7 +74,7 @@ export default function AddParcel() {
       if (parcelError) throw parcelError;
 
       // Navigate to print preview with parcel data
-      navigate(`/parcel/${parcel.bill_no}/print`);
+      router.navigate(`/parcel/${parcel.bill_no}/print`);
     } catch (err: any) {
       console.error("Error adding parcel:", err);
       throw err;

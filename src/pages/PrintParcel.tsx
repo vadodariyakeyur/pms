@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Printer, ArrowLeft } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { Database } from "@/lib/supabase/types";
+import router from "@/app/router";
 
 // Define types
 type Parcel = Database["public"]["Tables"]["parcels"]["Row"] & {
@@ -18,7 +19,6 @@ type Parcel = Database["public"]["Tables"]["parcels"]["Row"] & {
 
 export default function PrintParcel() {
   const { billNo } = useParams();
-  const navigate = useNavigate();
 
   const [parcel, setParcel] = useState<Parcel | null>(null);
   const [loading, setLoading] = useState(true);
@@ -65,7 +65,7 @@ export default function PrintParcel() {
   };
 
   const handleBackToParcelList = () => {
-    navigate("/parcels");
+    router.navigate("/parcels");
   };
 
   if (loading) {
@@ -81,7 +81,7 @@ export default function PrintParcel() {
       <div className="flex flex-col items-center justify-center h-screen">
         <div className="text-white mb-4">Parcel not found</div>
         <Button
-          onClick={() => navigate("/parcels/add")}
+          onClick={() => router.navigate("/parcels/add")}
           className="bg-gray-700 hover:bg-gray-600"
         >
           Create New Parcel

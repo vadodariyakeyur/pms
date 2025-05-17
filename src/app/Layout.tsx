@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +12,7 @@ import {
   Package,
   FileText,
   Contact,
+  Loader2,
 } from "lucide-react";
 import router from "@/app/router";
 import { Link, Outlet, useLocation } from "react-router-dom";
@@ -144,7 +145,9 @@ export default function Layout() {
 
         {/* Content */}
         <main className="flex-1 overflow-auto bg-gray-950 p-6">
-          <Outlet />
+          <Suspense fallback={<Loader2 />}>
+            <Outlet />
+          </Suspense>
         </main>
       </div>
     </div>

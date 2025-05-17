@@ -204,6 +204,22 @@ export type Database = {
         Args: Record<PropertyKey, never>;
         Returns: number;
       };
+      get_parcels_aggregated_by_date: {
+        Args: {
+          p_bus_id: number;
+          p_from_city_id: number;
+          p_to_city_id: number;
+          p_start_date: string;
+          p_end_date: string;
+        };
+        Returns: {
+          parcel_date: string;
+          record_count: number;
+          total_amount_given: number;
+          total_amount_remaining: number;
+          total_qty: number;
+        }[];
+      };
     };
     Enums: {
       [_ in never]: never;
