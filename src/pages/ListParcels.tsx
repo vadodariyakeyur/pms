@@ -10,6 +10,7 @@ import {
   Settings,
   Printer,
   CalendarIcon,
+  IndianRupeeIcon,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -59,6 +60,7 @@ import {
 } from "@/components/ui/collapsible";
 import { Database } from "@/lib/supabase/types";
 import router from "@/app/router";
+import { cn } from "@/lib/utils";
 
 // Define types
 type Parcel = Database["public"]["Tables"]["parcels"]["Row"] & {
@@ -528,13 +530,15 @@ export default function ListParcels() {
                         </TableCell>
                         <TableCell>
                           <div
-                            className={
-                              parcel.amount_remaining > 0
+                            className={cn(
+                              "flex items-center gap-1",
+                              parcel.amount - parcel.amount_given > 0
                                 ? "text-red-400"
                                 : "text-green-400"
-                            }
+                            )}
                           >
-                            {parcel.amount?.toFixed(2)}
+                            <IndianRupeeIcon className="h-4 w-4" />
+                            {parcel.amount.toFixed(2)}
                           </div>
                         </TableCell>
                         <TableCell>

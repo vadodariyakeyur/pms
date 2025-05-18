@@ -36,7 +36,7 @@ import {
 } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Database } from "@/lib/supabase/types";
-import customerDb from "@/db/db";
+import localDb from "@/db/db";
 import AutocompleteInput from "@/components/ui/autocomplete";
 
 // Define types
@@ -53,7 +53,7 @@ type ParcelItem = {
   description: string;
   qty: number;
   remark: string;
-  amount?: number;
+  amount: number;
 };
 
 export type ParcelFormData = {
@@ -89,10 +89,11 @@ export default function ParcelForm({
   const [suggestions, setSuggestions] = useState({
     senderMobile: [],
     receiverMobile: [],
+    description: [],
+    remark: [],
   });
 
-  const amountRemaining =
-    (formData.parcelItem.amount || 0) - formData.amountGiven;
+  const amountRemaining = formData.parcelItem.amount - formData.amountGiven;
 
   useEffect(() => {
     fetchBusDriverAssignments();
@@ -166,6 +167,26 @@ export default function ParcelForm({
   };
 
   const updateParcelItem = (field: keyof ParcelItem, value: any) => {
+    if (["description", "remark"].includes(field)) {
+      if (typeof value === "string" && value.trim().length >= 1) {
+        const searchFn =
+          field === "description"
+            ? localDb.searchDescriptions
+            : localDb.searchRemarks;
+        searchFn(value).then((values) => {
+          setSuggestions((prev) => ({
+            ...prev,
+            [field]: values,
+          }));
+        });
+      } else {
+        setSuggestions((prev) => ({
+          ...prev,
+          [field]: [],
+        }));
+      }
+    }
+
     setFormData((prev) => ({
       ...prev,
       parcelItem: {
@@ -183,7 +204,7 @@ export default function ParcelForm({
   const handleMobileNumberChange =
     (field: "senderMobile" | "receiverMobile") => (value: string) => {
       if (value.length >= 3) {
-        customerDb.searchMobileNos(value).then((matches) => {
+        localDb.searchMobileNos(value).then((matches) => {
           setSuggestions((prev) => ({
             ...prev,
             [field]: matches,
@@ -210,7 +231,7 @@ export default function ParcelForm({
       const value = event.target.value;
       const keyToSet = field === "senderMobile" ? "senderName" : "receiverName";
       if (value.length) {
-        customerDb.getCustomerNameByMobileNo(value).then((cus) => {
+        localDb.getCustomerNameByMobileNo(value).then((cus) => {
           setFormData((prev) => ({
             ...prev,
             [keyToSet]: cus?.customer_name,
@@ -251,14 +272,37 @@ export default function ParcelForm({
     }
 
     try {
-      customerDb.addOrUpdateCustomer(senderName, senderMobile);
-      customerDb.addOrUpdateCustomer(receiverName, receiverMobile);
+      localDb.addOrUpdateCustomer(senderName, senderMobile);
+      localDb.addOrUpdateCustomer(receiverName, receiverMobile);
+      localDb.addDescription(parcelItem.description);
+      localDb.addRemark(parcelItem.remark);
       onSubmit?.();
     } catch (err: any) {
       console.error("Error adding parcel:", err);
       setError(err.message);
     }
   };
+
+  // Specialized requirement, Tab -> Enter
+  // const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  //   if (e.key === "Enter") {
+  //     e.preventDefault();
+  //     const form = e.currentTarget;
+  //     const focusable = Array.from(
+  //       form.querySelectorAll<HTMLElement>(
+  //         'input:not([readonly]):not([disabled]), textarea:not([disabled]), button:not([disabled]):not([role="combobox"]), [tabindex]:not([tabindex="-1"])'
+  //       )
+  //     ).filter(
+  //       (el) => !el.hasAttribute("disabled") && el.offsetParent !== null
+  //     );
+
+  //     const index = focusable.indexOf(e.target as HTMLElement);
+  //     const operation = e.shiftKey ? -1 : 1;
+  //     if (index > -1 && index + operation < focusable.length) {
+  //       focusable[index + operation].focus();
+  //     }
+  //   }
+  // };
 
   return (
     <div>
@@ -483,11 +527,13 @@ export default function ParcelForm({
                     </Select>
                   </TableCell>
                   <TableCell>
-                    <Input
+                    <AutocompleteInput
+                      type="text"
                       value={formData.parcelItem.description}
-                      onChange={(e) =>
-                        updateParcelItem("description", e.target.value)
+                      onChange={(value) =>
+                        updateParcelItem("description", value)
                       }
+                      suggestions={suggestions["description"]}
                       placeholder="Description"
                       className="bg-gray-800 border-gray-700 h-8"
                     />
@@ -504,11 +550,11 @@ export default function ParcelForm({
                     />
                   </TableCell>
                   <TableCell>
-                    <Input
+                    <AutocompleteInput
+                      type="text"
                       value={formData.parcelItem.remark}
-                      onChange={(e) =>
-                        updateParcelItem("remark", e.target.value)
-                      }
+                      onChange={(value) => updateParcelItem("remark", value)}
+                      suggestions={suggestions["remark"]}
                       placeholder="Remark"
                       className="bg-gray-800 border-gray-700 h-8"
                     />

@@ -10,4 +10,12 @@ export interface PmsDB extends DBSchema {
     key: string; // phone
     value: Customer;
   };
+  descriptions: {
+    key: string;
+    value: string;
+  };
+  remarks: {
+    key: string;
+    value: string;
+  };
 }

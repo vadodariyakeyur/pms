@@ -233,7 +233,7 @@ export default function PrintParcel() {
                     {parcel.amount_given}
                   </td>
                   <td className="border-2 border-black p-1">
-                    {parcel.amount_remaining}
+                    {parcel.amount - parcel.amount_given}
                   </td>
                 </tr>
               </tbody>

@@ -7,7 +7,7 @@ import { ProtectedRoute } from "@/components/custom/ProtectedRoute";
 const AddParcel = lazy(() => import("@/pages/AddParcel"));
 const Buses = lazy(() => import("@/pages/Buses"));
 const BusDriverAssignments = lazy(() => import("@/pages/BusDriverAssignments"));
-const Customers = lazy(() => import("@/pages/Customers"));
+const LocalData = lazy(() => import("@/pages/LocalData"));
 const Cities = lazy(() => import("@/pages/Cities"));
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const Drivers = lazy(() => import("@/pages/Drivers"));
@@ -75,8 +75,8 @@ const router = createHashRouter([
         element: <Reports />,
       },
       {
-        path: "/customers",
-        element: <Customers />,
+        path: "/local-data",
+        element: <LocalData />,
       },
     ],
   },

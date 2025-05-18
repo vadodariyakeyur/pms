@@ -245,7 +245,7 @@ const printRecordReport = (
               <td>${parcel.description || ""}</td>
               <td>${parcel.remark || ""}</td>
               <td>${parcel.amount_given || "0"}</td>
-              <td>${parcel.amount_remaining || "0"}</td>
+              <td>${parcel.amount - parcel.amount_given || "0"}</td>
               <td class="signature-cell"></td>
             </tr>
           `
@@ -267,7 +267,7 @@ const printRecordReport = (
               </td>
               <td>
                 <strong>
-                  ${data.reduce((a, c) => a + c.amount_remaining, 0)}
+                  ${data.reduce((a, c) => a + (c.amount - c.amount_given), 0)}
                 </strong>
               </td>
               <td></td>

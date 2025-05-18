@@ -43,7 +43,7 @@ export default function AddParcel() {
     } = formData;
 
     const totalAmount = parcelItem.amount;
-    const amountRemaining = (parcelItem.amount || 0) - amountGiven;
+    const amountRemaining = parcelItem.amount - amountGiven;
 
     setIsProcessing(true);
     try {
@@ -97,7 +97,7 @@ export default function AddParcel() {
       description: "",
       qty: 1,
       remark: "",
-      amount: undefined,
+      amount: 0,
     },
     amountGiven: 0,
   });

@@ -98,7 +98,7 @@ export type Database = {
       };
       parcels: {
         Row: {
-          amount: number | null;
+          amount: number;
           amount_given: number;
           amount_remaining: number;
           bill_no: number;
@@ -118,7 +118,7 @@ export type Database = {
           to_city_id: number | null;
         };
         Insert: {
-          amount?: number | null;
+          amount?: number;
           amount_given: number;
           amount_remaining: number;
           bill_no: number;
@@ -138,7 +138,7 @@ export type Database = {
           to_city_id?: number | null;
         };
         Update: {
-          amount?: number | null;
+          amount?: number;
           amount_given?: number;
           amount_remaining?: number;
           bill_no?: number;
@@ -219,6 +219,13 @@ export type Database = {
           total_amount_remaining: number;
           total_qty: number;
         }[];
+      };
+      get_unique_descriptions_and_remarks: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          descriptions: string[];
+          remarks: string[];
+        };
       };
     };
     Enums: {

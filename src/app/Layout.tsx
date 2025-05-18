@@ -11,9 +11,9 @@ import {
   PackagePlus,
   Package,
   FileText,
-  Contact,
   Loader2,
   ChevronRight,
+  Database,
 } from "lucide-react";
 import router from "@/app/router";
 import { Link, Outlet, useLocation } from "react-router-dom";
@@ -61,9 +61,9 @@ const menuItems = [
     Icon: FileText,
   },
   {
-    title: "Customers",
-    link: "/customers",
-    Icon: Contact,
+    title: "Local Data",
+    link: "/local-data",
+    Icon: Database,
   },
 ];
 

@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/popover";
 import { Command, CommandGroup, CommandItem } from "@/components/ui/command";
 import { Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type AutocompleteInputType<T> = Omit<
   React.ComponentProps<"input">,
@@ -55,6 +56,7 @@ export default function AutocompleteInput<T extends string>({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!open && suggestions.length > 0) {
       setOpen(true);
+      setHighlightedIndex(0);
     }
 
     if (e.key === "ArrowDown") {
@@ -80,6 +82,7 @@ export default function AutocompleteInput<T extends string>({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Input
+          type="text"
           ref={inputRef}
           value={value}
           onChange={(e) => {
@@ -93,12 +96,12 @@ export default function AutocompleteInput<T extends string>({
       {open && suggestions.length > 0 && (
         <PopoverContent
           className="p-0 max-h-60 overflow-y-auto"
-          style={{ width: inputWidth }}
+          style={{ minWidth: inputWidth }}
           onOpenAutoFocus={(e) => e.preventDefault()}
           onCloseAutoFocus={(e) => e.preventDefault()}
         >
           <Command>
-            <CommandGroup>
+            <CommandGroup className="bg-gray-950 p-1">
               {suggestions.map((item, index) => (
                 <CommandItem
                   key={`command-item-${index}`}
@@ -108,12 +111,13 @@ export default function AutocompleteInput<T extends string>({
                   onSelect={() => {
                     onChange(item);
                     setOpen(false);
+                    rest.onBlur?.({ target: { value: item } });
                   }}
-                  className={
-                    highlightedIndex === index
-                      ? "bg-accent text-accent-foreground"
-                      : ""
-                  }
+                  className={cn(
+                    "[&:not(:last-child)]:mb-1",
+                    highlightedIndex === index &&
+                      "bg-gray-800 text-accent-foreground"
+                  )}
                 >
                   <Check
                     className={`mr-2 h-4 w-4 ${
