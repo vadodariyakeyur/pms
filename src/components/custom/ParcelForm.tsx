@@ -37,6 +37,7 @@ import {
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Database } from "@/lib/supabase/types";
 import customerDb from "@/db/db";
+import AutocompleteInput from "@/components/ui/autocomplete";
 
 // Define types
 type City = Database["public"]["Tables"]["cities"]["Row"];
@@ -85,6 +86,10 @@ export default function ParcelForm({
   const [error, setError] = useState<string | null>(null);
   const [assignments, setAssignments] = useState<BusDriverAssignment[]>([]);
   const [cities, setCities] = useState<City[]>([]);
+  const [suggestions, setSuggestions] = useState({
+    senderMobile: [],
+    receiverMobile: [],
+  });
 
   const amountRemaining =
     (formData.parcelItem.amount || 0) - formData.amountGiven;
@@ -176,9 +181,21 @@ export default function ParcelForm({
   };
 
   const handleMobileNumberChange =
-    (field: "senderMobile" | "receiverMobile") =>
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const value = event.target.value;
+    (field: "senderMobile" | "receiverMobile") => (value: string) => {
+      if (value.length >= 3) {
+        customerDb.searchMobileNos(value).then((matches) => {
+          setSuggestions((prev) => ({
+            ...prev,
+            [field]: matches,
+          }));
+        });
+      } else {
+        setSuggestions((prev) => ({
+          ...prev,
+          [field]: [],
+        }));
+      }
+
       if (value.length <= 10) {
         setFormData((prev) => ({
           ...prev,
@@ -338,13 +355,14 @@ export default function ParcelForm({
               <Label htmlFor="sender-mobile">
                 <Phone className="h-4 w-4 inline mr-1" /> Mokalnar Mobile
               </Label>
-              <Input
+              <AutocompleteInput
                 id="sender-mobile"
                 autoFocus
                 type="number"
                 value={formData.senderMobile}
                 onBlur={handleMobileNumberBlur("senderMobile")}
                 onChange={handleMobileNumberChange("senderMobile")}
+                suggestions={suggestions["senderMobile"]}
                 placeholder="Enter sender mobile number"
                 className="bg-gray-800 border-gray-700"
               />
@@ -374,13 +392,14 @@ export default function ParcelForm({
               <Label htmlFor="receiver-mobile">
                 <Phone className="h-4 w-4 inline mr-1" /> Lenar Mobile
               </Label>
-              <Input
+              <AutocompleteInput
                 id="receiver-mobile"
                 type="number"
                 maxLength={10}
                 value={formData.receiverMobile}
                 onBlur={handleMobileNumberBlur("receiverMobile")}
                 onChange={handleMobileNumberChange("receiverMobile")}
+                suggestions={suggestions["receiverMobile"]}
                 placeholder="Enter receiver mobile number"
                 className="bg-gray-800 border-gray-700"
               />

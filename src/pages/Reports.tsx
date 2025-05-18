@@ -122,7 +122,7 @@ function printMonthlyReport(
           <tr>
             <th>ક્રમ</th>
             <th>તારીખ</th>
-            <th>ટોટલ</th>
+            <th>ટોટલ બીલ</th>
             <th>જથ્થો</th>
             <th>જમા</th>
             <th>બાકી</th>
@@ -135,10 +135,10 @@ function printMonthlyReport(
             <tr>
               <td>${index + 1}</td>
               <td>${format(date.parcel_date, "dd/MM/yyyy") || ""}</td>
-              <td>${date.record_count || ""}</td>
-              <td>${date.total_qty || ""}</td>
-              <td>${date.total_amount_given || ""}</td>
-              <td>${date.total_amount_remaining || ""}</td>
+              <td>${date.record_count || "0"}</td>
+              <td>${date.total_qty || "0"}</td>
+              <td>${date.total_amount_given || "0"}</td>
+              <td>${date.total_amount_remaining || "0"}</td>
             </tr>
           `
             )
@@ -205,7 +205,7 @@ const printRecordReport = (
       <table>
         <thead>
           <tr>
-            <th colspan="11">
+            <th colspan="12">
               <div class="header">
                 <h2>Shree Nathji Travels & Cargo</h2>
                 <p class="city">
@@ -224,6 +224,7 @@ const printRecordReport = (
             <th>બિલ નં</th>
             <th>જથ્થો</th>
             <th>વર્ણન</th>
+            <th>રિમાર્ક</th>
             <th>જમા</th>
             <th>બાકી</th>
             <th>સહી</th>
@@ -242,6 +243,7 @@ const printRecordReport = (
               <td>R${parcel.bill_no || ""}</td>
               <td>${parcel.qty || ""}</td>
               <td>${parcel.description || ""}</td>
+              <td>${parcel.remark || ""}</td>
               <td>${parcel.amount_given || "0"}</td>
               <td>${parcel.amount_remaining || "0"}</td>
               <td class="signature-cell"></td>
@@ -256,6 +258,7 @@ const printRecordReport = (
                   ${data.reduce((a, c) => a + (c.qty || 0), 0)}
                 </strong>
               </td>
+              <td></td>
               <td></td>
               <td>
                 <strong>

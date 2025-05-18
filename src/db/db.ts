@@ -32,8 +32,27 @@ export async function getAllCustomers() {
   return db.getAll("customers");
 }
 
+export async function searchMobileNos(partialMobile: string) {
+  const allCustomers = await getAllCustomers();
+  return allCustomers
+    .filter((customer) => customer.mobile_no.includes(partialMobile))
+    .map((cus) => cus.mobile_no);
+}
+
+export async function searchCustomerNames(partialName: string) {
+  const allCustomers = await getAllCustomers();
+  const lowerPartial = partialName.toLowerCase();
+  return allCustomers
+    .filter((customer) =>
+      customer.customer_name.toLowerCase().includes(lowerPartial)
+    )
+    .map((cus) => cus.customer_name);
+}
+
 export default {
   addOrUpdateCustomer,
   getAllCustomers,
   getCustomerNameByMobileNo,
+  searchMobileNos,
+  searchCustomerNames,
 };

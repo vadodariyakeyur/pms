@@ -472,99 +472,113 @@ export default function ListParcels() {
           <CardTitle className="text-lg">Parcels List</CardTitle>
         </CardHeader>
         <CardContent>
-          {loading ? (
-            <div className="flex justify-center items-center p-8">
-              <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-            </div>
-          ) : parcels.length === 0 ? (
-            <div className="text-center py-8 text-gray-400">
-              <p>No parcels found matching your criteria.</p>
-            </div>
-          ) : (
-            <div className="rounded-md border border-gray-800">
-              <Table>
-                <TableHeader>
-                  <TableRow className="hover:bg-gray-900">
-                    <TableHead className="text-gray-300">Bill No.</TableHead>
-                    <TableHead className="text-gray-300">Date</TableHead>
-                    <TableHead className="text-gray-300">From</TableHead>
-                    <TableHead className="text-gray-300">To</TableHead>
-                    <TableHead className="text-gray-300">Mokalnar</TableHead>
-                    <TableHead className="text-gray-300">Lenar</TableHead>
-                    <TableHead className="text-gray-300">Amount</TableHead>
-                    <TableHead className="text-gray-300">Actions</TableHead>
+          <div className="rounded-md border border-gray-800">
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:bg-gray-900">
+                  <TableHead className="text-gray-300">Bill No.</TableHead>
+                  <TableHead className="text-gray-300">Date</TableHead>
+                  <TableHead className="text-gray-300">From</TableHead>
+                  <TableHead className="text-gray-300">To</TableHead>
+                  <TableHead className="text-gray-300">Mokalnar</TableHead>
+                  <TableHead className="text-gray-300">Lenar</TableHead>
+                  <TableHead className="text-gray-300">Amount</TableHead>
+                  <TableHead className="text-gray-300">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={8}>
+                      <Loader2 className="mx-auto h-8 w-8 animate-spin text-gray-400 my-2" />
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {parcels.map((parcel) => (
-                    <TableRow key={parcel.id} className="hover:bg-gray-800">
-                      <TableCell className="font-medium">
-                        R{parcel.bill_no}
-                      </TableCell>
-                      <TableCell>
-                        {format(new Date(parcel.parcel_date), "MMM dd, yyyy")}
-                      </TableCell>
-                      <TableCell>{parcel.from_city?.name}</TableCell>
-                      <TableCell>{parcel.to_city?.name}</TableCell>
-                      <TableCell>
-                        <div>{parcel.sender_name}</div>
-                        <div className="text-xs text-gray-400">
-                          {parcel.sender_mobile_no}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div>{parcel.receiver_name}</div>
-                        <div className="text-xs text-gray-400">
-                          {parcel.receiver_mobile_no}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div>{parcel.amount?.toFixed(2)}</div>
-                        {parcel.amount_remaining > 0 && (
-                          <div className="text-xs text-red-400">
-                            Due: {parcel.amount_remaining?.toFixed(2)}
+                ) : parcels.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={8}
+                      className="text-center py-8 text-gray-400"
+                    >
+                      No parcels found matching your criteria.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  <>
+                    {parcels.map((parcel) => (
+                      <TableRow key={parcel.id} className="hover:bg-gray-800">
+                        <TableCell className="font-medium">
+                          R{parcel.bill_no}
+                        </TableCell>
+                        <TableCell>
+                          {format(new Date(parcel.parcel_date), "MMM dd, yyyy")}
+                        </TableCell>
+                        <TableCell>{parcel.from_city?.name}</TableCell>
+                        <TableCell>{parcel.to_city?.name}</TableCell>
+                        <TableCell>
+                          <div>{parcel.sender_name}</div>
+                          <div className="text-xs text-gray-400">
+                            {parcel.sender_mobile_no}
                           </div>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                              <span className="sr-only">Open menu</span>
-                              <Settings className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent
-                            align="end"
-                            className="bg-gray-800 border-gray-700"
+                        </TableCell>
+                        <TableCell>
+                          <div>{parcel.receiver_name}</div>
+                          <div className="text-xs text-gray-400">
+                            {parcel.receiver_mobile_no}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div
+                            className={
+                              parcel.amount_remaining > 0
+                                ? "text-red-400"
+                                : "text-green-400"
+                            }
                           >
-                            <DropdownMenuItem
-                              onClick={() => handlePrintParcel(parcel.bill_no)}
-                              className="cursor-pointer hover:bg-gray-700"
+                            {parcel.amount?.toFixed(2)}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" className="h-8 w-8 p-0">
+                                <span className="sr-only">Open menu</span>
+                                <Settings className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                              align="end"
+                              className="bg-gray-800 border-gray-700"
                             >
-                              <Printer className="mr-2 h-4 w-4" /> Print
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => handleEditParcel(parcel.bill_no)}
-                              className="cursor-pointer hover:bg-gray-700"
-                            >
-                              <Edit className="mr-2 h-4 w-4" /> Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => confirmDeleteParcel(parcel.id)}
-                              className="cursor-pointer text-red-400 hover:bg-gray-700 focus:text-red-400"
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" /> Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  handlePrintParcel(parcel.bill_no)
+                                }
+                                className="cursor-pointer hover:bg-gray-700"
+                              >
+                                <Printer className="mr-2 h-4 w-4" /> Print
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleEditParcel(parcel.bill_no)}
+                                className="cursor-pointer hover:bg-gray-700"
+                              >
+                                <Edit className="mr-2 h-4 w-4" /> Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => confirmDeleteParcel(parcel.id)}
+                                className="cursor-pointer text-red-400 hover:bg-gray-700 focus:text-red-400"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" /> Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </>
+                )}
+              </TableBody>
+            </Table>
+          </div>
 
           {/* Pagination Controls */}
           {totalPages > 1 && (

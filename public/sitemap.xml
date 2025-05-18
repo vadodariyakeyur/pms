@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://pms-navy.vercel.app/#/dashboard</loc>
+  </url>
+  <url>
+    <loc>https://pms-navy.vercel.app/#/drivers</loc>
+  </url>
+  <url>
+    <loc>https://pms-navy.vercel.app/#/cities</loc>
+  </url>
+  <url>
+    <loc>https://pms-navy.vercel.app/#/buses</loc>
+  </url>
+  <url>
+    <loc>https://pms-navy.vercel.app/#/assignments</loc>
+  </url>
+  <url>
+    <loc>https://pms-navy.vercel.app/#/parcels/add</loc>
+  </url>
+  <url>
+    <loc>https://pms-navy.vercel.app/#/parcels</loc>
+  </url>
+  <url>
+    <loc>https://pms-navy.vercel.app/#/reports</loc>
+  </url>
+  <url>
+    <loc>https://pms-navy.vercel.app/#/customers</loc>
+  </url>
+</urlset>
