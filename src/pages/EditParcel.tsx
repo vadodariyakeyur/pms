@@ -30,7 +30,7 @@ export default function EditParcel() {
       description: "",
       qty: 1,
       remark: "",
-      amount: undefined,
+      amount: 0,
     },
     amountGiven: 0,
   });

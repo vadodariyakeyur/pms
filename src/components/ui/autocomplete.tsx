@@ -111,7 +111,7 @@ export default function AutocompleteInput<T extends string>({
                   onSelect={() => {
                     onChange(item);
                     setOpen(false);
-                    rest.onBlur?.({ target: { value: item } });
+                    rest.onBlur?.({ target: { value: item } } as any);
                   }}
                   className={cn(
                     "[&:not(:last-child)]:mb-1",
