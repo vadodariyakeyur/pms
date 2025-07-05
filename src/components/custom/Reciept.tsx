@@ -14,12 +14,12 @@ export function Receipt({ parcel, ...rest }: ReceiptProps) {
           {/* Print Header */}
           <div className="border-b-2 border-black pb-2 mb-3">
             <div className="relative text-center">
-              <h1 className="text-3xl font-bold uppercase">
-                SHREE NATHJI TRAVELS & CARGO
+              <h1 className="text-[26px] font-bold uppercase">
+                (PRAMUKHRAJ) SHREE NATHJI TRAVELS & CARGO
               </h1>
               <p className="text-sm font-medium">
                 રાજકોટ :- 150 ફુટ રિંગ રોડ, ગોવર્ધન ચોક ની પાસે, સ્કાય હેઈટ્સ
-                બિલ્ડીંગ ની સામે, મો. - 84019 39945 / 81550 66443
+                બિલ્ડીંગ ની સામે, મો. - <b className="text-base">84019 39945 / 81550 66443</b>
               </p>
             </div>
           </div>

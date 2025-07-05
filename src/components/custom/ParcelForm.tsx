@@ -257,6 +257,14 @@ export default function ParcelForm({
 
     if (!senderName || !senderMobile || !receiverName || !receiverMobile) {
       setError("Please fill in all sender and receiver details");
+      console.error(
+        `Passed details ${JSON.stringify({
+          senderName,
+          senderMobile,
+          receiverName,
+          receiverMobile,
+        })}`
+      );
       return;
     }
 
