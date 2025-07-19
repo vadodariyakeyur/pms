@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Loader2, User, Phone, Receipt, Save } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -92,6 +92,7 @@ export default function ParcelForm({
     description: [],
     remark: [],
   });
+  const formRef = useRef(document.createElement("div"));
 
   const amountRemaining = formData.parcelItem.amount - formData.amountGiven;
 
@@ -292,28 +293,26 @@ export default function ParcelForm({
   };
 
   // Specialized requirement, Tab -> Enter
-  // const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-  //   if (e.key === "Enter") {
-  //     e.preventDefault();
-  //     const form = e.currentTarget;
-  //     const focusable = Array.from(
-  //       form.querySelectorAll<HTMLElement>(
-  //         'input:not([readonly]):not([disabled]), textarea:not([disabled]), button:not([disabled]):not([role="combobox"]), [tabindex]:not([tabindex="-1"])'
-  //       )
-  //     ).filter(
-  //       (el) => !el.hasAttribute("disabled") && el.offsetParent !== null
-  //     );
+  const handleKeyDown: React.KeyboardEventHandler<HTMLElement> = (e) => {
+    if (e.key === "Enter") {
+      const formElement = e.target as HTMLElement;
+      if (!formElement.dataset.index) return;
+      const index = parseInt(formElement.dataset.index);
 
-  //     const index = focusable.indexOf(e.target as HTMLElement);
-  //     const operation = e.shiftKey ? -1 : 1;
-  //     if (index > -1 && index + operation < focusable.length) {
-  //       focusable[index + operation].focus();
-  //     }
-  //   }
-  // };
+      const elements = Array.from(
+        formRef.current.querySelectorAll("[data-index]")
+      ) as HTMLElement[];
+
+      if (elements[index] && index != elements.length) {
+        e.preventDefault();
+        elements[index - 1]?.blur?.();
+        elements[index].focus();
+      }
+    }
+  };
 
   return (
-    <div>
+    <div ref={formRef}>
       {error && (
         <Alert
           variant="destructive"
@@ -334,6 +333,8 @@ export default function ParcelForm({
               <Input
                 id="bill-no"
                 value={formData.nextBillNo ? `R${formData.nextBillNo}` : ""}
+                data-index={1}
+                onKeyDown={handleKeyDown}
                 readOnly
                 className="bg-gray-800 border-gray-700"
               />
@@ -344,6 +345,8 @@ export default function ParcelForm({
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
+                      data-index={2}
+                      onKeyDown={handleKeyDown}
                       variant="outline"
                       className="w-full justify-start text-left font-normal bg-gray-800 border-gray-700"
                     >
@@ -382,7 +385,11 @@ export default function ParcelForm({
                       setFormData((prev) => ({ ...prev, busDriverAssignment }));
                   }}
                 >
-                  <SelectTrigger className="bg-gray-800 border-gray-700">
+                  <SelectTrigger
+                    data-index={3}
+                    onKeyDown={handleKeyDown}
+                    className="bg-gray-800 border-gray-700"
+                  >
                     <SelectValue placeholder="Select bus & driver" />
                   </SelectTrigger>
                   <SelectContent className="bg-gray-800 border-gray-700">
@@ -414,6 +421,8 @@ export default function ParcelForm({
                 value={formData.senderMobile}
                 onBlur={handleMobileNumberBlur("senderMobile")}
                 onChange={handleMobileNumberChange("senderMobile")}
+                data-index={4}
+                onKeyDown={handleKeyDown}
                 suggestions={suggestions["senderMobile"]}
                 placeholder="Enter sender mobile number"
                 className="bg-gray-800 border-gray-700"
@@ -426,6 +435,8 @@ export default function ParcelForm({
               <Input
                 id="sender-name"
                 value={formData.senderName}
+                data-index={5}
+                onKeyDown={handleKeyDown}
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,
@@ -451,6 +462,8 @@ export default function ParcelForm({
                 value={formData.receiverMobile}
                 onBlur={handleMobileNumberBlur("receiverMobile")}
                 onChange={handleMobileNumberChange("receiverMobile")}
+                data-index={6}
+                onKeyDown={handleKeyDown}
                 suggestions={suggestions["receiverMobile"]}
                 placeholder="Enter receiver mobile number"
                 className="bg-gray-800 border-gray-700"
@@ -463,6 +476,8 @@ export default function ParcelForm({
               <Input
                 id="receiver-name"
                 value={formData.receiverName}
+                data-index={7}
+                onKeyDown={handleKeyDown}
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,
@@ -503,7 +518,11 @@ export default function ParcelForm({
                         updateParcelItem("from_city_id", parseInt(value))
                       }
                     >
-                      <SelectTrigger className="bg-gray-800 border-gray-700 h-8">
+                      <SelectTrigger
+                        className="bg-gray-800 border-gray-700 h-8"
+                        data-index={8}
+                        onKeyDown={handleKeyDown}
+                      >
                         <SelectValue placeholder="From" />
                       </SelectTrigger>
                       <SelectContent className="bg-gray-800 border-gray-700">
@@ -522,7 +541,11 @@ export default function ParcelForm({
                         updateParcelItem("to_city_id", parseInt(value))
                       }
                     >
-                      <SelectTrigger className="bg-gray-800 border-gray-700 h-8">
+                      <SelectTrigger
+                        className="bg-gray-800 border-gray-700 h-8"
+                        data-index={9}
+                        onKeyDown={handleKeyDown}
+                      >
                         <SelectValue placeholder="To" />
                       </SelectTrigger>
                       <SelectContent className="bg-gray-800 border-gray-700">
@@ -541,6 +564,8 @@ export default function ParcelForm({
                       onChange={(value) =>
                         updateParcelItem("description", value)
                       }
+                      data-index={10}
+                      onKeyDown={handleKeyDown}
                       suggestions={suggestions["description"]}
                       placeholder="Description"
                       className="bg-gray-800 border-gray-700 h-8"
@@ -553,6 +578,8 @@ export default function ParcelForm({
                       onChange={(e) =>
                         updateParcelItem("qty", parseInt(e.target.value) || 0)
                       }
+                      data-index={11}
+                      onKeyDown={handleKeyDown}
                       className="bg-gray-800 border-gray-700 h-8"
                       min={1}
                     />
@@ -562,6 +589,8 @@ export default function ParcelForm({
                       type="text"
                       value={formData.parcelItem.remark}
                       onChange={(value) => updateParcelItem("remark", value)}
+                      data-index={12}
+                      onKeyDown={handleKeyDown}
                       suggestions={suggestions["remark"]}
                       placeholder="Remark"
                       className="bg-gray-800 border-gray-700 h-8"
@@ -577,6 +606,8 @@ export default function ParcelForm({
                           parseFloat(e.target.value) || 0
                         )
                       }
+                      data-index={13}
+                      onKeyDown={handleKeyDown}
                       className="bg-gray-800 border-gray-700 h-8"
                       min={0}
                       step={0.01}
@@ -604,6 +635,8 @@ export default function ParcelForm({
                 type="number"
                 value={formData.amountGiven}
                 onChange={(e) => handleAmountGivenChange(e.target.value)}
+                data-index={14}
+                onKeyDown={handleKeyDown}
                 className="bg-gray-800 border-gray-700"
                 min={0}
                 step={0.01}
@@ -616,6 +649,8 @@ export default function ParcelForm({
               <Input
                 id="amount-remaining"
                 type="number"
+                data-index={15}
+                onKeyDown={handleKeyDown}
                 value={amountRemaining}
                 readOnly
                 className="bg-gray-800 border-gray-700"
@@ -626,6 +661,8 @@ export default function ParcelForm({
         {buttonText && (
           <CardFooter className="flex justify-end">
             <Button
+              data-index={16}
+              onKeyDown={handleKeyDown}
               onClick={handleSubmit}
               disabled={isProcessing}
               className="bg-gray-700 hover:bg-gray-600"

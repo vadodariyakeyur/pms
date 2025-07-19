@@ -24,7 +24,7 @@ export function ProtectedRoute({ children }: PropsWithChildren) {
   if (loading)
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 />
+        <Loader2 className="animate-spin"/>
       </div>
     );
 

@@ -20,6 +20,7 @@ type AutocompleteInputType<T> = Omit<
 
 export default function AutocompleteInput<T extends string>({
   value,
+  onKeyDown,
   onChange,
   suggestions = [],
   ...rest
@@ -76,6 +77,11 @@ export default function AutocompleteInput<T extends string>({
     } else if (e.key === "Escape") {
       setOpen(false);
     }
+
+    // HACK: to get full value of number inside keydown handler
+    setTimeout(() => {
+      onKeyDown?.(e);
+    }, 0);
   };
 
   return (
