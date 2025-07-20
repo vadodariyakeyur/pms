@@ -130,34 +130,34 @@ export default function ListParcels() {
         .from("parcels")
         .select("*", { count: "exact", head: true });
 
-      // 2. Apply filters to the count query
-      if (searchTerm) {
-        countQuery = countQuery.or(
-          `sender_name.ilike.%${searchTerm}%,receiver_name.ilike.%${searchTerm}%,sender_mobile_no.ilike.%${searchTerm}%,receiver_mobile_no.ilike.%${searchTerm}%`
-        );
-      }
-
       const updatedBillNo = billNo.toLowerCase().startsWith("r")
         ? billNo.slice(1)
         : billNo;
       if (updatedBillNo) {
         countQuery = countQuery.eq("bill_no", parseInt(updatedBillNo));
-      }
+      } else {
+        // 2. Apply filters to the count query
+        if (searchTerm) {
+          countQuery = countQuery.or(
+            `sender_name.ilike.%${searchTerm}%,receiver_name.ilike.%${searchTerm}%,sender_mobile_no.ilike.%${searchTerm}%,receiver_mobile_no.ilike.%${searchTerm}%`
+          );
+        }
 
-      if (fromCityId) {
-        countQuery = countQuery.eq("from_city_id", fromCityId);
-      }
+        if (fromCityId) {
+          countQuery = countQuery.eq("from_city_id", fromCityId);
+        }
 
-      if (toCityId) {
-        countQuery = countQuery.eq("to_city_id", toCityId);
-      }
+        if (toCityId) {
+          countQuery = countQuery.eq("to_city_id", toCityId);
+        }
 
-      if (dateRange.from && dateRange.to) {
-        const fromDate = format(dateRange.from, "yyyy-MM-dd");
-        const toDate = format(dateRange.to, "yyyy-MM-dd");
-        countQuery = countQuery
-          .gte("parcel_date", fromDate)
-          .lte("parcel_date", toDate);
+        if (dateRange.from && dateRange.to) {
+          const fromDate = format(dateRange.from, "yyyy-MM-dd");
+          const toDate = format(dateRange.to, "yyyy-MM-dd");
+          countQuery = countQuery
+            .gte("parcel_date", fromDate)
+            .lte("parcel_date", toDate);
+        }
       }
 
       // 3. Execute the count query
@@ -186,37 +186,37 @@ export default function ListParcels() {
         `);
 
       // 6. Apply the SAME filters to the data query
-      if (searchTerm) {
-        dataQuery = dataQuery.or(
-          `sender_name.ilike.%${searchTerm}%,receiver_name.ilike.%${searchTerm}%,sender_mobile_no.ilike.%${searchTerm}%,receiver_mobile_no.ilike.%${searchTerm}%`
-        );
-      }
-
       if (updatedBillNo) {
         dataQuery = dataQuery.eq("bill_no", parseInt(updatedBillNo));
-      }
+      } else {
+        if (searchTerm) {
+          dataQuery = dataQuery.or(
+            `sender_name.ilike.%${searchTerm}%,receiver_name.ilike.%${searchTerm}%,sender_mobile_no.ilike.%${searchTerm}%,receiver_mobile_no.ilike.%${searchTerm}%`
+          );
+        }
 
-      if (fromCityId) {
-        dataQuery = dataQuery.eq("from_city_id", fromCityId);
-      }
+        if (fromCityId) {
+          dataQuery = dataQuery.eq("from_city_id", fromCityId);
+        }
 
-      if (toCityId) {
-        dataQuery = dataQuery.eq("to_city_id", toCityId);
-      }
+        if (toCityId) {
+          dataQuery = dataQuery.eq("to_city_id", toCityId);
+        }
 
-      if (dateRange.from && dateRange.to) {
-        const fromDate = format(dateRange.from, "yyyy-MM-dd");
-        const toDate = format(dateRange.to, "yyyy-MM-dd");
+        if (dateRange.from && dateRange.to) {
+          const fromDate = format(dateRange.from, "yyyy-MM-dd");
+          const toDate = format(dateRange.to, "yyyy-MM-dd");
+          dataQuery = dataQuery
+            .gte("parcel_date", fromDate)
+            .lte("parcel_date", toDate);
+        }
+
+        // 7. Apply pagination and order to the data query
         dataQuery = dataQuery
-          .gte("parcel_date", fromDate)
-          .lte("parcel_date", toDate);
+          .order("parcel_date", { ascending: false })
+          .order("bill_no", { ascending: false })
+          .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
       }
-
-      // 7. Apply pagination and order to the data query
-      dataQuery = dataQuery
-        .order("parcel_date", { ascending: false })
-        .order("bill_no", { ascending: false })
-        .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
 
       // 8. Execute the data query
       const { data, error: dataError } = await dataQuery;

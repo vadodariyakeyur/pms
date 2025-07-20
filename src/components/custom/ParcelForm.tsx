@@ -308,6 +308,13 @@ export default function ParcelForm({
         e.preventDefault();
         elements[index - 1]?.blur?.();
         elements[index].focus();
+
+        if (
+          elements[index] instanceof HTMLInputElement ||
+          elements[index] instanceof HTMLTextAreaElement
+        ) {
+          elements[index].select?.();
+        }
       }
     }
   };
