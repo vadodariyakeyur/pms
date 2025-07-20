@@ -30,7 +30,7 @@ function Calendar({
         table: "w-full border-collapse space-x-1",
         head_row: "flex",
         head_cell:
-          "text-muted-foreground rounded-md w-8 font-normal text-[0.8rem]",
+          "text-[var(--muted-foreground)] rounded-md w-8 font-normal text-[0.8rem]",
         row: "flex w-full mt-2",
         cell: cn(
           "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent [&:has([aria-selected].day-range-end)]:rounded-r-md",
@@ -43,15 +43,15 @@ function Calendar({
           "size-8 p-0 font-normal aria-selected:opacity-100 dark:hover:bg-gray-600"
         ),
         day_range_start:
-          "day-range-start aria-selected:bg-primary aria-selected:text-primary-foreground",
+          "day-range-start aria-selected:bg-[var(--primary)] aria-selected:text-[var(--primary-foreground)]",
         day_range_end:
-          "day-range-end aria-selected:bg-primary aria-selected:text-primary-foreground",
+          "day-range-end aria-selected:bg-[var(--primary)] aria-selected:text-[var(--primary-foreground)]",
         day_selected:
-          "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground bg-white! text-black!",
-        day_today: "bg-gray-500! dark:text-black!",
+          "bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] focus:bg-[var(--primary)] focus:text-[var(--primary-foreground)] !bg-white !text-black",
+        day_today: "!bg-gray-500 dark:!text-black",
         day_outside:
-          "day-outside text-muted-foreground aria-selected:text-muted-foreground",
-        day_disabled: "text-muted-foreground opacity-50",
+          "day-outside !text-[var(--muted-foreground)] aria-selected:!text-[var(--muted-foreground)]",
+        day_disabled: "!text-[var(--muted-foreground)] opacity-50",
         day_range_middle:
           "aria-selected:bg-accent aria-selected:text-accent-foreground",
         day_hidden: "invisible",
