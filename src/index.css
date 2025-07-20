@@ -71,8 +71,14 @@
   --sidebar-ring: rgba(134, 134, 134, 1);
 }
 
-* {
-  border-color: var(--border);
+@layer base {
+  * {
+    @apply border-[color:var(--border)] outline-[color:var(--ring)];
+  }
+
+  body {
+    @apply bg-[color:var(--background)] text-[color:var(--foreground)];
+  }
 }
 
 input:-webkit-autofill,

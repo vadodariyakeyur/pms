@@ -427,7 +427,7 @@ export default function ListParcels() {
                       </PopoverContent>
                     </Popover>
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-2 !mt-0">
                     <Label htmlFor="date-report-end-date">To Date</Label>
                     <Popover>
                       <PopoverTrigger asChild>

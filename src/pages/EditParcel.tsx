@@ -28,11 +28,11 @@ export default function EditParcel() {
       from_city_id: null,
       to_city_id: null,
       description: "",
-      qty: 1,
+      qty: null,
       remark: "",
-      amount: 0,
+      amount: null,
     },
-    amountGiven: 0,
+    amountGiven: null,
   });
 
   useEffect(() => {
@@ -102,7 +102,7 @@ export default function EditParcel() {
     } = formData;
 
     const totalAmount = parcelItem.amount;
-    const amountRemaining = (parcelItem.amount || 0) - amountGiven;
+    const amountRemaining = (parcelItem.amount || 0) - (amountGiven || 0);
 
     setIsProcessing(true);
     try {
@@ -123,8 +123,8 @@ export default function EditParcel() {
           description: parcelItem.description,
           qty: parcelItem.qty,
           remark: parcelItem.remark,
-          amount: totalAmount,
-          amount_given: amountGiven,
+          amount: totalAmount || 0,
+          amount_given: amountGiven || 0,
           amount_remaining: amountRemaining,
         })
         .eq("bill_no", nextBillNo);

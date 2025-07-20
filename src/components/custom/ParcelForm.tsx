@@ -51,9 +51,9 @@ type ParcelItem = {
   from_city_id: number | null;
   to_city_id: number | null;
   description: string;
-  qty: number;
+  qty: number | null;
   remark: string;
-  amount: number;
+  amount: number | null;
 };
 
 export type ParcelFormData = {
@@ -65,7 +65,7 @@ export type ParcelFormData = {
   receiverName: string;
   receiverMobile: string;
   parcelItem: ParcelItem;
-  amountGiven: number;
+  amountGiven: number | null;
 };
 
 type ParcelFormProps = {
@@ -94,7 +94,8 @@ export default function ParcelForm({
   });
   const formRef = useRef(document.createElement("div"));
 
-  const amountRemaining = formData.parcelItem.amount - formData.amountGiven;
+  const amountRemaining =
+    (formData.parcelItem.amount || 0) - (formData.amountGiven || 0);
 
   useEffect(() => {
     fetchBusDriverAssignments();
@@ -273,7 +274,7 @@ export default function ParcelForm({
       !parcelItem.from_city_id ||
       !parcelItem.to_city_id ||
       !parcelItem.description ||
-      parcelItem.qty <= 0;
+      (parcelItem.qty || 0) <= 0;
 
     if (hasInvalidItems) {
       setError("Please fill in all parcel item details");
@@ -574,10 +575,14 @@ export default function ParcelForm({
                   <TableCell>
                     <Input
                       type="number"
-                      value={formData.parcelItem.qty}
-                      onChange={(e) =>
-                        updateParcelItem("qty", parseInt(e.target.value) || 0)
-                      }
+                      value={formData.parcelItem.qty || ""}
+                      onChange={(e) => {
+                        let value: string | number = e.target.value;
+                        if (value) {
+                          value = parseInt(value);
+                        }
+                        updateParcelItem("qty", value);
+                      }}
                       data-index={11}
                       onKeyDown={handleKeyDown}
                       className="bg-gray-800 border-gray-700 h-8"
@@ -599,13 +604,14 @@ export default function ParcelForm({
                   <TableCell>
                     <Input
                       type="number"
-                      value={formData.parcelItem.amount}
+                      value={formData.parcelItem.amount || ""}
                       onChange={(e) =>
                         updateParcelItem(
                           "amount",
-                          parseFloat(e.target.value) || 0
+                          e.target.value ? parseFloat(e.target.value) : null
                         )
                       }
+                      placeholder="0"
                       data-index={13}
                       onKeyDown={handleKeyDown}
                       className="bg-gray-800 border-gray-700 h-8"
@@ -633,8 +639,9 @@ export default function ParcelForm({
               <Input
                 id="amount-given"
                 type="number"
-                value={formData.amountGiven}
+                value={formData.amountGiven || ""}
                 onChange={(e) => handleAmountGivenChange(e.target.value)}
+                placeholder="0"
                 data-index={14}
                 onKeyDown={handleKeyDown}
                 className="bg-gray-800 border-gray-700"

@@ -42,8 +42,8 @@ export default function AddParcel() {
       amountGiven,
     } = formData;
 
-    const totalAmount = parcelItem.amount;
-    const amountRemaining = parcelItem.amount - amountGiven;
+    const totalAmount = parcelItem.amount || 0;
+    const amountRemaining = (parcelItem.amount || 0) - (amountGiven || 0);
 
     setIsProcessing(true);
     try {
@@ -65,7 +65,7 @@ export default function AddParcel() {
           qty: parcelItem.qty,
           remark: parcelItem.remark,
           amount: totalAmount,
-          amount_given: amountGiven,
+          amount_given: amountGiven || 0,
           amount_remaining: amountRemaining,
         })
         .select()
@@ -97,9 +97,9 @@ export default function AddParcel() {
       description: "",
       qty: 1,
       remark: "",
-      amount: 0,
+      amount: null,
     },
-    amountGiven: 0,
+    amountGiven: null,
   });
 
   return (
