@@ -3,6 +3,7 @@ import { createHashRouter, Navigate } from "react-router-dom";
 
 import Layout from "@/app/Layout";
 import { ProtectedRoute } from "@/components/custom/ProtectedRoute";
+import ParcelReciept from "@/pages/Reciept";
 
 const AddParcel = lazy(() => import("@/pages/AddParcel"));
 const Buses = lazy(() => import("@/pages/Buses"));
@@ -21,6 +22,10 @@ const router = createHashRouter([
   {
     path: "/auth/login",
     element: <Login />,
+  },
+  {
+    path: "/reciept/:billNo",
+    element: <ParcelReciept />,
   },
   {
     path: "/",
