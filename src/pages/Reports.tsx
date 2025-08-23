@@ -111,7 +111,7 @@ function printMonthlyReport(
           <tr>
             <th colspan="11">
               <div class="header">
-                <h2>Shree Nathji Travels & Cargo</h2>
+                <h2>Pramukhraj Travels & Cargo</h2>
                 <p class="city">
                   From ${from_city} to ${to_city}
                 </p>
@@ -207,7 +207,7 @@ const printRecordReport = (
           <tr>
             <th colspan="12">
               <div class="header">
-                <h2>Shree Nathji Travels & Cargo</h2>
+                <h2>Pramukhraj Travels & Cargo</h2>
                 <p class="city">
                   From ${from_city} to ${to_city}
                 </p>

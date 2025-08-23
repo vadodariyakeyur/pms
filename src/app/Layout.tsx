@@ -166,7 +166,7 @@ export default function Layout() {
         {/* Header */}
         <header className="border-b border-gray-800">
           <div className="flex items-center justify-between px-6 h-16">
-            <h1 className="text-lg font-medium">Shree Nathji Travels</h1>
+            <h1 className="text-lg font-medium">Pramukhraj Travels & Cargo</h1>
             <Button
               variant="ghost"
               size="sm"
