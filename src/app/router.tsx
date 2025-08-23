@@ -3,7 +3,6 @@ import { createHashRouter, Navigate } from "react-router-dom";
 
 import Layout from "@/app/Layout";
 import { ProtectedRoute } from "@/components/custom/ProtectedRoute";
-import ParcelReciept from "@/pages/Reciept";
 
 const AddParcel = lazy(() => import("@/pages/AddParcel"));
 const Buses = lazy(() => import("@/pages/Buses"));
@@ -17,6 +16,7 @@ const ListParcels = lazy(() => import("@/pages/ListParcels"));
 const Login = lazy(() => import("@/pages/Login"));
 const PrintParcel = lazy(() => import("@/pages/PrintParcel"));
 const Reports = lazy(() => import("@/pages/Reports"));
+const ViewReciept = lazy(() => import("@/pages/ViewReciept"));
 
 const router = createHashRouter([
   {
@@ -25,7 +25,7 @@ const router = createHashRouter([
   },
   {
     path: "/reciept/:billNo",
-    element: <ParcelReciept />,
+    element: <ViewReciept />,
   },
   {
     path: "/",

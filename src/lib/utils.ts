@@ -19,13 +19,12 @@ export function getWhatsappMessage(parcel: Parcel): string {
 
   const currentHost = `${window.location.protocol}//${window.location.host}`;
 
-
-  const message = `*PRAMUKHRAJ TRAVELS & CARGO*
+  const message = `*(PRAMUKHRAJ) SHREE NATHJI TRAVELS & CARGO*
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 *PARCEL BOOKING CONFIRMATION*
 
-*Reciept Number:* R-${billNo}
+*Bill Number:* R-${billNo}
 *Date:* ${currentDate}
 *Route:* ${parcel.from_city?.name} to ${parcel.to_city?.name}
 

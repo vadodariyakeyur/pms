@@ -227,6 +227,28 @@ export type Database = {
           remarks: string[];
         };
       };
+      get_parcel_details_by_bill_no: {
+        Args: {
+          bill_number: number;
+        };
+        Returns: {
+          from_city_name: string;
+          to_city_name: string;
+          bill_no: number;
+          created_at: Date;
+          parcel_date: Date;
+          bus_registration: string;
+          sender_name: string;
+          sender_mobile_no: string;
+          receiver_name: string;
+          receiver_mobile_no: string;
+          description: string;
+          qty: number;
+          remark: string;
+          amount: number;
+          amount_given: number;
+        }[];
+      };
     };
     Enums: {
       [_ in never]: never;

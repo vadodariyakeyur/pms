@@ -66,9 +66,9 @@ export default function PrintParcel() {
 
   const handleReceiptMessageSend = async () => {
     if (parcel?.bill_no) {
-      const whatsappUrl = `https://wa.me/${
+      const whatsappUrl = `https://web.whatsapp.com/send?phone=${
         parcel.receiver_mobile_no
-      }?text=${getWhatsappMessage(parcel)}`;
+      }&text=${getWhatsappMessage(parcel)}`;
       window.open(whatsappUrl, "_blank");
     }
   };
