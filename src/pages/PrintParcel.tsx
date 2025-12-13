@@ -64,6 +64,15 @@ export default function PrintParcel() {
     }
   };
 
+  const handleSenderMessageSend = async () => {
+    if (parcel?.bill_no) {
+      const whatsappUrl = `https://web.whatsapp.com/send?phone=${
+        parcel.sender_mobile_no
+      }&text=${getWhatsappMessage(parcel)}`;
+      window.open(whatsappUrl, "_blank");
+    }
+  };
+
   const handleReceiptMessageSend = async () => {
     if (parcel?.bill_no) {
       const whatsappUrl = `https://web.whatsapp.com/send?phone=${
@@ -118,11 +127,18 @@ export default function PrintParcel() {
             Back to List
           </Button>
           <Button
+            onClick={handleSenderMessageSend}
+            className="bg-gray-700 hover:bg-gray-600"
+          >
+            <MessageSquare className="h-4 w-4" />
+            Send Message(Mokalnar)
+          </Button>
+          <Button
             onClick={handleReceiptMessageSend}
             className="bg-gray-700 hover:bg-gray-600"
           >
             <MessageSquare className="h-4 w-4" />
-            Send Message
+            Send Message(Lenar)
           </Button>
           <Button
             onClick={handlePrint}
