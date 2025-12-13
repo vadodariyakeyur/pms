@@ -38,7 +38,9 @@ ${currentHost}/#/reciept/${btoa(billNo)}
 _Thank you for choosing *PRAMUKHRAJ TRAVELS & CARGO* service!_
 
 *Important:* Goods will only be delivered against this bill.
-*Contact:* 84019 39945 / 81550 66443`;
+*Contact(Rajkot):* 84019 39945 / 81550 66443
+*Contact(Surat):* 90992 66443
+`;
 
   return encodeURIComponent(message);
 }
