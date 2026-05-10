@@ -35,6 +35,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
+import { useOffice } from "@/hooks/use-office";
 
 // Define types
 type City = Database["public"]["Tables"]["cities"]["Row"];
@@ -312,6 +313,8 @@ export default function Reports() {
     `${monthNames[getMonth(new Date())]}-${getYear(new Date())}` // Format: YYYY-M
   );
 
+  const office = useOffice()
+
   useEffect(() => {
     fetchInitialData();
   }, []);
@@ -413,6 +416,7 @@ export default function Reports() {
           to_city:cities!parcels_to_city_id_fkey (name)
         `
         )
+        .eq("office_id", office.id)
         .eq("bus_id", parseInt(dateReportBusId))
         .eq("from_city_id", parseInt(fromCityId))
         .eq("to_city_id", parseInt(toCityId))

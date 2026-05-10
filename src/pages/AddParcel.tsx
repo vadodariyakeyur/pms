@@ -7,9 +7,11 @@ import ParcelForm, {
   type ParcelFormData,
 } from "@/components/custom/ParcelForm";
 import router from "@/app/router";
+import { useOffice } from "@/hooks/use-office";
 
 export default function AddParcel() {
   const [isProcessing, setIsProcessing] = useState(false);
+  const office = useOffice();
 
   useEffect(() => {
     fetchNextBillNo();
@@ -59,14 +61,15 @@ export default function AddParcel() {
           sender_mobile_no: senderMobile,
           receiver_name: receiverName,
           receiver_mobile_no: receiverMobile,
-          from_city_id: parcelItem.from_city_id,
-          to_city_id: parcelItem.to_city_id,
+          from_city_id: parcelItem.from_city_id!,
+          to_city_id: parcelItem.to_city_id!,
           description: parcelItem.description,
-          qty: parcelItem.qty,
+          qty: parcelItem.qty || 1,
           remark: parcelItem.remark,
           amount: totalAmount,
           amount_given: amountGiven || 0,
           amount_remaining: amountRemaining,
+          office_id: office.id
         })
         .select()
         .single();

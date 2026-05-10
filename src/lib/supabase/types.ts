@@ -4,368 +4,411 @@ export type Json =
   | boolean
   | null
   | { [key: string]: Json | undefined }
-  | Json[];
+  | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "12.2.3 (519615d)"
+  }
   public: {
     Tables: {
       bus_driver_assignments: {
         Row: {
-          assignment_date: string;
-          bus_id: number | null;
-          driver_id: number | null;
-          id: number;
-        };
+          assignment_date: string
+          bus_id: number
+          driver_id: number
+          id: number
+        }
         Insert: {
-          assignment_date?: string;
-          bus_id?: number | null;
-          driver_id?: number | null;
-          id?: number;
-        };
+          assignment_date?: string
+          bus_id: number
+          driver_id: number
+          id?: number
+        }
         Update: {
-          assignment_date?: string;
-          bus_id?: number | null;
-          driver_id?: number | null;
-          id?: number;
-        };
+          assignment_date?: string
+          bus_id?: number
+          driver_id?: number
+          id?: number
+        }
         Relationships: [
           {
-            foreignKeyName: "bus_driver_assignments_bus_id_fkey";
-            columns: ["bus_id"];
-            isOneToOne: false;
-            referencedRelation: "buses";
-            referencedColumns: ["id"];
+            foreignKeyName: "bus_driver_assignments_bus_id_fkey"
+            columns: ["bus_id"]
+            isOneToOne: false
+            referencedRelation: "buses"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "bus_driver_assignments_driver_id_fkey";
-            columns: ["driver_id"];
-            isOneToOne: false;
-            referencedRelation: "drivers";
-            referencedColumns: ["id"];
-          }
-        ];
-      };
+            foreignKeyName: "bus_driver_assignments_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       buses: {
         Row: {
-          id: number;
-          registration_no: string;
-        };
+          id: number
+          registration_no: string
+        }
         Insert: {
-          id?: number;
-          registration_no: string;
-        };
+          id?: number
+          registration_no: string
+        }
         Update: {
-          id?: number;
-          registration_no?: string;
-        };
-        Relationships: [];
-      };
+          id?: number
+          registration_no?: string
+        }
+        Relationships: []
+      }
       cities: {
         Row: {
-          id: number;
-          is_default_from: boolean | null;
-          is_default_to: boolean | null;
-          name: string;
-        };
+          id: number
+          is_default_from: boolean | null
+          is_default_to: boolean | null
+          name: string
+        }
         Insert: {
-          id?: number;
-          is_default_from?: boolean | null;
-          is_default_to?: boolean | null;
-          name: string;
-        };
+          id?: number
+          is_default_from?: boolean | null
+          is_default_to?: boolean | null
+          name: string
+        }
         Update: {
-          id?: number;
-          is_default_from?: boolean | null;
-          is_default_to?: boolean | null;
-          name?: string;
-        };
-        Relationships: [];
-      };
+          id?: number
+          is_default_from?: boolean | null
+          is_default_to?: boolean | null
+          name?: string
+        }
+        Relationships: []
+      }
       drivers: {
         Row: {
-          id: number;
-          name: string;
-        };
+          id: number
+          name: string
+        }
         Insert: {
-          id?: number;
-          name: string;
-        };
+          id?: number
+          name: string
+        }
         Update: {
-          id?: number;
-          name?: string;
-        };
-        Relationships: [];
-      };
+          id?: number
+          name?: string
+        }
+        Relationships: []
+      }
+      offices: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string
+        }
+        Relationships: []
+      }
       parcels: {
         Row: {
-          amount: number;
-          amount_given: number;
-          amount_remaining: number;
-          bill_no: number;
-          bus_id: number | null;
-          created_at: string | null;
-          description: string | null;
-          driver_id: number | null;
-          from_city_id: number | null;
-          id: number;
-          parcel_date: string;
-          qty: number | null;
-          receiver_mobile_no: string;
-          receiver_name: string;
-          remark: string | null;
-          sender_mobile_no: string;
-          sender_name: string;
-          to_city_id: number | null;
-        };
+          amount: number
+          amount_given: number
+          amount_remaining: number
+          bill_no: number
+          bus_id: number
+          created_at: string | null
+          description: string | null
+          driver_id: number
+          from_city_id: number
+          id: number
+          office_id: number
+          parcel_date: string
+          qty: number
+          receiver_mobile_no: string
+          receiver_name: string
+          remark: string | null
+          sender_mobile_no: string
+          sender_name: string
+          to_city_id: number
+        }
         Insert: {
-          amount?: number;
-          amount_given: number;
-          amount_remaining: number;
-          bill_no: number;
-          bus_id?: number | null;
-          created_at?: string | null;
-          description?: string | null;
-          driver_id?: number | null;
-          from_city_id?: number | null;
-          id?: number;
-          parcel_date?: string;
-          qty?: number | null;
-          receiver_mobile_no: string;
-          receiver_name: string;
-          remark?: string | null;
-          sender_mobile_no: string;
-          sender_name: string;
-          to_city_id?: number | null;
-        };
+          amount: number
+          amount_given: number
+          amount_remaining: number
+          bill_no: number
+          bus_id: number
+          created_at?: string | null
+          description?: string | null
+          driver_id: number
+          from_city_id: number
+          id?: number
+          office_id: number
+          parcel_date?: string
+          qty: number
+          receiver_mobile_no: string
+          receiver_name: string
+          remark?: string | null
+          sender_mobile_no: string
+          sender_name: string
+          to_city_id: number
+        }
         Update: {
-          amount?: number;
-          amount_given?: number;
-          amount_remaining?: number;
-          bill_no?: number;
-          bus_id?: number | null;
-          created_at?: string | null;
-          description?: string | null;
-          driver_id?: number | null;
-          from_city_id?: number | null;
-          id?: number;
-          parcel_date?: string;
-          qty?: number | null;
-          receiver_mobile_no?: string;
-          receiver_name?: string;
-          remark?: string | null;
-          sender_mobile_no?: string;
-          sender_name?: string;
-          to_city_id?: number | null;
-        };
+          amount?: number
+          amount_given?: number
+          amount_remaining?: number
+          bill_no?: number
+          bus_id?: number
+          created_at?: string | null
+          description?: string | null
+          driver_id?: number
+          from_city_id?: number | null
+          id?: number
+          office_id?: number
+          parcel_date?: string
+          qty?: number | null
+          receiver_mobile_no?: string
+          receiver_name?: string
+          remark?: string | null
+          sender_mobile_no?: string
+          sender_name?: string
+          to_city_id?: number | null
+        }
         Relationships: [
           {
-            foreignKeyName: "parcels_bus_id_fkey";
-            columns: ["bus_id"];
-            isOneToOne: false;
-            referencedRelation: "buses";
-            referencedColumns: ["id"];
+            foreignKeyName: "parcels_bus_id_fkey"
+            columns: ["bus_id"]
+            isOneToOne: false
+            referencedRelation: "buses"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "parcels_driver_id_fkey";
-            columns: ["driver_id"];
-            isOneToOne: false;
-            referencedRelation: "drivers";
-            referencedColumns: ["id"];
+            foreignKeyName: "parcels_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "drivers"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "parcels_from_city_id_fkey";
-            columns: ["from_city_id"];
-            isOneToOne: false;
-            referencedRelation: "cities";
-            referencedColumns: ["id"];
+            foreignKeyName: "parcels_from_city_id_fkey"
+            columns: ["from_city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "parcels_to_city_id_fkey";
-            columns: ["to_city_id"];
-            isOneToOne: false;
-            referencedRelation: "cities";
-            referencedColumns: ["id"];
-          }
-        ];
-      };
-    };
+            foreignKeyName: "parcels_office_id_fkey"
+            columns: ["office_id"]
+            isOneToOne: false
+            referencedRelation: "offices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "parcels_to_city_id_fkey"
+            columns: ["to_city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+    }
     Views: {
-      [_ in never]: never;
-    };
+      [_ in never]: never
+    }
     Functions: {
       get_latest_customer_contacts: {
-        Args: Record<PropertyKey, never>;
+        Args: Record<PropertyKey, never>
         Returns: {
-          customer_name: string;
-          mobile_no: string;
-        }[];
-      };
+          customer_name: string
+          mobile_no: string
+        }[]
+      }
       get_next_bill_no: {
-        Args: Record<PropertyKey, never>;
-        Returns: number;
-      };
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      get_parcel_details_by_bill_no: {
+        Args: { bill_number: number }
+        Returns: {
+          amount: number
+          amount_given: number
+          bill_no: number
+          bus_registration: string
+          created_at: string
+          description: string
+          from_city_name: string
+          parcel_date: string
+          qty: number
+          receiver_mobile_no: string
+          receiver_name: string
+          remark: string
+          sender_mobile_no: string
+          sender_name: string
+          to_city_name: string
+        }[]
+      }
       get_parcels_aggregated_by_date: {
         Args: {
-          p_bus_id: number;
-          p_from_city_id: number;
-          p_to_city_id: number;
-          p_start_date: string;
-          p_end_date: string;
-        };
+          p_bus_id: number
+          p_end_date: string
+          p_from_city_id: number
+          p_start_date: string
+          p_to_city_id: number
+        }
         Returns: {
-          parcel_date: string;
-          record_count: number;
-          total_amount_given: number;
-          total_amount_remaining: number;
-          total_qty: number;
-        }[];
-      };
+          parcel_date: string
+          record_count: number
+          total_amount_given: number
+          total_amount_remaining: number
+          total_qty: number
+        }[]
+      }
       get_unique_descriptions_and_remarks: {
-        Args: Record<PropertyKey, never>;
+        Args: Record<PropertyKey, never>
         Returns: {
-          descriptions: string[];
-          remarks: string[];
-        };
-      };
-      get_parcel_details_by_bill_no: {
-        Args: {
-          bill_number: number;
-        };
-        Returns: {
-          from_city_name: string;
-          to_city_name: string;
-          bill_no: number;
-          created_at: Date;
-          parcel_date: Date;
-          bus_registration: string;
-          sender_name: string;
-          sender_mobile_no: string;
-          receiver_name: string;
-          receiver_mobile_no: string;
-          description: string;
-          qty: number;
-          remark: string;
-          amount: number;
-          amount_given: number;
-        }[];
-      };
-    };
+          descriptions: string[],
+          remarks: string[]
+        }
+      }
+    }
     Enums: {
-      [_ in never]: never;
-    };
+      [_ in never]: never
+    }
     CompositeTypes: {
-      [_ in never]: never;
-    };
-  };
-};
+      [_ in never]: never
+    }
+  }
+}
 
-type DefaultSchema = Database[Extract<keyof Database, "public">];
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database;
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
-      Row: infer R;
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
     }
     ? R
     : never
   : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
-      DefaultSchema["Views"])
-  ? (DefaultSchema["Tables"] &
-      DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
-      Row: infer R;
-    }
-    ? R
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
     : never
-  : never;
 
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database;
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I;
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
     }
     ? I
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-  ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-      Insert: infer I;
-    }
-    ? I
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
     : never
-  : never;
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database;
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U;
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
     }
     ? U
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-  ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-      Update: infer U;
-    }
-    ? U
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
     : never
-  : never;
 
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof Database;
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never
-> = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
-  ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
-  : never;
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database;
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
-  ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-  : never;
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
 
 export const Constants = {
   public: {
     Enums: {},
   },
-} as const;
+} as const

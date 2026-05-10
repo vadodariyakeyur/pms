@@ -23,6 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 
-supabase/*
+supabase/.temp*
 
 .env*

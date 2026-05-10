@@ -7,6 +7,7 @@ import {
   Users,
   Building,
   Bus,
+  MapPinned,
   Link as LinkIcon,
   PackagePlus,
   Package,
@@ -15,9 +16,18 @@ import {
   ChevronRight,
   Database,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import router from "@/app/router";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { Database as DatabaseType } from "@/lib/supabase/types";
+import { OfficeContext } from "@/hooks/use-office";
 
 const menuItems = [
   {
@@ -34,6 +44,11 @@ const menuItems = [
     title: "Cities",
     link: "/cities",
     Icon: Building,
+  },
+  {
+    title: "Offices",
+    link: "/offices",
+    Icon: MapPinned,
   },
   {
     title: "Buses",
@@ -67,33 +82,54 @@ const menuItems = [
   },
 ];
 
+type Office = DatabaseType["public"]["Tables"]["offices"]["Row"];
+
 export default function Layout() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const navbarHoverRef = useRef<NodeJS.Timeout>(null);
 
+  // Office dropdown state
+  const [offices, setOffices] = useState<Office[]>([]);
+  const [selectedOffice, setSelectedOffice] = useState<Office>();
+
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (!data.session) {
-        router.navigate("/login");
-      }
-    };
-
-    checkAuth();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (event === "SIGNED_OUT" || !session) {
-          router.navigate("/login");
-        }
-      }
-    );
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
+    fetchOffices();
   }, []);
+
+  const fetchOffices = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("offices")
+        .select("*")
+        .order("name");
+
+      if (error) throw error;
+
+      const officeList = data || [];
+      setOffices(officeList);
+
+      // Set default office if none is selected
+      const savedOfficeId = localStorage.getItem("selectedOfficeId");
+      if (
+        (!savedOfficeId && officeList.length > 0) ||
+        (savedOfficeId && officeList.length > 0 && !officeList.some(ofc => ofc.id.toString() == savedOfficeId))
+      ) {
+        const firstOffice = officeList[0];
+        setSelectedOffice(firstOffice);
+        localStorage.setItem("selectedOfficeId", firstOffice.id.toString());
+      } else if (savedOfficeId) {
+        setSelectedOffice(officeList.find(ofc => ofc.id.toString() == savedOfficeId));
+      }
+    } catch (err) {
+      console.error("Error fetching offices:", err);
+    }
+  };
+
+  const handleOfficeChange = (officeId: string) => {
+    setSelectedOffice(offices.find(ofc => ofc.id.toString() == officeId));
+    localStorage.setItem("selectedOfficeId", officeId);
+  };
 
   const onMouseEnter = () => {
     if (navbarHoverRef.current) clearTimeout(navbarHoverRef.current);
@@ -167,15 +203,34 @@ export default function Layout() {
         <header className="border-b border-gray-800">
           <div className="flex items-center justify-between px-6 h-16">
             <h1 className="text-lg font-medium">Pramukhraj Travels & Cargo</h1>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLogout}
-              className="text-gray-300 hover:text-white"
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
+            <div className="flex items-center gap-4">
+              {/* Office Dropdown */}
+              <Select value={selectedOffice?.id.toString()} onValueChange={handleOfficeChange}>
+                <SelectTrigger className="w-48 bg-gray-800 border-gray-700 text-gray-300">
+                  <SelectValue placeholder="Select Office" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-800 border-gray-700">
+                  {offices.map((office) => (
+                    <SelectItem
+                      key={office.id}
+                      value={office.id.toString()}
+                      className="text-gray-300 hover:bg-gray-700"
+                    >
+                      {office.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="text-gray-300 hover:text-white"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
+            </div>
           </div>
         </header>
 
@@ -189,7 +244,11 @@ export default function Layout() {
               </div>
             }
           >
-            <Outlet />
+            {selectedOffice ? (
+              <OfficeContext.Provider value={selectedOffice}>
+                <Outlet />
+              </OfficeContext.Provider>
+            ) : "Please select Office you are operating from"}
           </Suspense>
         </main>
       </div>

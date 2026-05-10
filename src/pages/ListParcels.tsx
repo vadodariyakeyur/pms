@@ -61,6 +61,7 @@ import {
 import { Database } from "@/lib/supabase/types";
 import router from "@/app/router";
 import { cn } from "@/lib/utils";
+import { useOffice } from "@/hooks/use-office";
 
 // Define types
 type Parcel = Database["public"]["Tables"]["parcels"]["Row"] & {
@@ -98,6 +99,8 @@ export default function ListParcels() {
   });
   const debounceRef = useRef<NodeJS.Timeout>(null);
 
+  const office = useOffice()
+
   useEffect(() => {
     fetchCities();
   }, []);
@@ -105,7 +108,7 @@ export default function ListParcels() {
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(fetchParcels, 500);
-  }, [page, PAGE_SIZE, searchTerm, fromCityId, toCityId, billNo, dateRange]);
+  }, [page, PAGE_SIZE, searchTerm, fromCityId, toCityId, billNo, dateRange, office]);
 
   const fetchCities = async () => {
     try {
@@ -128,7 +131,8 @@ export default function ListParcels() {
       // 1. Construct the base query for counting
       let countQuery = supabase
         .from("parcels")
-        .select("*", { count: "exact", head: true });
+        .select("*", { count: "exact", head: true })
+        .eq('office_id', office.id);
 
       const updatedBillNo = billNo.toLowerCase().startsWith("r")
         ? billNo.slice(1)
@@ -183,7 +187,8 @@ export default function ListParcels() {
           drivers (name),
           from_city:cities!parcels_from_city_id_fkey (name),
           to_city:cities!parcels_to_city_id_fkey (name)
-        `);
+        `)
+        .eq('office_id', office.id);
 
       // 6. Apply the SAME filters to the data query
       if (updatedBillNo) {

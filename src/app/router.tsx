@@ -14,6 +14,7 @@ const Drivers = lazy(() => import("@/pages/Drivers"));
 const EditParcel = lazy(() => import("@/pages/EditParcel"));
 const ListParcels = lazy(() => import("@/pages/ListParcels"));
 const Login = lazy(() => import("@/pages/Login"));
+const Offices = lazy(() => import("@/pages/Offices"));
 const PrintParcel = lazy(() => import("@/pages/PrintParcel"));
 const Reports = lazy(() => import("@/pages/Reports"));
 const ViewReciept = lazy(() => import("@/pages/ViewReciept"));
@@ -50,6 +51,10 @@ const router = createHashRouter([
       {
         path: "cities",
         element: <Cities />,
+      },
+      {
+        path: "offices",
+        element: <Offices />,
       },
       {
         path: "buses",
