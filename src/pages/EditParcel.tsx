@@ -101,6 +101,8 @@ export default function EditParcel() {
       amountGiven,
     } = formData;
 
+    if (!nextBillNo) throw nextBillNo;
+
     const totalAmount = parcelItem.amount;
     const amountRemaining = (parcelItem.amount || 0) - (amountGiven || 0);
 

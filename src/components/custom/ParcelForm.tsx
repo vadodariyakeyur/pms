@@ -57,7 +57,7 @@ type ParcelItem = {
 };
 
 export type ParcelFormData = {
-  nextBillNo: number;
+  nextBillNo?: number;
   parcelDate: Date;
   busDriverAssignment: BusDriverAssignment | null;
   senderName: string;
@@ -340,7 +340,7 @@ export default function ParcelForm({
               <Label htmlFor="bill-no">Bill No.</Label>
               <Input
                 id="bill-no"
-                value={formData.nextBillNo ? `R${formData.nextBillNo}` : ""}
+                value={formData.nextBillNo ? `R${formData.nextBillNo}` : "Auto-generated"}
                 data-index={1}
                 onKeyDown={handleKeyDown}
                 readOnly

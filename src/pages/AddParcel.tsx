@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { format } from "date-fns";
-import { Loader2 } from "lucide-react";
 
 import { supabase } from "@/lib/supabase/client";
 import ParcelForm, {
@@ -13,27 +12,26 @@ export default function AddParcel() {
   const [isProcessing, setIsProcessing] = useState(false);
   const office = useOffice();
 
-  useEffect(() => {
-    fetchNextBillNo();
-  }, []);
-
-  const fetchNextBillNo = async () => {
-    try {
-      const { data: nextBillNo, error } = await supabase.rpc(
-        "get_next_bill_no"
-      );
-
-      if (error) throw error;
-
-      setFormData((prev) => ({ ...prev, nextBillNo }));
-    } catch (err: any) {
-      console.error("Error fetching next bill number:", err);
-    }
-  };
+  const [formData, setFormData] = useState<ParcelFormData>({
+    parcelDate: new Date(),
+    busDriverAssignment: null,
+    senderName: "",
+    senderMobile: "",
+    receiverName: "",
+    receiverMobile: "",
+    parcelItem: {
+      from_city_id: null,
+      to_city_id: null,
+      description: "",
+      qty: 1,
+      remark: "",
+      amount: null,
+    },
+    amountGiven: null,
+  });
 
   const onSubmit = async () => {
     const {
-      nextBillNo,
       parcelDate,
       busDriverAssignment,
       senderName,
@@ -49,11 +47,16 @@ export default function AddParcel() {
 
     setIsProcessing(true);
     try {
-      // Insert parcel
+      const { data: nextBillNo, error: billNoError } = await supabase.rpc(
+        "get_next_bill_no"
+      );
+
+      if (billNoError) throw billNoError;
+
       const { data: parcel, error: parcelError } = await supabase
         .from("parcels")
         .insert({
-          bill_no: nextBillNo || 1,
+          bill_no: nextBillNo,
           parcel_date: format(parcelDate, "yyyy-MM-dd"),
           driver_id: busDriverAssignment?.driver_id!,
           bus_id: busDriverAssignment?.bus_id!,
@@ -76,7 +79,6 @@ export default function AddParcel() {
 
       if (parcelError) throw parcelError;
 
-      // Navigate to print preview with parcel data
       router.navigate(`/parcel/${parcel.bill_no}/print`);
     } catch (err: any) {
       console.error("Error adding parcel:", err);
@@ -85,25 +87,6 @@ export default function AddParcel() {
       setIsProcessing(false);
     }
   };
-
-  const [formData, setFormData] = useState<ParcelFormData>({
-    nextBillNo: -1,
-    parcelDate: new Date(),
-    busDriverAssignment: null,
-    senderName: "",
-    senderMobile: "",
-    receiverName: "",
-    receiverMobile: "",
-    parcelItem: {
-      from_city_id: null,
-      to_city_id: null,
-      description: "",
-      qty: 1,
-      remark: "",
-      amount: null,
-    },
-    amountGiven: null,
-  });
 
   return (
     <div className="space-y-6">
@@ -114,19 +97,15 @@ export default function AddParcel() {
         </p>
       </div>
 
-      {formData.nextBillNo === -1 ? (
-        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-      ) : (
-        <ParcelForm
-          {...{
-            isProcessing,
-            formData,
-            setFormData,
-            onSubmit,
-            actionButton: "Save & Preview",
-          }}
-        />
-      )}
+      <ParcelForm
+        {...{
+          isProcessing,
+          formData,
+          setFormData,
+          onSubmit,
+          actionButton: "Save & Preview",
+        }}
+      />
     </div>
   );
 }
