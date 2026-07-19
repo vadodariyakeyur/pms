@@ -40,15 +40,15 @@ function Calendar({
         ),
         day: cn(
           buttonVariants({ variant: "ghost" }),
-          "size-8 p-0 font-normal aria-selected:opacity-100 dark:hover:bg-gray-600"
+          "size-8 p-0 font-normal aria-selected:opacity-100 dark:hover:bg-accent"
         ),
         day_range_start:
           "day-range-start aria-selected:bg-[var(--primary)] aria-selected:text-[var(--primary-foreground)]",
         day_range_end:
           "day-range-end aria-selected:bg-[var(--primary)] aria-selected:text-[var(--primary-foreground)]",
         day_selected:
-          "bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] focus:bg-[var(--primary)] focus:text-[var(--primary-foreground)] !bg-white !text-black",
-        day_today: "!bg-gray-500 dark:!text-black",
+          "bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary)] hover:text-[var(--primary-foreground)] focus:bg-[var(--primary)] focus:text-[var(--primary-foreground)]",
+        day_today: "bg-accent text-accent-foreground",
         day_outside:
           "day-outside !text-[var(--muted-foreground)] aria-selected:!text-[var(--muted-foreground)]",
         day_disabled: "!text-[var(--muted-foreground)] opacity-50",

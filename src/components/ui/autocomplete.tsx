@@ -107,7 +107,7 @@ export default function AutocompleteInput<T extends string>({
           onCloseAutoFocus={(e) => e.preventDefault()}
         >
           <Command>
-            <CommandGroup className="bg-gray-950 p-1">
+            <CommandGroup className="p-1">
               {suggestions.map((item, index) => (
                 <CommandItem
                   key={`command-item-${index}`}
@@ -122,7 +122,7 @@ export default function AutocompleteInput<T extends string>({
                   className={cn(
                     "[&:not(:last-child)]:mb-1",
                     highlightedIndex === index &&
-                      "bg-gray-800 text-accent-foreground"
+                      "bg-accent text-accent-foreground"
                   )}
                 >
                   <Check

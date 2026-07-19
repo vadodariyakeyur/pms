@@ -9,6 +9,7 @@ import {
   Bus,
   User,
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -257,7 +258,7 @@ export default function BusDriverAssignments() {
           <h1 className="text-2xl font-bold tracking-tight">
             Bus & Driver Assignments
           </h1>
-          <p className="text-gray-400">
+          <p className="text-muted-foreground">
             Manage your bus and driver assignments.
           </p>
         </div>
@@ -266,7 +267,6 @@ export default function BusDriverAssignments() {
             resetForm();
             setIsAddDialogOpen(true);
           }}
-          className="bg-gray-800 hover:bg-gray-700"
         >
           <Plus className="h-4 w-4 mr-2" />
           Add Assignment
@@ -276,7 +276,6 @@ export default function BusDriverAssignments() {
       {error && (
         <Alert
           variant="destructive"
-          className="bg-red-900 border-red-800 text-red-200"
         >
           <AlertDescription>{error}</AlertDescription>
         </Alert>
@@ -284,25 +283,25 @@ export default function BusDriverAssignments() {
 
       <div className="flex items-center">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search assignments..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 border-gray-800"
+            className="pl-10"
           />
         </div>
       </div>
 
-      <div className="rounded-md border bg-gray-900">
+      <div className="rounded-lg border bg-card">
         <Table>
           <TableHeader>
-            <TableRow className="hover:bg-gray-900">
-              <TableHead className="text-gray-300">#</TableHead>
-              <TableHead className="text-gray-300">Bus</TableHead>
-              <TableHead className="text-gray-300">Driver Name</TableHead>
-              <TableHead className="text-gray-300">Assignment Date</TableHead>
-              <TableHead className="w-[100px] text-right text-gray-300">
+            <TableRow className="hover:bg-transparent">
+              <TableHead>#</TableHead>
+              <TableHead>Bus</TableHead>
+              <TableHead>Driver Name</TableHead>
+              <TableHead>Assignment Date</TableHead>
+              <TableHead className="w-[100px] text-right">
                 Actions
               </TableHead>
             </TableRow>
@@ -310,17 +309,17 @@ export default function BusDriverAssignments() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-10">
-                  <div className="flex justify-center">
-                    <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
-                  </div>
+                <TableCell colSpan={5} className="py-3">
+                  <div className="space-y-2">
+{[...Array(3)].map((_, i) => <Skeleton key={i} className="h-9 w-full" />)}
+</div>
                 </TableCell>
               </TableRow>
             ) : filteredAssignments.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={5}
-                  className="text-center py-10 text-gray-400"
+                  className="text-center py-10 text-muted-foreground"
                 >
                   {searchQuery
                     ? "No assignments match your search."
@@ -329,23 +328,23 @@ export default function BusDriverAssignments() {
               </TableRow>
             ) : (
               filteredAssignments.map((assignment, idx) => (
-                <TableRow key={assignment.id} className="hover:bg-gray-800">
+                <TableRow key={assignment.id}>
                   <TableCell>{idx + 1}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Bus className="h-4 w-4 text-gray-400" />
+                      <Bus className="h-4 w-4 text-muted-foreground" />
                       {assignment.buses?.registration_no}
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <User className="h-4 w-4 text-gray-400" />
+                      <User className="h-4 w-4 text-muted-foreground" />
                       {assignment.drivers?.name}
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-gray-400" />
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
                       {format(
                         new Date(assignment.assignment_date),
                         "dd/MM/yyyy"
@@ -358,7 +357,7 @@ export default function BusDriverAssignments() {
                         size="icon"
                         variant="ghost"
                         onClick={() => openEditDialog(assignment)}
-                        className="h-8 w-8 text-gray-400 hover:text-white"
+                        className="h-8 w-8 text-muted-foreground"
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -366,7 +365,7 @@ export default function BusDriverAssignments() {
                         size="icon"
                         variant="ghost"
                         onClick={() => openDeleteDialog(assignment)}
-                        className="h-8 w-8 text-gray-400 hover:text-white hover:bg-red-900/20"
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -381,7 +380,7 @@ export default function BusDriverAssignments() {
 
       {/* Add Assignment Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="bg-gray-900 text-gray-100 border-gray-800 sm:max-w-md">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Add Assignment</DialogTitle>
           </DialogHeader>
@@ -392,10 +391,10 @@ export default function BusDriverAssignments() {
                 value={selectedBusId?.toString() || ""}
                 onValueChange={(value) => setSelectedBusId(Number(value))}
               >
-                <SelectTrigger className="bg-gray-800 border-gray-700">
+                <SelectTrigger>
                   <SelectValue placeholder="Select bus" />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectContent>
                   {buses.map((bus) => (
                     <SelectItem key={bus.id} value={bus.id.toString()}>
                       {bus.registration_no}
@@ -411,10 +410,10 @@ export default function BusDriverAssignments() {
                 value={selectedDriverId?.toString() || ""}
                 onValueChange={(value) => setSelectedDriverId(Number(value))}
               >
-                <SelectTrigger className="bg-gray-800 border-gray-700">
+                <SelectTrigger>
                   <SelectValue placeholder="Select driver" />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectContent>
                   {drivers.map((driver) => (
                     <SelectItem key={driver.id} value={driver.id.toString()}>
                       {driver.name}
@@ -430,7 +429,7 @@ export default function BusDriverAssignments() {
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    className="w-full justify-start text-left font-normal bg-gray-800 border-gray-700"
+                    className="w-full justify-start text-left font-normal"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {selectedDate ? (
@@ -440,13 +439,12 @@ export default function BusDriverAssignments() {
                     )}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-gray-800 border-gray-700">
+                <PopoverContent className="w-auto p-0">
                   <CalendarComponent
                     mode="single"
                     selected={selectedDate}
                     onSelect={(date) => date && setSelectedDate(date)}
                     initialFocus
-                    className="bg-gray-800"
                   />
                 </PopoverContent>
               </Popover>
@@ -456,7 +454,6 @@ export default function BusDriverAssignments() {
             <Button
               variant="outline"
               onClick={() => setIsAddDialogOpen(false)}
-              className="bg-transparent border-gray-700 text-gray-300 hover:bg-gray-800"
             >
               Cancel
             </Button>
@@ -468,7 +465,6 @@ export default function BusDriverAssignments() {
                 !selectedDate ||
                 submitting
               }
-              className="bg-gray-700 hover:bg-gray-600"
             >
               {submitting ? (
                 <>
@@ -485,7 +481,7 @@ export default function BusDriverAssignments() {
 
       {/* Edit Assignment Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="bg-gray-900 text-gray-100 border-gray-800 sm:max-w-md">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Edit Assignment</DialogTitle>
           </DialogHeader>
@@ -496,10 +492,10 @@ export default function BusDriverAssignments() {
                 value={selectedBusId?.toString() || ""}
                 onValueChange={(value) => setSelectedBusId(Number(value))}
               >
-                <SelectTrigger className="bg-gray-800 border-gray-700">
+                <SelectTrigger>
                   <SelectValue placeholder="Select bus" />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectContent>
                   {buses.map((bus) => (
                     <SelectItem key={bus.id} value={bus.id.toString()}>
                       {bus.registration_no}
@@ -515,10 +511,10 @@ export default function BusDriverAssignments() {
                 value={selectedDriverId?.toString() || ""}
                 onValueChange={(value) => setSelectedDriverId(Number(value))}
               >
-                <SelectTrigger className="bg-gray-800 border-gray-700">
+                <SelectTrigger>
                   <SelectValue placeholder="Select driver" />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700">
+                <SelectContent>
                   {drivers.map((driver) => (
                     <SelectItem key={driver.id} value={driver.id.toString()}>
                       {driver.name}
@@ -534,7 +530,7 @@ export default function BusDriverAssignments() {
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    className="w-full justify-start text-left font-normal bg-gray-800 border-gray-700"
+                    className="w-full justify-start text-left font-normal"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {selectedDate ? (
@@ -544,13 +540,12 @@ export default function BusDriverAssignments() {
                     )}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-gray-800 border-gray-700">
+                <PopoverContent className="w-auto p-0">
                   <CalendarComponent
                     mode="single"
                     selected={selectedDate}
                     onSelect={(date) => date && setSelectedDate(date)}
                     initialFocus
-                    className="bg-gray-800"
                   />
                 </PopoverContent>
               </Popover>
@@ -560,7 +555,6 @@ export default function BusDriverAssignments() {
             <Button
               variant="outline"
               onClick={() => setIsEditDialogOpen(false)}
-              className="bg-transparent border-gray-700 text-gray-300 hover:bg-gray-800"
             >
               Cancel
             </Button>
@@ -572,7 +566,6 @@ export default function BusDriverAssignments() {
                 !selectedDate ||
                 submitting
               }
-              className="bg-gray-700 hover:bg-gray-600"
             >
               {submitting ? (
                 <>
@@ -589,7 +582,7 @@ export default function BusDriverAssignments() {
 
       {/* Delete Assignment Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="bg-gray-900 text-gray-100 border-gray-800 sm:max-w-md">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Delete Assignment</DialogTitle>
           </DialogHeader>
@@ -599,13 +592,12 @@ export default function BusDriverAssignments() {
               {currentAssignment?.buses?.registration_no}" with driver "
               {currentAssignment?.drivers?.name}"?
             </p>
-            <p className="text-red-400 mt-2">This action cannot be undone.</p>
+            <p className="text-destructive mt-2">This action cannot be undone.</p>
           </div>
           <DialogFooter>
             <Button
               variant="outline"
               onClick={() => setIsDeleteDialogOpen(false)}
-              className="bg-transparent border-gray-700 text-gray-300 hover:bg-gray-800"
             >
               Cancel
             </Button>
@@ -613,7 +605,6 @@ export default function BusDriverAssignments() {
               variant="destructive"
               onClick={handleDeleteAssignment}
               disabled={submitting}
-              className="bg-red-900 hover:bg-red-800 text-white"
             >
               {submitting ? (
                 <>

@@ -19,7 +19,7 @@ export function Receipt({ parcel, ...rest }: ReceiptProps) {
               </h1>
               <p className="text-sm font-medium">
                 રાજકોટ :- 150 ફુટ રિંગ રોડ, ગોવર્ધન ચોક ની પાસે, સ્કાય હેઈટ્સ
-                બિલ્ડીંગ ની સામે, મો. - <b className="text-base">84019 39945 / 81550 66443</b>
+                બિલ્ડીંગ ની સામે, મો. - <b className="text-base">{parcel.office_mobile_no || "84019 39945 / 81550 66443"}</b>
               </p>
             </div>
           </div>
@@ -64,7 +64,7 @@ export function Receipt({ parcel, ...rest }: ReceiptProps) {
             </table>
 
             {/* Sender and Receiver Details */}
-            <table className="table-fixed w-full border-collapse">
+            <table className="table-fixed w-full border-collapse [&_td]:break-words">
               <thead>
                 <tr>
                   <th className="text-left border-2 border-black p-1">
@@ -195,14 +195,16 @@ export function Receipt({ parcel, ...rest }: ReceiptProps) {
                 visibility: visible;
               }
               
+              /* position: fixed so the containing block is the page, not the
+                 relative SidebarInset layout wrapper (which is narrowed by the
+                 visibility-hidden sidebar in print) */
               #print-section {
-                position: absolute;
+                position: fixed;
                 left: 0;
                 top: 0;
-                width: 100%;
+                width: 210mm;
                 background-color: white !important;
                 color: black !important;
-                max-width: 100% !important;
               }
               
               @page {

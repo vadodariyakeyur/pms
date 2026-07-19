@@ -3,7 +3,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Edit,
-  Loader2,
   Trash2,
   Filter,
   X,
@@ -12,6 +11,7 @@ import {
   CalendarIcon,
   IndianRupeeIcon,
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -287,20 +287,19 @@ export default function ListParcels() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">View Parcels</h1>
-          <p className="text-gray-400">
+          <p className="text-muted-foreground">
             Manage parcels with search and filter capabilities
           </p>
         </div>
         <Button
           onClick={() => router.navigate("/parcels/add")}
-          className="bg-gray-700 hover:bg-gray-600"
         >
           Add New Parcel
         </Button>
       </div>
 
       {/* Search and Filter Controls */}
-      <Card className="bg-gray-900 border-gray-800">
+      <Card>
         <Collapsible open={showFilters} className="mt-4">
           <CardHeader className="pb-3">
             <div className="flex justify-between items-center">
@@ -312,7 +311,6 @@ export default function ListParcels() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="bg-gray-800 border-gray-700 hover:bg-gray-700"
                 >
                   <Filter className="h-4 w-4 mr-2" />
                   {showFilters ? "Hide Filters" : "Show Filters"}
@@ -327,7 +325,6 @@ export default function ListParcels() {
                   placeholder="Search by sender/receiver name or phone..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="bg-gray-800 border-gray-700"
                 />
               </div>
               <div>
@@ -335,13 +332,12 @@ export default function ListParcels() {
                   placeholder="Bill No."
                   value={billNo}
                   onChange={(e) => setBillNo(e.target.value)}
-                  className="w-32 bg-gray-800 border-gray-700"
+                  className="w-32"
                 />
               </div>
               <Button
                 onClick={resetFilters}
                 variant="outline"
-                className="bg-gray-800 border-gray-700 hover:bg-gray-700"
               >
                 <X className="h-4 w-4 mr-2" />
                 Reset
@@ -358,10 +354,10 @@ export default function ListParcels() {
                       setFromCityId(value ? parseInt(value) : null)
                     }
                   >
-                    <SelectTrigger className="bg-gray-800 border-gray-700">
+                    <SelectTrigger>
                       <SelectValue placeholder="Any city" />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-700">
+                    <SelectContent>
                       <SelectItem value="0">Any city</SelectItem>
                       {cities.map((city) => (
                         <SelectItem key={city.id} value={city.id.toString()}>
@@ -380,10 +376,10 @@ export default function ListParcels() {
                       setToCityId(value ? parseInt(value) : null)
                     }
                   >
-                    <SelectTrigger className="bg-gray-800 border-gray-700">
+                    <SelectTrigger>
                       <SelectValue placeholder="Any city" />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-700">
+                    <SelectContent>
                       <SelectItem value="0">Any city</SelectItem>
                       {cities.map((city) => (
                         <SelectItem key={city.id} value={city.id.toString()}>
@@ -401,20 +397,20 @@ export default function ListParcels() {
                       <PopoverTrigger asChild>
                         <Button
                           variant="outline"
-                          className="w-full justify-start text-left font-normal bg-gray-800 border-gray-700 hover:bg-gray-700"
+                          className="w-full justify-start text-left font-normal"
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
                           {dateRange.from ? (
                             format(dateRange.from, "PPP")
                           ) : (
-                            <span className="text-gray-400">
+                            <span className="text-muted-foreground">
                               Pick start date
                             </span>
                           )}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent
-                        className="w-auto p-0 bg-gray-800 border-gray-700"
+                        className="w-auto p-0"
                         align="start"
                       >
                         <Calendar
@@ -427,7 +423,6 @@ export default function ListParcels() {
                             }))
                           }
                           initialFocus
-                          className="bg-gray-800"
                         />
                       </PopoverContent>
                     </Popover>
@@ -438,18 +433,18 @@ export default function ListParcels() {
                       <PopoverTrigger asChild>
                         <Button
                           variant="outline"
-                          className="w-full justify-start text-left font-normal bg-gray-800 border-gray-700 hover:bg-gray-700"
+                          className="w-full justify-start text-left font-normal"
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
                           {dateRange.to ? (
                             format(dateRange.to, "PPP")
                           ) : (
-                            <span className="text-gray-400">Pick end date</span>
+                            <span className="text-muted-foreground">Pick end date</span>
                           )}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent
-                        className="w-auto p-0 bg-gray-800 border-gray-700"
+                        className="w-auto p-0"
                         align="start"
                       >
                         <Calendar
@@ -461,7 +456,6 @@ export default function ListParcels() {
                               to: endDate,
                             }))
                           }
-                          className="bg-gray-800"
                         />
                       </PopoverContent>
                     </Popover>
@@ -474,37 +468,39 @@ export default function ListParcels() {
       </Card>
 
       {/* Parcels List */}
-      <Card className="bg-gray-900 border-gray-800">
+      <Card>
         <CardHeader>
           <CardTitle className="text-lg">Parcels List</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="rounded-md border border-gray-800">
+          <div className="rounded-md border">
             <Table>
               <TableHeader>
-                <TableRow className="hover:bg-gray-900">
-                  <TableHead className="text-gray-300">Bill No.</TableHead>
-                  <TableHead className="text-gray-300">Date</TableHead>
-                  <TableHead className="text-gray-300">From</TableHead>
-                  <TableHead className="text-gray-300">To</TableHead>
-                  <TableHead className="text-gray-300">Mokalnar</TableHead>
-                  <TableHead className="text-gray-300">Lenar</TableHead>
-                  <TableHead className="text-gray-300">Amount</TableHead>
-                  <TableHead className="text-gray-300">Actions</TableHead>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead>Bill No.</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>From</TableHead>
+                  <TableHead>To</TableHead>
+                  <TableHead>Mokalnar</TableHead>
+                  <TableHead>Lenar</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading ? (
                   <TableRow>
                     <TableCell colSpan={8}>
-                      <Loader2 className="mx-auto h-8 w-8 animate-spin text-gray-400 my-2" />
+                      <div className="space-y-2">
+{[...Array(3)].map((_, i) => <Skeleton key={i} className="h-9 w-full" />)}
+</div>
                     </TableCell>
                   </TableRow>
                 ) : parcels.length === 0 ? (
                   <TableRow>
                     <TableCell
                       colSpan={8}
-                      className="text-center py-8 text-gray-400"
+                      className="text-center py-8 text-muted-foreground"
                     >
                       No parcels found matching your criteria.
                     </TableCell>
@@ -512,7 +508,7 @@ export default function ListParcels() {
                 ) : (
                   <>
                     {parcels.map((parcel) => (
-                      <TableRow key={parcel.id} className="hover:bg-gray-800">
+                      <TableRow key={parcel.id}>
                         <TableCell className="font-medium">
                           R{parcel.bill_no}
                         </TableCell>
@@ -523,13 +519,13 @@ export default function ListParcels() {
                         <TableCell>{parcel.to_city?.name}</TableCell>
                         <TableCell>
                           <div>{parcel.sender_name}</div>
-                          <div className="text-xs text-gray-400">
+                          <div className="text-xs text-muted-foreground">
                             {parcel.sender_mobile_no}
                           </div>
                         </TableCell>
                         <TableCell>
                           <div>{parcel.receiver_name}</div>
-                          <div className="text-xs text-gray-400">
+                          <div className="text-xs text-muted-foreground">
                             {parcel.receiver_mobile_no}
                           </div>
                         </TableCell>
@@ -538,7 +534,7 @@ export default function ListParcels() {
                             className={cn(
                               "flex items-center gap-1",
                               parcel.amount - parcel.amount_given > 0
-                                ? "text-red-400"
+                                ? "text-destructive"
                                 : "text-green-400"
                             )}
                           >
@@ -556,25 +552,24 @@ export default function ListParcels() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent
                               align="end"
-                              className="bg-gray-800 border-gray-700"
                             >
                               <DropdownMenuItem
                                 onClick={() =>
                                   handlePrintParcel(parcel.bill_no)
                                 }
-                                className="cursor-pointer hover:bg-gray-700"
+                                className="cursor-pointer"
                               >
                                 <Printer className="mr-2 h-4 w-4" /> Print
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => handleEditParcel(parcel.bill_no)}
-                                className="cursor-pointer hover:bg-gray-700"
+                                className="cursor-pointer"
                               >
                                 <Edit className="mr-2 h-4 w-4" /> Edit
                               </DropdownMenuItem>
                               <DropdownMenuItem
                                 onClick={() => confirmDeleteParcel(parcel.id)}
-                                className="cursor-pointer text-red-400 hover:bg-gray-700 focus:text-red-400"
+                                className="cursor-pointer text-destructive focus:text-destructive"
                               >
                                 <Trash2 className="mr-2 h-4 w-4" /> Delete
                               </DropdownMenuItem>
@@ -597,12 +592,11 @@ export default function ListParcels() {
                 size="sm"
                 onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
                 disabled={page === 1}
-                className="bg-gray-800 border-gray-700 hover:bg-gray-700"
               >
                 <ChevronLeft className="h-4 w-4" />
                 <span className="sr-only">Previous Page</span>
               </Button>
-              <div className="text-sm text-gray-400">
+              <div className="text-sm text-muted-foreground">
                 Page {page} of {totalPages}
               </div>
               <Button
@@ -612,7 +606,6 @@ export default function ListParcels() {
                   setPage((prev) => Math.min(prev + 1, totalPages))
                 }
                 disabled={page === totalPages}
-                className="bg-gray-800 border-gray-700 hover:bg-gray-700"
               >
                 <ChevronRight className="h-4 w-4" />
                 <span className="sr-only">Next Page</span>
@@ -624,10 +617,10 @@ export default function ListParcels() {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent className="bg-gray-900 border-gray-800">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Confirm Deletion</DialogTitle>
-            <DialogDescription className="text-gray-400">
+            <DialogDescription className="text-muted-foreground">
               Are you sure you want to delete this parcel? This action cannot be
               undone.
             </DialogDescription>
@@ -636,14 +629,12 @@ export default function ListParcels() {
             <Button
               variant="outline"
               onClick={() => setDeleteDialogOpen(false)}
-              className="bg-gray-800 border-gray-700 hover:bg-gray-700"
             >
               Cancel
             </Button>
             <Button
               variant="destructive"
               onClick={handleDeleteParcel}
-              className="bg-red-900 hover:bg-red-800"
             >
               Delete
             </Button>

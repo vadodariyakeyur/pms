@@ -15,8 +15,10 @@ export type Parcel = Database["public"]["Tables"]["parcels"]["Row"] & {
   drivers?: { name: string } | null;
   from_city?: { name: string } | null;
   to_city?: { name: string } | null;
+  offices?: { mobile_no: string | null } | null;
   bus_registration?: string;
   driver_name?: string;
+  office_mobile_no?: string | null;
 };
 
 export default function PrintParcel() {
@@ -44,7 +46,8 @@ export default function PrintParcel() {
           buses (registration_no),
           drivers (name),
           from_city:cities!parcels_from_city_id_fkey (name),
-          to_city:cities!parcels_to_city_id_fkey (name)
+          to_city:cities!parcels_to_city_id_fkey (name),
+          offices (mobile_no)
         `
         )
         .eq("bill_no", parseInt(billNo!))
@@ -56,6 +59,7 @@ export default function PrintParcel() {
         ...data,
         bus_registration: data.buses?.registration_no,
         driver_name: data.drivers?.name,
+        office_mobile_no: data.offices?.mobile_no,
       });
     } catch (err) {
       console.error("Error fetching parcel:", err);
@@ -104,7 +108,6 @@ export default function PrintParcel() {
         <div className="text-white mb-4">Parcel not found</div>
         <Button
           onClick={() => router.navigate("/parcels/add")}
-          className="bg-gray-700 hover:bg-gray-600"
         >
           Create New Parcel
         </Button>
@@ -121,28 +124,24 @@ export default function PrintParcel() {
           <Button
             variant="outline"
             onClick={handleBackToParcelList}
-            className="bg-gray-800 border-gray-700 hover:bg-gray-700"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to List
           </Button>
           <Button
             onClick={handleSenderMessageSend}
-            className="bg-gray-700 hover:bg-gray-600"
           >
             <MessageSquare className="h-4 w-4" />
             Send Message(Mokalnar)
           </Button>
           <Button
             onClick={handleReceiptMessageSend}
-            className="bg-gray-700 hover:bg-gray-600"
           >
             <MessageSquare className="h-4 w-4" />
             Send Message(Lenar)
           </Button>
           <Button
             onClick={handlePrint}
-            className="bg-gray-700 hover:bg-gray-600"
           >
             <Printer className="h-4 w-4" />
             Print

@@ -147,7 +147,7 @@ export default function EditParcel() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Edit Parcel</h1>
-        <p className="text-gray-400">Edit parcel entry and generate bill.</p>
+        <p className="text-muted-foreground">Edit parcel entry and generate bill.</p>
       </div>
 
       {loading ? (

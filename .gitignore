@@ -26,3 +26,7 @@ dist-ssr
 supabase/.temp*
 
 .env*
+.claude
+.tokensave
+docs
+.vscode

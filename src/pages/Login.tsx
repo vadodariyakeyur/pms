@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, Terminal } from "lucide-react";
+import { Loader2, Terminal, Boxes } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import router from "@/app/router";
 
@@ -53,32 +53,36 @@ export default function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 p-4">
-      <div className="w-full max-w-md">
-        <Card className="w-full bg-black/40 backdrop-blur-lg border border-white/20 shadow-xl rounded-2xl text-white">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold">PMS Inc.</CardTitle>
-            <CardDescription className="text-gray-300">
-              Enter credentials for Parcel Management System
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background p-4">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-40 left-1/2 h-[480px] w-[720px] -translate-x-1/2 rounded-full bg-primary/20 blur-[120px]"
+      />
+      <div className="relative w-full max-w-md">
+        <Card className="w-full shadow-2xl">
+          <CardHeader className="items-center text-center">
+            <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/30">
+              <Boxes className="size-6" />
+            </div>
+            <CardTitle className="text-2xl font-bold">
+              Parcel Management System
+            </CardTitle>
+            <CardDescription>
+              Sign in to manage parcels, buses and reports
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleLogin}>
             <CardContent className="space-y-4">
               {error && (
-                <Alert
-                  variant="destructive"
-                  className="bg-red-900/30 border-red-500/50 text-red-200 rounded-lg"
-                >
-                  <Terminal className="h-4 w-4 text-red-300" />
-                  <AlertTitle className="text-white">Login Failed</AlertTitle>
+                <Alert variant="destructive">
+                  <Terminal className="h-4 w-4" />
+                  <AlertTitle>Login Failed</AlertTitle>
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
 
               <div className="space-y-1.5">
-                <Label htmlFor="email" className="text-gray-200">
-                  Email
-                </Label>
+                <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -86,14 +90,11 @@ export default function Login() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   placeholder="you@example.com"
-                  className="bg-black/50 border border-white/30 text-white placeholder:text-gray-500 rounded-md focus:ring-1 focus:ring-white/50 focus:border-white/50"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="password" className="text-gray-200">
-                  Password
-                </Label>
+                <Label htmlFor="password">Password</Label>
                 <Input
                   id="password"
                   type="password"
@@ -101,21 +102,15 @@ export default function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   placeholder="••••••••"
-                  className="bg-black/50 border border-white/30 text-white placeholder:text-gray-500 rounded-md focus:ring-1 focus:ring-white/50 focus:border-white/50"
                 />
               </div>
             </CardContent>
 
             <CardFooter className="flex flex-col space-y-4 pt-6">
-              {/* Added top padding */}
-              <Button
-                type="submit"
-                className="w-full bg-white/90 hover:bg-white !text-black font-semibold rounded-md transition-colors duration-200 disabled:opacity-50"
-                disabled={loading}
-              >
+              <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin text-black" />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Logging in...
                   </>
                 ) : (
@@ -125,7 +120,7 @@ export default function Login() {
             </CardFooter>
           </form>
         </Card>
-        <p className="mt-6 text-center text-xs text-gray-400/80">
+        <p className="mt-6 text-center text-xs text-muted-foreground">
           &copy; {new Date().getFullYear()} PMS Inc. All rights reserved.
         </p>
       </div>

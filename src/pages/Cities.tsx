@@ -8,6 +8,7 @@ import {
   Loader2,
   ArrowRightLeft,
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -207,7 +208,7 @@ export default function Cities() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Cities</h1>
-          <p className="text-gray-400">
+          <p className="text-muted-foreground">
             Manage your cities and default locations.
           </p>
         </div>
@@ -216,7 +217,6 @@ export default function Cities() {
             resetForm();
             setIsAddDialogOpen(true);
           }}
-          className="bg-gray-800 hover:bg-gray-700"
         >
           <Plus className="h-4 w-4 mr-2" />
           Add City
@@ -226,7 +226,6 @@ export default function Cities() {
       {error && (
         <Alert
           variant="destructive"
-          className="bg-red-900 border-red-800 text-red-200"
         >
           <AlertDescription>{error}</AlertDescription>
         </Alert>
@@ -234,25 +233,25 @@ export default function Cities() {
 
       <div className="flex items-center">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search cities..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-gray-900 border-gray-800"
+            className="pl-10"
           />
         </div>
       </div>
 
-      <div className="rounded-md border border-gray-800 bg-gray-900">
+      <div className="rounded-lg border bg-card">
         <Table>
           <TableHeader>
-            <TableRow className="hover:bg-gray-900">
-              <TableHead className="text-gray-300">#</TableHead>
-              <TableHead className="text-gray-300">Name</TableHead>
-              <TableHead className="text-gray-300">Default From</TableHead>
-              <TableHead className="text-gray-300">Default To</TableHead>
-              <TableHead className="w-[100px] text-right text-gray-300">
+            <TableRow className="hover:bg-transparent">
+              <TableHead>#</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Default From</TableHead>
+              <TableHead>Default To</TableHead>
+              <TableHead className="w-[100px] text-right">
                 Actions
               </TableHead>
             </TableRow>
@@ -260,17 +259,17 @@ export default function Cities() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-10">
-                  <div className="flex justify-center">
-                    <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
-                  </div>
+                <TableCell colSpan={4} className="py-3">
+                  <div className="space-y-2">
+{[...Array(3)].map((_, i) => <Skeleton key={i} className="h-9 w-full" />)}
+</div>
                 </TableCell>
               </TableRow>
             ) : filteredCities.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={4}
-                  className="text-center py-10 text-gray-400"
+                  className="text-center py-10 text-muted-foreground"
                 >
                   {searchQuery
                     ? "No cities match your search."
@@ -279,7 +278,7 @@ export default function Cities() {
               </TableRow>
             ) : (
               filteredCities.map((city, idx) => (
-                <TableRow key={city.id} className="hover:bg-gray-800">
+                <TableRow key={city.id}>
                   <TableCell>{idx + 1}</TableCell>
                   <TableCell>{city.name}</TableCell>
                   <TableCell>
@@ -293,7 +292,7 @@ export default function Cities() {
                   </TableCell>
                   <TableCell>
                     {city.is_default_to ? (
-                      <span className="inline-flex items-center rounded-full bg-blue-900/20 px-2 py-1 text-xs font-medium text-blue-400">
+                      <span className="inline-flex items-center rounded-full bg-primary/15 px-2 py-1 text-xs font-medium text-primary">
                         Default
                       </span>
                     ) : (
@@ -306,7 +305,7 @@ export default function Cities() {
                         size="icon"
                         variant="ghost"
                         onClick={() => openEditDialog(city)}
-                        className="h-8 w-8 text-gray-400 hover:text-white"
+                        className="h-8 w-8 text-muted-foreground"
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -314,7 +313,7 @@ export default function Cities() {
                         size="icon"
                         variant="ghost"
                         onClick={() => openDeleteDialog(city)}
-                        className="h-8 w-8 text-gray-400 hover:text-white hover:bg-red-900/20"
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -329,7 +328,7 @@ export default function Cities() {
 
       {/* Add City Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="bg-gray-900 text-gray-100 border-gray-800 sm:max-w-md">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Add City</DialogTitle>
           </DialogHeader>
@@ -341,7 +340,6 @@ export default function Cities() {
                 value={cityName}
                 onChange={(e) => setCityName(e.target.value)}
                 placeholder="Enter city name"
-                className="bg-gray-800 border-gray-700"
               />
             </div>
 
@@ -373,14 +371,12 @@ export default function Cities() {
             <Button
               variant="outline"
               onClick={() => setIsAddDialogOpen(false)}
-              className="bg-transparent border-gray-700 text-gray-300 hover:bg-gray-800"
             >
               Cancel
             </Button>
             <Button
               onClick={handleAddCity}
               disabled={!cityName.trim() || submitting}
-              className="bg-gray-700 hover:bg-gray-600"
             >
               {submitting ? (
                 <>
@@ -397,7 +393,7 @@ export default function Cities() {
 
       {/* Edit City Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="bg-gray-900 text-gray-100 border-gray-800 sm:max-w-md">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Edit City</DialogTitle>
           </DialogHeader>
@@ -409,7 +405,6 @@ export default function Cities() {
                 value={cityName}
                 onChange={(e) => setCityName(e.target.value)}
                 placeholder="Enter city name"
-                className="bg-gray-800 border-gray-700"
               />
             </div>
 
@@ -447,14 +442,12 @@ export default function Cities() {
             <Button
               variant="outline"
               onClick={() => setIsEditDialogOpen(false)}
-              className="bg-transparent border-gray-700 text-gray-300 hover:bg-gray-800"
             >
               Cancel
             </Button>
             <Button
               onClick={handleEditCity}
               disabled={!cityName.trim() || submitting}
-              className="bg-gray-700 hover:bg-gray-600"
             >
               {submitting ? (
                 <>
@@ -471,7 +464,7 @@ export default function Cities() {
 
       {/* Delete City Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="bg-gray-900 text-gray-100 border-gray-800 sm:max-w-md">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Delete City</DialogTitle>
           </DialogHeader>
@@ -479,13 +472,12 @@ export default function Cities() {
             <p>
               Are you sure you want to delete the city "{currentCity?.name}"?
             </p>
-            <p className="text-red-400 mt-2">This action cannot be undone.</p>
+            <p className="text-destructive mt-2">This action cannot be undone.</p>
           </div>
           <DialogFooter>
             <Button
               variant="outline"
               onClick={() => setIsDeleteDialogOpen(false)}
-              className="bg-transparent border-gray-700 text-gray-300 hover:bg-gray-800"
             >
               Cancel
             </Button>
@@ -493,7 +485,6 @@ export default function Cities() {
               variant="destructive"
               onClick={handleDeleteCity}
               disabled={submitting}
-              className="bg-red-900 hover:bg-red-800 text-white"
             >
               {submitting ? (
                 <>

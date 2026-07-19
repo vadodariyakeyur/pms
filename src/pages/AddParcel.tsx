@@ -92,7 +92,7 @@ export default function AddParcel() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Add Parcel</h1>
-        <p className="text-gray-400">
+        <p className="text-muted-foreground">
           Create a new parcel entry and generate bill.
         </p>
       </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Plus, Pencil, Trash2, Search, Loader2 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +37,7 @@ export default function Offices() {
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [currentOffice, setCurrentOffice] = useState<Office | null>(null);
     const [officeName, setOfficeName] = useState("");
+    const [officeMobile, setOfficeMobile] = useState("");
     const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
@@ -70,6 +72,7 @@ export default function Offices() {
             const { error } = await supabase.from("offices").insert([
                 {
                     name: officeName,
+                    mobile_no: officeMobile.trim() || null,
                 },
             ]);
 
@@ -99,6 +102,7 @@ export default function Offices() {
                 .from("offices")
                 .update({
                     name: officeName,
+                    mobile_no: officeMobile.trim() || null,
                 })
                 .eq("id", currentOffice.id);
 
@@ -144,12 +148,14 @@ export default function Offices() {
 
     const resetForm = () => {
         setOfficeName("");
+        setOfficeMobile("");
         setCurrentOffice(null);
     };
 
     const openEditDialog = (office: Office) => {
         setCurrentOffice(office);
         setOfficeName(office.name);
+        setOfficeMobile(office.mobile_no ?? "");
         setIsEditDialogOpen(true);
     };
 
@@ -163,7 +169,7 @@ export default function Offices() {
             <div className="flex justify-between items-center">
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight">Offices</h1>
-                    <p className="text-gray-400">
+                    <p className="text-muted-foreground">
                         Manage office locations in your system.
                     </p>
                 </div>
@@ -172,7 +178,6 @@ export default function Offices() {
                         resetForm();
                         setIsAddDialogOpen(true);
                     }}
-                    className="bg-gray-800 hover:bg-gray-700"
                 >
                     <Plus className="h-4 w-4 mr-2" />
                     Add Office
@@ -182,7 +187,6 @@ export default function Offices() {
             {error && (
                 <Alert
                     variant="destructive"
-                    className="bg-red-900 border-red-800 text-red-200"
                 >
                     <AlertDescription>{error}</AlertDescription>
                 </Alert>
@@ -190,23 +194,24 @@ export default function Offices() {
 
             <div className="flex items-center">
                 <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                         placeholder="Search offices..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10 bg-gray-900 border-gray-800"
+                        className="pl-10"
                     />
                 </div>
             </div>
 
-            <div className="rounded-md border border-gray-800 bg-gray-900">
+            <div className="rounded-lg border bg-card">
                 <Table>
                     <TableHeader>
-                        <TableRow className="hover:bg-gray-900">
-                            <TableHead className="text-gray-300">#</TableHead>
-                            <TableHead className="text-gray-300">Name</TableHead>
-                            <TableHead className="w-[100px] text-right text-gray-300">
+                        <TableRow className="hover:bg-transparent">
+                            <TableHead>#</TableHead>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Mobile</TableHead>
+                            <TableHead className="w-[100px] text-right">
                                 Actions
                             </TableHead>
                         </TableRow>
@@ -214,17 +219,17 @@ export default function Offices() {
                     <TableBody>
                         {loading ? (
                             <TableRow>
-                                <TableCell colSpan={3} className="text-center py-10">
-                                    <div className="flex justify-center">
-                                        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
-                                    </div>
+                                <TableCell colSpan={4} className="text-center py-10">
+                                    <div className="space-y-2">
+{[...Array(3)].map((_, i) => <Skeleton key={i} className="h-9 w-full" />)}
+</div>
                                 </TableCell>
                             </TableRow>
                         ) : filteredOffices.length === 0 ? (
                             <TableRow>
                                 <TableCell
-                                    colSpan={3}
-                                    className="text-center py-10 text-gray-400"
+                                    colSpan={4}
+                                    className="text-center py-10 text-muted-foreground"
                                 >
                                     {searchQuery
                                         ? "No offices match your search."
@@ -233,16 +238,21 @@ export default function Offices() {
                             </TableRow>
                         ) : (
                             filteredOffices.map((office, idx) => (
-                                <TableRow key={office.id} className="hover:bg-gray-800">
+                                <TableRow key={office.id}>
                                     <TableCell>{idx + 1}</TableCell>
                                     <TableCell>{office.name}</TableCell>
+                                    <TableCell>
+                                        {office.mobile_no || (
+                                            <span className="text-muted-foreground">—</span>
+                                        )}
+                                    </TableCell>
                                     <TableCell className="text-right">
                                         <div className="flex justify-end space-x-2">
                                             <Button
                                                 size="icon"
                                                 variant="ghost"
                                                 onClick={() => openEditDialog(office)}
-                                                className="h-8 w-8 text-gray-400 hover:text-white"
+                                                className="h-8 w-8 text-muted-foreground"
                                             >
                                                 <Pencil className="h-4 w-4" />
                                             </Button>
@@ -250,7 +260,7 @@ export default function Offices() {
                                                 size="icon"
                                                 variant="ghost"
                                                 onClick={() => openDeleteDialog(office)}
-                                                className="h-8 w-8 text-gray-400 hover:text-white hover:bg-red-900/20"
+                                                className="h-8 w-8 text-muted-foreground hover:text-destructive"
                                             >
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
@@ -265,7 +275,7 @@ export default function Offices() {
 
             {/* Add Office Dialog */}
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                <DialogContent className="bg-gray-900 text-gray-100 border-gray-800 sm:max-w-md">
+                <DialogContent className="sm:max-w-md">
                     <DialogHeader>
                         <DialogTitle>Add Office</DialogTitle>
                     </DialogHeader>
@@ -277,7 +287,15 @@ export default function Offices() {
                                 value={officeName}
                                 onChange={(e) => setOfficeName(e.target.value)}
                                 placeholder="Enter office name"
-                                className="bg-gray-800 border-gray-700"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="mobile">Mobile Number (optional)</Label>
+                            <Input
+                                id="mobile"
+                                value={officeMobile}
+                                onChange={(e) => setOfficeMobile(e.target.value)}
+                                placeholder="Enter mobile number"
                             />
                         </div>
                     </div>
@@ -285,14 +303,12 @@ export default function Offices() {
                         <Button
                             variant="outline"
                             onClick={() => setIsAddDialogOpen(false)}
-                            className="bg-transparent border-gray-700 text-gray-300 hover:bg-gray-800"
                         >
                             Cancel
                         </Button>
                         <Button
                             onClick={handleAddOffice}
                             disabled={!officeName.trim() || submitting}
-                            className="bg-gray-700 hover:bg-gray-600"
                         >
                             {submitting ? (
                                 <>
@@ -309,7 +325,7 @@ export default function Offices() {
 
             {/* Edit Office Dialog */}
             <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-                <DialogContent className="bg-gray-900 text-gray-100 border-gray-800 sm:max-w-md">
+                <DialogContent className="sm:max-w-md">
                     <DialogHeader>
                         <DialogTitle>Edit Office</DialogTitle>
                     </DialogHeader>
@@ -321,7 +337,15 @@ export default function Offices() {
                                 value={officeName}
                                 onChange={(e) => setOfficeName(e.target.value)}
                                 placeholder="Enter office name"
-                                className="bg-gray-800 border-gray-700"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="edit-mobile">Mobile Number (optional)</Label>
+                            <Input
+                                id="edit-mobile"
+                                value={officeMobile}
+                                onChange={(e) => setOfficeMobile(e.target.value)}
+                                placeholder="Enter mobile number"
                             />
                         </div>
                     </div>
@@ -329,14 +353,12 @@ export default function Offices() {
                         <Button
                             variant="outline"
                             onClick={() => setIsEditDialogOpen(false)}
-                            className="bg-transparent border-gray-700 text-gray-300 hover:bg-gray-800"
                         >
                             Cancel
                         </Button>
                         <Button
                             onClick={handleEditOffice}
                             disabled={!officeName.trim() || submitting}
-                            className="bg-gray-700 hover:bg-gray-600"
                         >
                             {submitting ? (
                                 <>
@@ -353,7 +375,7 @@ export default function Offices() {
 
             {/* Delete Office Dialog */}
             <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-                <DialogContent className="bg-gray-900 text-gray-100 border-gray-800 sm:max-w-md">
+                <DialogContent className="sm:max-w-md">
                     <DialogHeader>
                         <DialogTitle>Delete Office</DialogTitle>
                     </DialogHeader>
@@ -361,13 +383,12 @@ export default function Offices() {
                         <p>
                             Are you sure you want to delete the office "{currentOffice?.name}"?
                         </p>
-                        <p className="text-red-400 mt-2">This action cannot be undone.</p>
+                        <p className="text-destructive mt-2">This action cannot be undone.</p>
                     </div>
                     <DialogFooter>
                         <Button
                             variant="outline"
                             onClick={() => setIsDeleteDialogOpen(false)}
-                            className="bg-transparent border-gray-700 text-gray-300 hover:bg-gray-800"
                         >
                             Cancel
                         </Button>
@@ -375,7 +396,6 @@ export default function Offices() {
                             variant="destructive"
                             onClick={handleDeleteOffice}
                             disabled={submitting}
-                            className="bg-red-900 hover:bg-red-800 text-white"
                         >
                             {submitting ? (
                                 <>

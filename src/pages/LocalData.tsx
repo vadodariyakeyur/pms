@@ -93,13 +93,12 @@ export default function LocalData() {
       <div className="flex justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight mb-1">Data</h1>
-          <p className="text-gray-400">
+          <p className="text-muted-foreground">
             Data stored in your browser for auto completions
           </p>
         </div>
         <Button
           onClick={localDB.exportDB}
-          className="bg-gray-800 hover:bg-gray-700"
         >
           <UploadIcon className="h-4 w-4 mr-2" />
           Export Data
@@ -111,7 +110,7 @@ export default function LocalData() {
         className="w-full"
         onSelect={(...event) => console.log(event)}
       >
-        <TabsList className="grid w-full grid-cols-3 bg-gray-800">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="customer">Customer</TabsTrigger>
           <TabsTrigger value="description">Description & Remark</TabsTrigger>
         </TabsList>
@@ -119,7 +118,6 @@ export default function LocalData() {
         {error && (
           <Alert
             variant="destructive"
-            className="bg-red-900 border-red-800 text-red-200"
           >
             <AlertDescription>{error}</AlertDescription>
           </Alert>
@@ -129,30 +127,29 @@ export default function LocalData() {
           <div className="mt-4 space-y-6">
             <div className="flex items-center gap-2">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search customers/mobile no's..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-gray-900 border-gray-800"
+                  className="pl-10"
                 />
               </div>
               <Button
                 onClick={fetchCustomers}
-                className="bg-gray-800 hover:bg-gray-700"
               >
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Refresh Customers
               </Button>
             </div>
 
-            <div className="max-h-140 overflow-y-auto rounded-md border border-gray-800 bg-gray-900">
+            <div className="max-h-140 overflow-y-auto rounded-lg border bg-card">
               <Table>
                 <TableHeader>
-                  <TableRow className="hover:bg-gray-900">
-                    <TableHead className="text-gray-300">#</TableHead>
-                    <TableHead className="text-gray-300">Name</TableHead>
-                    <TableHead className="w-[100px] text-right text-gray-300">
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead>#</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead className="w-[100px] text-right">
                       Mobile No.
                     </TableHead>
                   </TableRow>
@@ -162,7 +159,7 @@ export default function LocalData() {
                     <TableRow>
                       <TableCell colSpan={2} className="text-center py-10">
                         <div className="flex justify-center">
-                          <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                         </div>
                       </TableCell>
                     </TableRow>
@@ -170,7 +167,7 @@ export default function LocalData() {
                     <TableRow>
                       <TableCell
                         colSpan={3}
-                        className="text-center py-10 text-gray-400"
+                        className="text-center py-10 text-muted-foreground"
                       >
                         {searchQuery
                           ? "No customers match your search."
@@ -181,7 +178,6 @@ export default function LocalData() {
                     filteredCustomers.map((customer, idx) => (
                       <TableRow
                         key={customer.mobile_no}
-                        className="hover:bg-gray-800"
                       >
                         <TableCell>{idx + 1}</TableCell>
                         <TableCell>{customer.customer_name}</TableCell>
@@ -199,7 +195,7 @@ export default function LocalData() {
           <div className="mt-4 space-y-6">
             <div className="flex items-center gap-2">
               <Button
-                className="ml-auto bg-gray-800 hover:bg-gray-700"
+                className="ml-auto"
                 onClick={fetchDescriptionsAndRemarks}
               >
                 <RefreshCw className="h-4 w-4 mr-2" />
@@ -207,12 +203,12 @@ export default function LocalData() {
               </Button>
             </div>
             <div className="flex gap-2">
-              <div className="max-h-140 overflow-y-auto flex-1 rounded-md border border-gray-800 bg-gray-900">
+              <div className="max-h-140 overflow-y-auto flex-1 rounded-lg border bg-card">
                 <Table>
                   <TableHeader>
-                    <TableRow className="hover:bg-gray-900">
-                      <TableHead className="text-gray-300">#</TableHead>
-                      <TableHead className="text-gray-300">
+                    <TableRow className="hover:bg-transparent">
+                      <TableHead>#</TableHead>
+                      <TableHead>
                         Description
                       </TableHead>
                     </TableRow>
@@ -222,7 +218,7 @@ export default function LocalData() {
                       <TableRow>
                         <TableCell colSpan={2} className="text-center py-10">
                           <div className="flex justify-center">
-                            <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                           </div>
                         </TableCell>
                       </TableRow>
@@ -230,7 +226,6 @@ export default function LocalData() {
                       descriptions.map((desc, idx) => (
                         <TableRow
                           key={`${desc}-${idx}`}
-                          className="hover:bg-gray-800"
                         >
                           <TableCell>{idx + 1}</TableCell>
                           <TableCell>{desc}</TableCell>
@@ -241,12 +236,12 @@ export default function LocalData() {
                 </Table>
               </div>
 
-              <div className="max-h-140 overflow-y-auto flex-1 rounded-md border border-gray-800 bg-gray-900">
+              <div className="max-h-140 overflow-y-auto flex-1 rounded-lg border bg-card">
                 <Table className="max-h-64 overflow-y-auto">
                   <TableHeader>
-                    <TableRow className="hover:bg-gray-900">
-                      <TableHead className="text-gray-300">#</TableHead>
-                      <TableHead className="text-gray-300">Remarks</TableHead>
+                    <TableRow className="hover:bg-transparent">
+                      <TableHead>#</TableHead>
+                      <TableHead>Remarks</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody className="max-h-10 overflow-y-auto">
@@ -254,7 +249,7 @@ export default function LocalData() {
                       <TableRow>
                         <TableCell colSpan={2} className="text-center py-10">
                           <div className="flex justify-center">
-                            <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                           </div>
                         </TableCell>
                       </TableRow>
@@ -262,7 +257,6 @@ export default function LocalData() {
                       remarks.map((remark, idx) => (
                         <TableRow
                           key={`${remark}-${idx}`}
-                          className="hover:bg-gray-800"
                         >
                           <TableCell>{idx + 1}</TableCell>
                           <TableCell>{remark}</TableCell>

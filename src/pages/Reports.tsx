@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Printer, Loader2, Calendar as CalendarIcon } from "lucide-react";
+import { Printer, Loader2, Calendar as CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
 import {
   format,
   startOfMonth,
@@ -9,6 +9,8 @@ import {
   setMonth,
   setYear,
 } from "date-fns";
+
+import { toast } from "sonner";
 
 import { supabase } from "@/lib/supabase/client";
 import { Database } from "@/lib/supabase/types";
@@ -34,7 +36,16 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 import { useOffice } from "@/hooks/use-office";
 
 // Define types
@@ -70,15 +81,24 @@ const monthNames = [
   "December",
 ];
 
-function openPrintDialog(printContent: string) {
-  // Create a new window for printing
-  const printWindow = window.open("", "_blank");
+// Escape user data before interpolating into print HTML
+const esc = (v: unknown) =>
+  String(v ?? "").replace(
+    /[&<>"]/g,
+    (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[m]!)
+  );
 
-  // Write the content to the new window and trigger printing
-  printWindow?.document.open();
-  printWindow?.document.write(printContent);
-  printWindow?.print();
-  printWindow?.document.close();
+function openPrintDialog(printContent: string) {
+  const printWindow = window.open("", "_blank");
+  if (!printWindow) {
+    toast.error("Popup blocked — allow popups for this site to print reports.");
+    return;
+  }
+
+  printWindow.document.open();
+  printWindow.document.write(printContent);
+  printWindow.document.close();
+  printWindow.print();
 }
 
 function printMonthlyReport(
@@ -110,13 +130,13 @@ function printMonthlyReport(
       <table>
         <thead>
           <tr>
-            <th colspan="11">
+            <th colspan="6">
               <div class="header">
                 <h2>Pramukhraj Travels & Cargo</h2>
                 <p class="city">
-                  From ${from_city} to ${to_city}
+                  From ${esc(from_city)} to ${esc(to_city)}
                 </p>
-                <p class="date">Date: ${date}</p>
+                <p class="date">Date: ${esc(date)}</p>
               </div>
             </th>
           </tr>
@@ -210,9 +230,9 @@ const printRecordReport = (
               <div class="header">
                 <h2>Pramukhraj Travels & Cargo</h2>
                 <p class="city">
-                  From ${from_city} to ${to_city}
+                  From ${esc(from_city)} to ${esc(to_city)}
                 </p>
-                <p class="date">Date: ${date}</p>
+                <p class="date">Date: ${esc(date)}</p>
               </div>
             </th>
           </tr>
@@ -237,14 +257,14 @@ const printRecordReport = (
               (parcel, index) => `
             <tr>
               <td>${index + 1}</td>
-              <td>${parcel.sender_name || ""}</td>
-              <td>${parcel.sender_mobile_no || ""}</td>
-              <td>${parcel.receiver_name || ""}</td>
-              <td>${parcel.receiver_mobile_no || ""}</td>
-              <td>R${parcel.bill_no || ""}</td>
+              <td>${esc(parcel.sender_name)}</td>
+              <td>${esc(parcel.sender_mobile_no)}</td>
+              <td>${esc(parcel.receiver_name)}</td>
+              <td>${esc(parcel.receiver_mobile_no)}</td>
+              <td>R${esc(parcel.bill_no)}</td>
               <td>${parcel.qty || ""}</td>
-              <td>${parcel.description || ""}</td>
-              <td>${parcel.remark || ""}</td>
+              <td>${esc(parcel.description)}</td>
+              <td>${esc(parcel.remark)}</td>
               <td>${parcel.amount_given || "0"}</td>
               <td>${parcel.amount - parcel.amount_given || "0"}</td>
               <td class="signature-cell"></td>
@@ -263,12 +283,12 @@ const printRecordReport = (
               <td></td>
               <td>
                 <strong>
-                  ${data.reduce((a, c) => a + c.amount_given, 0)}
+                  ${data.reduce((a, c) => a + (c.amount_given || 0), 0)}
                 </strong>
               </td>
               <td>
                 <strong>
-                  ${data.reduce((a, c) => a + (c.amount - c.amount_given), 0)}
+                  ${data.reduce((a, c) => a + (c.amount - c.amount_given || 0), 0)}
                 </strong>
               </td>
               <td></td>
@@ -301,7 +321,7 @@ export default function Reports() {
 
   // City selections (shared across report types)
   const [fromCityId, setFromCityId] = useState<string>("");
-  const [toCityId, setToCityId] = useState<string>("");
+  const [toCityIds, setToCityIds] = useState<string[]>([]);
 
   // Daily Report State
   const [dailyReportDate, setDailyReportDate] = useState<Date | undefined>(
@@ -310,7 +330,7 @@ export default function Reports() {
 
   // Monthly Report State
   const [monthlyReportMonth, setMonthlyReportMonth] = useState<string>(
-    `${monthNames[getMonth(new Date())]}-${getYear(new Date())}` // Format: YYYY-M
+    `${monthNames[getMonth(new Date())]}-${getYear(new Date())}` // Format: MonthName-YYYY
   );
 
   const office = useOffice()
@@ -354,10 +374,11 @@ export default function Reports() {
       setCities(citiesData || []);
       setBuses(busesData || []);
       setFromCityId(fromIdStr);
-      setToCityId(toIdStr);
+      setToCityIds(toIdStr ? [toIdStr] : []);
       setDateReportBusId(firstBusId?.toString() || "");
     } catch (err) {
       console.error("Error fetching initial report data:", err);
+      toast.error("Failed to load cities and buses.");
     } finally {
       setLoadingDefaults(false);
     }
@@ -379,27 +400,58 @@ export default function Reports() {
       }
 
       const fromCity = cities.find((city) => city.id === parseInt(fromCityId));
-      const toCity = cities.find((city) => city.id === parseInt(toCityId));
+      const toCities = cities.filter((city) =>
+        toCityIds.includes(city.id.toString())
+      );
+      const toCityNames = toCities.map((c) => c.name).join(", ");
 
-      if (
-        reportType === "monthly" &&
-        dateParams.startDate &&
-        dateParams.endDate &&
-        fromCity?.name &&
-        toCity?.name
-      ) {
-        const { data } = await supabase.rpc("get_parcels_aggregated_by_date", {
-          p_bus_id: parseInt(dateReportBusId),
-          p_from_city_id: parseInt(fromCityId),
-          p_to_city_id: parseInt(toCityId),
-          p_start_date: dateParams.startDate,
-          p_end_date: dateParams.endDate,
-        });
+      if (reportType === "monthly") {
+        if (
+          !dateParams.startDate ||
+          !dateParams.endDate ||
+          !fromCity?.name ||
+          toCities.length === 0
+        ) {
+          toast.error("Please select all fields for Monthly Report.");
+          return;
+        }
+
+        const results = await Promise.all(
+          toCityIds.map((id) =>
+            supabase.rpc("get_parcels_aggregated_by_date", {
+              p_bus_id: parseInt(dateReportBusId),
+              p_from_city_id: parseInt(fromCityId),
+              p_to_city_id: parseInt(id),
+              p_start_date: dateParams.startDate!,
+              p_end_date: dateParams.endDate!,
+            })
+          )
+        );
+
+        const merged = new Map<string, DateWiseAggregation>();
+        for (const { data, error } of results) {
+          if (error) throw error;
+          for (const row of data || []) {
+            const existing = merged.get(row.parcel_date);
+            if (existing) {
+              existing.record_count += row.record_count;
+              existing.total_amount_given += row.total_amount_given;
+              existing.total_amount_remaining += row.total_amount_remaining;
+              existing.total_qty += row.total_qty;
+            } else {
+              merged.set(row.parcel_date, { ...row });
+            }
+          }
+        }
+
+        const mergedData = Array.from(merged.values()).sort(
+          (a, b) => a.parcel_date.localeCompare(b.parcel_date)
+        );
 
         printMonthlyReport(
-          data || [],
-          fromCity?.name,
-          toCity?.name,
+          mergedData,
+          fromCity.name,
+          toCityNames,
           monthlyReportMonth
         );
         return;
@@ -419,7 +471,7 @@ export default function Reports() {
         .eq("office_id", office.id)
         .eq("bus_id", parseInt(dateReportBusId))
         .eq("from_city_id", parseInt(fromCityId))
-        .eq("to_city_id", parseInt(toCityId))
+        .in("to_city_id", toCityIds.map((id) => parseInt(id)))
         .order("created_at", { ascending: true });
 
       // Apply date filters based on report type
@@ -445,20 +497,21 @@ export default function Reports() {
       const { data, error } = await query;
       if (error) throw error;
 
-      if (fromCity && toCity) {
+      if (fromCity && toCities.length > 0) {
         printRecordReport(
           data || [],
           fromCity.name,
-          toCity.name,
+          toCityNames,
           reportDateString
         );
       } else {
         console.error(
-          `Cities with ID FROM:${fromCityId} and TO:${toCityId} not found`
+          `Cities with ID FROM:${fromCityId} and TO:${toCityIds.join(",")} not found`
         );
       }
     } catch (err) {
       console.error(`Error fetching ${reportType} report:`, err);
+      toast.error(`Failed to generate ${reportType} report.`);
     } finally {
       setIsReportLoading(false);
     }
@@ -475,19 +528,19 @@ export default function Reports() {
           !dateReportEndDate ||
           !dateReportBusId ||
           !fromCityId ||
-          !toCityId
+          toCityIds.length === 0
         ) {
-          console.warn("Please select all fields for Date Report.");
+          toast.error("Please select all fields for Date Report.");
           return false;
         }
         if (dateReportEndDate < dateReportStartDate) {
-          console.warn("End date cannot be before start date.");
+          toast.error("End date cannot be before start date.");
           return false;
         }
         break;
       case "daily":
-        if (!dailyReportDate || !dateReportBusId || !fromCityId || !toCityId) {
-          console.warn("Please select all fields for Daily Report.");
+        if (!dailyReportDate || !dateReportBusId || !fromCityId || toCityIds.length === 0) {
+          toast.error("Please select all fields for Daily Report.");
           return false;
         }
         break;
@@ -496,9 +549,9 @@ export default function Reports() {
           !monthlyReportMonth ||
           !dateReportBusId ||
           !fromCityId ||
-          !toCityId
+          toCityIds.length === 0
         ) {
-          console.warn("Please select all fields for Monthly Report.");
+          toast.error("Please select all fields for Monthly Report.");
           return false;
         }
         break;
@@ -545,10 +598,10 @@ export default function Reports() {
     <div className="space-y-1">
       <Label htmlFor={id}>{label}</Label>
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger id={id} className="bg-gray-800 border-gray-700">
+        <SelectTrigger id={id}>
           <SelectValue placeholder={`Select ${label}`} />
         </SelectTrigger>
-        <SelectContent className="bg-gray-800 border-gray-700">
+        <SelectContent>
           {cities.map((city) => (
             <SelectItem key={city.id} value={city.id.toString()}>
               {city.name}
@@ -559,15 +612,90 @@ export default function Reports() {
     </div>
   );
 
+  const renderMultiCitySelector = (
+    label: string,
+    id: string,
+    values: string[],
+    onChange: (values: string[]) => void
+  ) => {
+    const selectedNames = cities
+      .filter((city) => values.includes(city.id.toString()))
+      .map((city) => city.name);
+
+    const displayText =
+      selectedNames.length === 0
+        ? `Select ${label}`
+        : selectedNames.length <= 2
+        ? selectedNames.join(", ")
+        : `${selectedNames.length} cities selected`;
+
+    return (
+      <div className="space-y-1">
+        <Label htmlFor={id}>{label}</Label>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              id={id}
+              variant="outline"
+              role="combobox"
+              className={cn(
+                "w-full justify-between ",
+                values.length === 0 && "text-muted-foreground"
+              )}
+            >
+              <span className="truncate">{displayText}</span>
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[200px] p-0">
+            <Command>
+              <CommandInput placeholder={`Search ${label.toLowerCase()}...`} />
+              <CommandList>
+                <CommandEmpty>No city found.</CommandEmpty>
+                <CommandGroup>
+                  {cities.map((city) => {
+                    const cityIdStr = city.id.toString();
+                    const isSelected = values.includes(cityIdStr);
+                    return (
+                      <CommandItem
+                        key={city.id}
+                        value={city.name}
+                        onSelect={() => {
+                          if (isSelected) {
+                            onChange(values.filter((v) => v !== cityIdStr));
+                          } else {
+                            onChange([...values, cityIdStr]);
+                          }
+                        }}
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            isSelected ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        {city.name}
+                      </CommandItem>
+                    );
+                  })}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      </div>
+    );
+  };
+
   // Function to render bus selector (reused in multiple places)
   const renderBusSelector = () => (
     <div className="space-y-1">
       <Label htmlFor="report-bus">Bus</Label>
       <Select value={dateReportBusId} onValueChange={setDateReportBusId}>
-        <SelectTrigger id="report-bus" className="bg-gray-800 border-gray-700">
+        <SelectTrigger id="report-bus">
           <SelectValue placeholder="Select Bus" />
         </SelectTrigger>
-        <SelectContent className="bg-gray-800 border-gray-700">
+        <SelectContent>
           {buses.map((bus) => (
             <SelectItem key={bus.id} value={bus.id.toString()}>
               {bus.registration_no}
@@ -591,18 +719,18 @@ export default function Reports() {
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className="w-full justify-start text-left font-normal bg-gray-800 border-gray-700 hover:bg-gray-700"
+            className="w-full justify-start text-left font-normal"
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
             {value ? (
               format(value, "PPP")
             ) : (
-              <span className="text-gray-400">Pick a date</span>
+              <span className="text-muted-foreground">Pick a date</span>
             )}
           </Button>
         </PopoverTrigger>
         <PopoverContent
-          className="w-auto p-0 bg-gray-800 border-gray-700"
+          className="w-auto p-0"
           align="start"
         >
           <Calendar
@@ -610,84 +738,10 @@ export default function Reports() {
             selected={value}
             onSelect={onChange}
             initialFocus
-            className="bg-gray-800"
           />
         </PopoverContent>
       </Popover>
     </div>
-  );
-
-  // Create a new renderDateRangePicker function
-  const renderDateRangePicker = (
-    startLabel: string,
-    endLabel: string,
-    startValue: Date | undefined,
-    endValue: Date | undefined,
-    onStartChange: (date: Date | undefined) => void,
-    onEndChange: (date: Date | undefined) => void
-  ) => (
-    <>
-      <div className="space-y-1">
-        <Label htmlFor="date-report-start-date">{startLabel}</Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className="w-full justify-start text-left font-normal bg-gray-800 border-gray-700 hover:bg-gray-700"
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {startValue ? (
-                format(startValue, "PPP")
-              ) : (
-                <span className="text-gray-400">Pick start date</span>
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent
-            className="w-auto p-0 bg-gray-800 border-gray-700"
-            align="start"
-          >
-            <Calendar
-              mode="single"
-              selected={startValue}
-              onSelect={onStartChange}
-              initialFocus
-              className="bg-gray-800"
-            />
-          </PopoverContent>
-        </Popover>
-      </div>
-      <div className="space-y-1">
-        <Label htmlFor="date-report-end-date">{endLabel}</Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className="w-full justify-start text-left font-normal bg-gray-800 border-gray-700 hover:bg-gray-700"
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {endValue ? (
-                format(endValue, "PPP")
-              ) : (
-                <span className="text-gray-400">Pick end date</span>
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent
-            className="w-auto p-0 bg-gray-800 border-gray-700"
-            align="start"
-          >
-            <Calendar
-              mode="single"
-              selected={endValue}
-              onSelect={onEndChange}
-              initialFocus
-              className="bg-gray-800"
-            />
-          </PopoverContent>
-        </Popover>
-      </div>
-    </>
   );
 
   // Render the print button
@@ -695,7 +749,7 @@ export default function Reports() {
     <Button
       onClick={onClick}
       disabled={isReportLoading}
-      className="bg-gray-700 hover:bg-gray-600 w-full"
+      className="w-full"
     >
       {isReportLoading ? (
         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -712,8 +766,8 @@ export default function Reports() {
       <div className="space-y-6">
         <h1 className="text-2xl font-bold tracking-tight">Reports</h1>
         <div className="flex justify-center items-center p-8">
-          <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-          <p className="ml-2 text-gray-400">Loading initial data...</p>
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <p className="ml-2 text-muted-foreground">Loading initial data...</p>
         </div>
       </div>
     );
@@ -722,16 +776,12 @@ export default function Reports() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold tracking-tight">Reports</h1>
-      <p className="text-gray-400">
+      <p className="text-muted-foreground">
         Generate reports based on date, daily summary, or monthly activity.
       </p>
 
-      <Tabs
-        defaultValue="daily"
-        className="w-full"
-        onSelect={(...event) => console.log(event)}
-      >
-        <TabsList className="grid w-full grid-cols-3 bg-gray-800">
+      <Tabs defaultValue="daily" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="daily">Daily Report</TabsTrigger>
           <TabsTrigger value="monthly">Monthly Report</TabsTrigger>
           <TabsTrigger value="date">Date Report</TabsTrigger>
@@ -739,10 +789,10 @@ export default function Reports() {
 
         {/* Daily Report Tab */}
         <TabsContent value="daily">
-          <Card className="bg-gray-900 border-gray-800">
+          <Card>
             <CardHeader>
               <CardTitle>Daily Report</CardTitle>
-              <CardDescription className="text-gray-400">
+              <CardDescription className="text-muted-foreground">
                 View all parcels for a specific date and route.
               </CardDescription>
             </CardHeader>
@@ -761,11 +811,11 @@ export default function Reports() {
                   fromCityId,
                   setFromCityId
                 )}
-                {renderCitySelector(
+                {renderMultiCitySelector(
                   "To City",
                   "daily-report-to",
-                  toCityId,
-                  setToCityId
+                  toCityIds,
+                  setToCityIds
                 )}
                 {renderPrintButton(() => fetchReport("daily"))}
               </div>
@@ -775,10 +825,10 @@ export default function Reports() {
 
         {/* Monthly Report Tab */}
         <TabsContent value="monthly">
-          <Card className="bg-gray-900 border-gray-800">
+          <Card>
             <CardHeader>
               <CardTitle>Monthly Report</CardTitle>
-              <CardDescription className="text-gray-400">
+              <CardDescription className="text-muted-foreground">
                 View all parcels for a specific month and route.
               </CardDescription>
             </CardHeader>
@@ -793,11 +843,10 @@ export default function Reports() {
                   >
                     <SelectTrigger
                       id="monthly-report-month"
-                      className="bg-gray-800 border-gray-700"
                     >
                       <SelectValue placeholder="Select Month" />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-700">
+                    <SelectContent>
                       {Array.from({ length: 18 }).map((_, i) => {
                         const date = setMonth(
                           new Date(),
@@ -823,11 +872,11 @@ export default function Reports() {
                   fromCityId,
                   setFromCityId
                 )}
-                {renderCitySelector(
+                {renderMultiCitySelector(
                   "To City",
                   "monthly-report-to",
-                  toCityId,
-                  setToCityId
+                  toCityIds,
+                  setToCityIds
                 )}
                 {renderPrintButton(() => fetchReport("monthly"))}
               </div>
@@ -837,21 +886,25 @@ export default function Reports() {
 
         {/* Date Report Tab */}
         <TabsContent value="date">
-          <Card className="bg-gray-900 border-gray-800">
+          <Card>
             <CardHeader>
               <CardTitle>Date Report</CardTitle>
-              <CardDescription className="text-gray-400">
+              <CardDescription className="text-muted-foreground">
                 View parcels for a specific date, bus, and route.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
-                {renderDateRangePicker(
+                {renderDatePicker(
                   "Start Date",
-                  "End Date",
+                  "date-report-start-date",
                   dateReportStartDate,
+                  setDateReportStartDate
+                )}
+                {renderDatePicker(
+                  "End Date",
+                  "date-report-end-date",
                   dateReportEndDate,
-                  setDateReportStartDate,
                   setDateReportEndDate
                 )}
                 {renderBusSelector()}
@@ -861,11 +914,11 @@ export default function Reports() {
                   fromCityId,
                   setFromCityId
                 )}
-                {renderCitySelector(
+                {renderMultiCitySelector(
                   "To City",
                   "date-report-to",
-                  toCityId,
-                  setToCityId
+                  toCityIds,
+                  setToCityIds
                 )}
                 {renderPrintButton(() => fetchReport("date"))}
               </div>

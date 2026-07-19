@@ -324,12 +324,12 @@ export default function ParcelForm({
       {error && (
         <Alert
           variant="destructive"
-          className="bg-red-900 border-red-800 text-red-200 mb-2"
+          className="mb-2"
         >
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-      <Card className="gap-2 mb-4 py-4 bg-gray-900 border-gray-800">
+      <Card className="gap-2 mb-4 py-4">
         <CardHeader>
           <CardTitle className="text-lg">Parcel Details</CardTitle>
         </CardHeader>
@@ -344,7 +344,6 @@ export default function ParcelForm({
                 data-index={1}
                 onKeyDown={handleKeyDown}
                 readOnly
-                className="bg-gray-800 border-gray-700"
               />
             </div>
             <div className="flex items-center gap-6 justify-between">
@@ -356,7 +355,7 @@ export default function ParcelForm({
                       data-index={2}
                       onKeyDown={handleKeyDown}
                       variant="outline"
-                      className="w-full justify-start text-left font-normal bg-gray-800 border-gray-700"
+                      className="w-full justify-start text-left font-normal"
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
                       {formData.parcelDate ? (
@@ -366,7 +365,7 @@ export default function ParcelForm({
                       )}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 bg-gray-800 border-gray-700">
+                  <PopoverContent className="w-auto p-0">
                     <CalendarComponent
                       mode="single"
                       selected={formData.parcelDate}
@@ -375,7 +374,6 @@ export default function ParcelForm({
                         setFormData((prev) => ({ ...prev, parcelDate }))
                       }
                       initialFocus
-                      className="bg-gray-800"
                     />
                   </PopoverContent>
                 </Popover>
@@ -396,11 +394,10 @@ export default function ParcelForm({
                   <SelectTrigger
                     data-index={3}
                     onKeyDown={handleKeyDown}
-                    className="bg-gray-800 border-gray-700"
                   >
                     <SelectValue placeholder="Select bus & driver" />
                   </SelectTrigger>
-                  <SelectContent className="bg-gray-800 border-gray-700">
+                  <SelectContent>
                     {assignments.map((assignment) => (
                       <SelectItem
                         key={assignment.id}
@@ -433,7 +430,6 @@ export default function ParcelForm({
                 onKeyDown={handleKeyDown}
                 suggestions={suggestions["senderMobile"]}
                 placeholder="Enter sender mobile number"
-                className="bg-gray-800 border-gray-700"
               />
             </div>
             <div className="space-y-2">
@@ -452,7 +448,6 @@ export default function ParcelForm({
                   }))
                 }
                 placeholder="Enter sender name"
-                className="bg-gray-800 border-gray-700"
               />
             </div>
           </div>
@@ -474,7 +469,6 @@ export default function ParcelForm({
                 onKeyDown={handleKeyDown}
                 suggestions={suggestions["receiverMobile"]}
                 placeholder="Enter receiver mobile number"
-                className="bg-gray-800 border-gray-700"
               />
             </div>
             <div className="space-y-2">
@@ -493,32 +487,31 @@ export default function ParcelForm({
                   }))
                 }
                 placeholder="Enter receiver name"
-                className="bg-gray-800 border-gray-700"
               />
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <Card className="gap-2 mb-4 py-4 bg-gray-900 border-gray-800">
+      <Card className="gap-2 mb-4 py-4">
         <CardHeader>
           <CardTitle className="text-lg">Parcel Items</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="rounded-md border border-gray-800 ">
+          <div className="rounded-md border">
             <Table>
               <TableHeader>
                 <TableRow className="hover:">
-                  <TableHead className="text-gray-300">From</TableHead>
-                  <TableHead className="text-gray-300">To</TableHead>
-                  <TableHead className="text-gray-300">Description</TableHead>
-                  <TableHead className="text-gray-300 w-[80px]">Qty</TableHead>
-                  <TableHead className="text-gray-300">Remark</TableHead>
-                  <TableHead className="text-gray-300">Amount</TableHead>
+                  <TableHead>From</TableHead>
+                  <TableHead>To</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead className="w-[80px]">Qty</TableHead>
+                  <TableHead>Remark</TableHead>
+                  <TableHead>Amount</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                <TableRow className="hover:bg-gray-800">
+                <TableRow>
                   <TableCell>
                     <Select
                       value={formData.parcelItem.from_city_id?.toString() || ""}
@@ -527,13 +520,13 @@ export default function ParcelForm({
                       }
                     >
                       <SelectTrigger
-                        className="bg-gray-800 border-gray-700 h-8"
+                        className="h-8"
                         data-index={8}
                         onKeyDown={handleKeyDown}
                       >
                         <SelectValue placeholder="From" />
                       </SelectTrigger>
-                      <SelectContent className="bg-gray-800 border-gray-700">
+                      <SelectContent>
                         {cities.map((city) => (
                           <SelectItem key={city.id} value={city.id.toString()}>
                             {city.name}
@@ -550,13 +543,13 @@ export default function ParcelForm({
                       }
                     >
                       <SelectTrigger
-                        className="bg-gray-800 border-gray-700 h-8"
+                        className="h-8"
                         data-index={9}
                         onKeyDown={handleKeyDown}
                       >
                         <SelectValue placeholder="To" />
                       </SelectTrigger>
-                      <SelectContent className="bg-gray-800 border-gray-700">
+                      <SelectContent>
                         {cities.map((city) => (
                           <SelectItem key={city.id} value={city.id.toString()}>
                             {city.name}
@@ -576,7 +569,7 @@ export default function ParcelForm({
                       onKeyDown={handleKeyDown}
                       suggestions={suggestions["description"]}
                       placeholder="Description"
-                      className="bg-gray-800 border-gray-700 h-8"
+                      className="h-8"
                     />
                   </TableCell>
                   <TableCell>
@@ -592,7 +585,7 @@ export default function ParcelForm({
                       }}
                       data-index={11}
                       onKeyDown={handleKeyDown}
-                      className="bg-gray-800 border-gray-700 h-8"
+                      className="h-8"
                       min={1}
                     />
                   </TableCell>
@@ -605,7 +598,7 @@ export default function ParcelForm({
                       onKeyDown={handleKeyDown}
                       suggestions={suggestions["remark"]}
                       placeholder="Remark"
-                      className="bg-gray-800 border-gray-700 h-8"
+                      className="h-8"
                     />
                   </TableCell>
                   <TableCell>
@@ -621,7 +614,7 @@ export default function ParcelForm({
                       placeholder="0"
                       data-index={13}
                       onKeyDown={handleKeyDown}
-                      className="bg-gray-800 border-gray-700 h-8"
+                      className="h-8"
                       min={0}
                       step={0.01}
                     />
@@ -633,7 +626,7 @@ export default function ParcelForm({
         </CardContent>
       </Card>
 
-      <Card className="gap-2 mb-4 py-4 bg-gray-900 border-gray-800">
+      <Card className="gap-2 mb-4 py-4">
         <CardHeader>
           <CardTitle className="text-lg">Payment Details</CardTitle>
         </CardHeader>
@@ -651,7 +644,6 @@ export default function ParcelForm({
                 placeholder="0"
                 data-index={14}
                 onKeyDown={handleKeyDown}
-                className="bg-gray-800 border-gray-700"
                 min={0}
                 step={0.01}
               />
@@ -667,7 +659,6 @@ export default function ParcelForm({
                 onKeyDown={handleKeyDown}
                 value={amountRemaining}
                 readOnly
-                className="bg-gray-800 border-gray-700"
               />
             </div>
           </div>
@@ -679,7 +670,6 @@ export default function ParcelForm({
               onKeyDown={handleKeyDown}
               onClick={handleSubmit}
               disabled={isProcessing}
-              className="bg-gray-700 hover:bg-gray-600"
             >
               {isProcessing ? (
                 <>

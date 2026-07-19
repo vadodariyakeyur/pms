@@ -20,6 +20,7 @@ import {
 } from "../components/ui/dialog";
 import { Label } from "../components/ui/label";
 import { Alert, AlertDescription } from "../components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/lib/supabase/client";
 import { Database } from "@/lib/supabase/types";
 
@@ -149,14 +150,13 @@ export default function Buses() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Buses</h1>
-          <p className="text-gray-400">Manage your bus fleet.</p>
+          <p className="text-muted-foreground">Manage your bus fleet.</p>
         </div>
         <Button
           onClick={() => {
             setRegistrationNo("");
             setIsAddDialogOpen(true);
           }}
-          className="bg-gray-800 hover:bg-gray-700"
         >
           <Plus className="h-4 w-4 mr-2" />
           Add Bus
@@ -166,7 +166,6 @@ export default function Buses() {
       {error && (
         <Alert
           variant="destructive"
-          className="bg-red-900 border-red-800 text-red-200"
         >
           <AlertDescription>{error}</AlertDescription>
         </Alert>
@@ -174,23 +173,23 @@ export default function Buses() {
 
       <div className="flex items-center">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search buses..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-gray-900 border-gray-800"
+            className="pl-10"
           />
         </div>
       </div>
 
-      <div className="rounded-md border border-gray-800 bg-gray-900">
+      <div className="rounded-lg border bg-card">
         <Table>
           <TableHeader>
-            <TableRow className="hover:bg-gray-900">
-              <TableHead className="text-gray-300">#</TableHead>
-              <TableHead className="text-gray-300">Registration No</TableHead>
-              <TableHead className="w-[100px] text-right text-gray-300">
+            <TableRow className="hover:bg-transparent">
+              <TableHead>#</TableHead>
+              <TableHead>Registration No</TableHead>
+              <TableHead className="w-[100px] text-right">
                 Actions
               </TableHead>
             </TableRow>
@@ -198,17 +197,17 @@ export default function Buses() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={2} className="text-center py-10">
-                  <div className="flex justify-center">
-                    <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
-                  </div>
+                <TableCell colSpan={2} className="py-3">
+                  <div className="space-y-2">
+{[...Array(3)].map((_, i) => <Skeleton key={i} className="h-9 w-full" />)}
+</div>
                 </TableCell>
               </TableRow>
             ) : filteredBuses.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={2}
-                  className="text-center py-10 text-gray-400"
+                  className="text-center py-10 text-muted-foreground"
                 >
                   {searchQuery
                     ? "No buses match your search."
@@ -217,7 +216,7 @@ export default function Buses() {
               </TableRow>
             ) : (
               filteredBuses.map((bus, idx) => (
-                <TableRow key={bus.id} className="hover:bg-gray-800">
+                <TableRow key={bus.id}>
                   <TableCell>{idx + 1}</TableCell>
                   <TableCell>{bus.registration_no}</TableCell>
                   <TableCell className="text-right">
@@ -226,7 +225,7 @@ export default function Buses() {
                         size="icon"
                         variant="ghost"
                         onClick={() => openEditDialog(bus)}
-                        className="h-8 w-8 text-gray-400 hover:text-white"
+                        className="h-8 w-8 text-muted-foreground"
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -234,7 +233,7 @@ export default function Buses() {
                         size="icon"
                         variant="ghost"
                         onClick={() => openDeleteDialog(bus)}
-                        className="h-8 w-8 text-gray-400 hover:text-white hover:bg-red-900/20"
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -249,7 +248,7 @@ export default function Buses() {
 
       {/* Add Bus Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="bg-gray-900 text-gray-100 border-gray-800 sm:max-w-md">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Add Bus</DialogTitle>
           </DialogHeader>
@@ -261,7 +260,6 @@ export default function Buses() {
                 value={registrationNo}
                 onChange={(e) => setRegistrationNo(e.target.value)}
                 placeholder="Enter bus registration number"
-                className="bg-gray-800 border-gray-700"
               />
             </div>
           </div>
@@ -269,14 +267,12 @@ export default function Buses() {
             <Button
               variant="outline"
               onClick={() => setIsAddDialogOpen(false)}
-              className="bg-transparent border-gray-700 text-gray-300 hover:bg-gray-800"
             >
               Cancel
             </Button>
             <Button
               onClick={handleAddBus}
               disabled={!registrationNo.trim() || submitting}
-              className="bg-gray-700 hover:bg-gray-600"
             >
               {submitting ? (
                 <>
@@ -293,7 +289,7 @@ export default function Buses() {
 
       {/* Edit Bus Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="bg-gray-900 text-gray-100 border-gray-800 sm:max-w-md">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Edit Bus</DialogTitle>
           </DialogHeader>
@@ -305,7 +301,6 @@ export default function Buses() {
                 value={registrationNo}
                 onChange={(e) => setRegistrationNo(e.target.value)}
                 placeholder="Enter bus registration number"
-                className="bg-gray-800 border-gray-700"
               />
             </div>
           </div>
@@ -313,14 +308,12 @@ export default function Buses() {
             <Button
               variant="outline"
               onClick={() => setIsEditDialogOpen(false)}
-              className="bg-transparent border-gray-700 text-gray-300 hover:bg-gray-800"
             >
               Cancel
             </Button>
             <Button
               onClick={handleEditBus}
               disabled={!registrationNo.trim() || submitting}
-              className="bg-gray-700 hover:bg-gray-600"
             >
               {submitting ? (
                 <>
@@ -337,7 +330,7 @@ export default function Buses() {
 
       {/* Delete Bus Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="bg-gray-900 text-gray-100 border-gray-800 sm:max-w-md">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Delete Bus</DialogTitle>
           </DialogHeader>
@@ -346,13 +339,12 @@ export default function Buses() {
               Are you sure you want to delete the bus with registration number "
               {currentBus?.registration_no}"?
             </p>
-            <p className="text-red-400 mt-2">This action cannot be undone.</p>
+            <p className="text-destructive mt-2">This action cannot be undone.</p>
           </div>
           <DialogFooter>
             <Button
               variant="outline"
               onClick={() => setIsDeleteDialogOpen(false)}
-              className="bg-transparent border-gray-700 text-gray-300 hover:bg-gray-800"
             >
               Cancel
             </Button>
@@ -360,7 +352,6 @@ export default function Buses() {
               variant="destructive"
               onClick={handleDeleteBus}
               disabled={submitting}
-              className="bg-red-900 hover:bg-red-800 text-white"
             >
               {submitting ? (
                 <>
