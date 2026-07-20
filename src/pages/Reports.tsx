@@ -811,11 +811,11 @@ export default function Reports() {
                   fromCityId,
                   setFromCityId
                 )}
-                {renderMultiCitySelector(
+                {renderCitySelector(
                   "To City",
                   "daily-report-to",
-                  toCityIds,
-                  setToCityIds
+                  toCityIds[0] ?? "",
+                  (id: string) => setToCityIds(id ? [id] : [])
                 )}
                 {renderPrintButton(() => fetchReport("daily"))}
               </div>
