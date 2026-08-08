@@ -34,7 +34,6 @@ export default defineConfig({
           ],
           
           // Other heavy libraries
-          'pdf-utils': ['jspdf', 'html2canvas-pro'],
           'database': ['@supabase/supabase-js', 'idb'],
           'ui-utils': ['date-fns', 'clsx', 'tailwind-merge', 'lucide-react', 'cmdk', 'react-day-picker', 'react-to-print']
         }

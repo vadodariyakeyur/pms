@@ -4,9 +4,38 @@
 
 :root {
   --radius: 0.625rem;
+
+  --ease-spring: linear(
+    0, 0.0064, 0.0426, 0.1244, 0.2496, 0.4058, 0.5745, 0.7362, 0.8749, 0.9814,
+    1.0523, 1.0899, 1.1011, 1.0947, 1.0794, 1.0619, 1.0463, 1.0343, 1.026,
+    1.0206, 1.0174, 1.0157, 1.0148, 1.0144, 1.0142, 1.0139, 1.0129, 1.0104,
+    1.0058, 1
+  );
+  --ease-spring-bounce: linear(
+    0, 0.0088, 0.0588, 0.1665, 0.3218, 0.5027, 0.6862, 0.8515, 0.9835, 1.0742,
+    1.1258, 1.1442, 1.1373, 1.1147, 1.0846, 1.0537, 1.0269, 1.0067, 0.9937,
+    0.9873, 0.9861, 0.9884, 0.9926, 0.9973, 1.0013, 1.0039, 1.005, 1.0048,
+    1.0036, 1
+  );
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-in-quart: cubic-bezier(0.5, 0, 0.75, 0);
+
+  --response-fast: 0.2s;
+  --response: 0.3s;
+  --response-slow: 0.4s;
+  --press-scale: 0.97;
+
+  --material-blur: 20px;
+  --material-blur-heavy: 30px;
+  --material-bg: 244 244 246 / 0.72;
+  --material-bg-heavy: 250 250 251 / 0.8;
+  --material-border: 255 255 255 / 0.5;
   /* Themeable colors are space-separated RGB channels so Tailwind can emit
      rgb(var(--x) / <alpha-value>) — works on Chrome 65+ (color-mix needs 111). */
-  --background: 255 255 255;
+  /* Light mode layers surfaces the way the dark palette does: the page sits a
+     step below --card so white panels read as raised, rather than both being
+     pure white. */
+  --background: 244 244 246;
   --foreground: 24 24 27;
   --card: 255 255 255;
   --card-foreground: 24 24 27;
@@ -14,16 +43,16 @@
   --popover-foreground: 24 24 27;
   --primary: 79 70 229;
   --primary-foreground: 255 255 255;
-  --secondary: 244 244 245;
+  --secondary: 235 235 238;
   --secondary-foreground: 24 24 27;
-  --muted: 244 244 245;
-  --muted-foreground: 113 113 122;
-  --accent: 244 244 245;
+  --muted: 235 235 238;
+  --muted-foreground: 106 106 116;
+  --accent: 235 235 238;
   --accent-foreground: 24 24 27;
   --destructive: 220 38 38;
   --destructive-foreground: 255 255 255;
-  --border: 228 228 231;
-  --input: 228 228 231;
+  --border: 210 210 216;
+  --input: 210 210 216;
   --ring: 79 70 229;
   /* Chart colors stay hex — read directly as color values by Recharts (chart.tsx). */
   --chart-1: #6366f1;
@@ -31,17 +60,23 @@
   --chart-3: #f59e0b;
   --chart-4: #a78bfa;
   --chart-5: #f87171;
-  --sidebar: 250 250 250;
+  --sidebar: 250 250 251;
   --sidebar-foreground: 63 63 70;
   --sidebar-primary: 79 70 229;
   --sidebar-primary-foreground: 255 255 255;
-  --sidebar-accent: 244 244 245;
+  --sidebar-accent: 235 235 238;
   --sidebar-accent-foreground: 24 24 27;
-  --sidebar-border: 228 228 231;
+  --sidebar-border: 210 210 216;
   --sidebar-ring: 79 70 229;
+  --autofill-text: 24 24 27;
+  --autofill-bg: 235 235 238;
 }
 
 .dark {
+  --material-bg: 9 9 11 / 0.72;
+  --material-bg-heavy: 12 12 14 / 0.8;
+  --material-border: 255 255 255 / 0.08;
+
   --background: 9 9 11;
   --foreground: 250 250 250;
   --card: 19 19 22;
@@ -76,6 +111,8 @@
   --sidebar-accent-foreground: 250 250 250;
   --sidebar-border: 31 31 34;
   --sidebar-ring: 99 102 241;
+  --autofill-text: 250 250 250;
+  --autofill-bg: 35 35 38;
 }
 
 @layer base {
@@ -85,6 +122,109 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    font-optical-sizing: auto;
+  }
+
+  h1 {
+    letter-spacing: -0.021em;
+    line-height: 1.15;
+  }
+  h2 {
+    letter-spacing: -0.014em;
+    line-height: 1.25;
+  }
+  h3,
+  h4 {
+    letter-spacing: -0.008em;
+    line-height: 1.35;
+  }
+}
+
+@layer components {
+  .overlay-motion[data-state="open"] {
+    animation-duration: var(--response);
+    animation-timing-function: var(--ease-spring);
+  }
+  .overlay-motion[data-state="closed"] {
+    animation-duration: var(--response-fast);
+    animation-timing-function: var(--ease-in-quart);
+  }
+
+  .scrim-motion[data-state="open"] {
+    animation-duration: var(--response);
+    animation-timing-function: var(--ease-out-quart);
+  }
+  .scrim-motion[data-state="closed"] {
+    animation-duration: var(--response-fast);
+    animation-timing-function: var(--ease-in-quart);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --response-fast: 0.01s;
+    --response: 0.15s;
+    --response-slow: 0.15s;
+    --press-scale: 1;
+    --ease-spring: ease;
+    --ease-spring-bounce: ease;
+    --ease-out-quart: ease;
+    --ease-in-quart: ease;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.15s !important;
+    animation-timing-function: ease !important;
+    transition-duration: 0.15s !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-in,
+  .animate-out {
+    --tw-enter-translate-x: 0 !important;
+    --tw-enter-translate-y: 0 !important;
+    --tw-exit-translate-x: 0 !important;
+    --tw-exit-translate-y: 0 !important;
+    --tw-enter-scale: 1 !important;
+    --tw-exit-scale: 1 !important;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --material-blur: 0px;
+    --material-blur-heavy: 0px;
+    --material-bg: 244 244 246 / 1;
+    --material-bg-heavy: 250 250 251 / 1;
+    --material-border: 210 210 216 / 1;
+  }
+  .dark {
+    --material-bg: 9 9 11 / 1;
+    --material-bg-heavy: 12 12 14 / 1;
+    --material-border: 31 31 34 / 1;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --material-blur: 0px;
+    --material-blur-heavy: 0px;
+    --material-bg: 255 255 255 / 1;
+    --material-bg-heavy: 255 255 255 / 1;
+    --material-border: 24 24 27 / 1;
+    --border: 82 82 91;
+    --input: 82 82 91;
+    --muted-foreground: 63 63 70;
+  }
+  .dark {
+    --material-bg: 9 9 11 / 1;
+    --material-bg-heavy: 9 9 11 / 1;
+    --material-border: 250 250 250 / 1;
+    --border: 113 113 122;
+    --input: 113 113 122;
+    --muted-foreground: 212 212 216;
   }
 }
 
@@ -93,7 +233,8 @@ input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
   -webkit-background-clip: text;
-  -webkit-text-fill-color: #ffffff;
+  -webkit-text-fill-color: rgb(var(--autofill-text));
   transition: background-color 5000s ease-in-out 0s;
-  box-shadow: inset 0 0 20px 20px #23232329;
+  /* Suppresses Chrome's yellow autofill background; tinted per theme. */
+  box-shadow: inset 0 0 20px 20px rgb(var(--autofill-bg));
 }

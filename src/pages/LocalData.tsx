@@ -110,7 +110,7 @@ export default function LocalData() {
         className="w-full"
         onSelect={(...event) => console.log(event)}
       >
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="customer">Customer</TabsTrigger>
           <TabsTrigger value="description">Description & Remark</TabsTrigger>
         </TabsList>

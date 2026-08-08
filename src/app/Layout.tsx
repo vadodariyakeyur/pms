@@ -15,6 +15,8 @@ import {
   Loader2,
   Database,
   Boxes,
+  Sun,
+  Moon,
 } from "lucide-react";
 import {
   Select,
@@ -43,6 +45,7 @@ import router from "@/app/router";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { Database as DatabaseType } from "@/lib/supabase/types";
 import { OfficeContext } from "@/hooks/use-office";
+import { useTheme } from "@/hooks/use-theme";
 
 const menuGroups = [
   {
@@ -74,6 +77,7 @@ type Office = DatabaseType["public"]["Tables"]["offices"]["Row"];
 
 export default function Layout() {
   const location = useLocation();
+  const { theme, toggle } = useTheme();
 
   // Office dropdown state
   const [offices, setOffices] = useState<Office[]>([]);
@@ -126,7 +130,9 @@ export default function Layout() {
     <SidebarProvider>
       <Sidebar collapsible="icon">
         <SidebarHeader>
-          <div className="flex items-center gap-2 px-1 py-1.5">
+          {/* No px when collapsed: the rail is 3rem and p-2 on SidebarHeader
+              already leaves exactly size-8 for the tile. */}
+          <div className="flex items-center gap-2 px-1 py-1.5 group-data-[collapsible=icon]:px-0">
             <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <Boxes className="size-4" />
             </div>
@@ -166,9 +172,9 @@ export default function Layout() {
         <SidebarRail />
       </Sidebar>
 
-      <SidebarInset className="h-svh overflow-hidden">
+      <SidebarInset className="relative h-svh overflow-hidden">
         {/* Header */}
-        <header className="flex h-16 shrink-0 items-center justify-between border-b px-4">
+        <header className="absolute inset-x-0 top-0 z-20 flex h-16 shrink-0 items-center justify-between bg-material px-4 backdrop-blur-material backdrop-saturate-150 [border-bottom:1px_solid_rgb(var(--material-border))]">
           <div className="flex items-center gap-2">
             <SidebarTrigger />
             <Separator orientation="vertical" className="mr-1 !h-5" />
@@ -177,6 +183,20 @@ export default function Layout() {
             </h1>
           </div>
           <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggle}
+              aria-label={
+                theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+              }
+            >
+              {theme === "dark" ? (
+                <Sun className="h-4 w-4" />
+              ) : (
+                <Moon className="h-4 w-4" />
+              )}
+            </Button>
             <Select
               value={selectedOffice?.id.toString()}
               onValueChange={handleOfficeChange}
@@ -200,7 +220,9 @@ export default function Layout() {
         </header>
 
         {/* Content */}
-        <main className="flex-1 overflow-auto p-6">
+        <main
+          className="flex-1 overflow-auto px-6 pb-6 pt-[calc(4rem+1.5rem)] [mask-image:linear-gradient(to_bottom,transparent_3.5rem,black_4.5rem)]"
+        >
           <div className="mx-auto max-w-7xl">
             <Suspense
               key={location.pathname}

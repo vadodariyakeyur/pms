@@ -30,3 +30,4 @@ supabase/.temp*
 .tokensave
 docs
 .vscode
+.tracedecay

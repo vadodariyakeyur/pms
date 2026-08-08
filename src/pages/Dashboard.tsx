@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Package,
@@ -9,35 +9,26 @@ import {
   Wallet,
   ArrowRight,
 } from "lucide-react";
-import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-} from "recharts";
 
 import { supabase } from "@/lib/supabase/client";
 import { useOffice } from "@/hooks/use-office";
 import PageHeader from "@/components/custom/PageHeader";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
+import type { DayPoint, NameCount } from "@/components/custom/DashboardCharts";
 import { eachDayOfInterval, format, subDays } from "date-fns";
+
+const DashboardCharts = lazy(
+  () => import("@/components/custom/DashboardCharts")
+);
+
+const ChartsFallback = () => (
+  <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+    {Array.from({ length: 4 }).map((_, i) => (
+      <Skeleton key={i} className="aspect-video w-full" />
+    ))}
+  </div>
+);
 
 const quickActions = [
   {
@@ -61,9 +52,6 @@ const quickActions = [
 ];
 
 const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
-
-type DayPoint = { date: string; bookings: number; collected: number; pending: number };
-type NameCount = { name: string; count: number };
 
 export default function Dashboard() {
   const office = useOffice();
@@ -152,20 +140,6 @@ export default function Dashboard() {
     fetchStats();
   }, [office.id]);
 
-  const trendConfig = {
-    bookings: { label: "Bookings", color: "var(--chart-1)" },
-    collected: { label: "Collected", color: "var(--chart-3)" },
-  } satisfies ChartConfig;
-  const moneyConfig = {
-    collected: { label: "Collected", color: "var(--chart-1)" },
-    pending: { label: "Pending", color: "var(--chart-5)" },
-  } satisfies ChartConfig;
-  const countConfig = {
-    count: { label: "Parcels", color: "var(--chart-2)" },
-  } satisfies ChartConfig;
-
-  const dayTick = (v: string) => format(new Date(v), "d MMM");
-
   const tiles = [
     { label: "Today's bookings", value: stats.bookings.toLocaleString("en-IN"), Icon: Package },
     { label: "Items booked today", value: stats.qty.toLocaleString("en-IN"), Icon: Boxes },
@@ -205,227 +179,25 @@ export default function Dashboard() {
       <h2 className="mb-3 mt-8 text-lg font-semibold">
         Analytics · last 30 days
       </h2>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card className="gap-0 py-5">
-          <CardHeader className="px-5">
-            <CardTitle className="text-base">Bookings & revenue trend</CardTitle>
-          </CardHeader>
-          <CardContent className="px-5">
-            {loading ? (
-              <Skeleton className="aspect-video w-full" />
-            ) : (
-              <ChartContainer config={trendConfig} className="w-full">
-                <AreaChart data={daily} margin={{ left: 4, right: 4 }}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="date"
-                    tickLine={false}
-                    axisLine={false}
-                    minTickGap={24}
-                    tickFormatter={dayTick}
-                  />
-                  <YAxis
-                    yAxisId="left"
-                    tickLine={false}
-                    axisLine={false}
-                    width={32}
-                  />
-                  <YAxis
-                    yAxisId="right"
-                    orientation="right"
-                    tickLine={false}
-                    axisLine={false}
-                    width={44}
-                    tickFormatter={(v) => inr(v)}
-                  />
-                  <ChartTooltip
-                    content={
-                      <ChartTooltipContent
-                        labelFormatter={(_, p) =>
-                          dayTick(String(p?.[0]?.payload?.date))
-                        }
-                        formatter={(value, name) => (
-                          <div className="flex w-full items-center justify-between gap-4">
-                            <span className="text-muted-foreground">
-                              {trendConfig[name as keyof typeof trendConfig]
-                                ?.label ?? name}
-                            </span>
-                            <span className="font-mono font-medium tabular-nums">
-                              {name === "collected"
-                                ? inr(Number(value))
-                                : Number(value).toLocaleString("en-IN")}
-                            </span>
-                          </div>
-                        )}
-                      />
-                    }
-                  />
-                  <Area
-                    yAxisId="left"
-                    dataKey="bookings"
-                    type="monotone"
-                    stroke="var(--color-bookings)"
-                    fill="var(--color-bookings)"
-                    fillOpacity={0.15}
-                  />
-                  <Area
-                    yAxisId="right"
-                    dataKey="collected"
-                    type="monotone"
-                    stroke="var(--color-collected)"
-                    fill="var(--color-collected)"
-                    fillOpacity={0.15}
-                  />
-                  <ChartLegend content={<ChartLegendContent />} />
-                </AreaChart>
-              </ChartContainer>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="gap-0 py-5">
-          <CardHeader className="px-5">
-            <CardTitle className="text-base">Collected vs pending</CardTitle>
-          </CardHeader>
-          <CardContent className="px-5">
-            {loading ? (
-              <Skeleton className="aspect-video w-full" />
-            ) : (
-              <ChartContainer config={moneyConfig} className="w-full">
-                <BarChart data={daily} margin={{ left: 4, right: 4 }}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="date"
-                    tickLine={false}
-                    axisLine={false}
-                    minTickGap={24}
-                    tickFormatter={dayTick}
-                  />
-                  <YAxis
-                    tickLine={false}
-                    axisLine={false}
-                    width={44}
-                    tickFormatter={(v) => inr(v)}
-                  />
-                  <ChartTooltip
-                    content={
-                      <ChartTooltipContent
-                        labelFormatter={(_, p) =>
-                          dayTick(String(p?.[0]?.payload?.date))
-                        }
-                        formatter={(value, name) => (
-                          <div className="flex w-full items-center justify-between gap-4">
-                            <span className="text-muted-foreground">
-                              {moneyConfig[name as keyof typeof moneyConfig]
-                                ?.label ?? name}
-                            </span>
-                            <span className="font-mono font-medium tabular-nums">
-                              {inr(Number(value))}
-                            </span>
-                          </div>
-                        )}
-                      />
-                    }
-                  />
-                  <Bar
-                    dataKey="collected"
-                    stackId="a"
-                    fill="var(--color-collected)"
-                    radius={[0, 0, 2, 2]}
-                  />
-                  <Bar
-                    dataKey="pending"
-                    stackId="a"
-                    fill="var(--color-pending)"
-                    radius={[2, 2, 0, 0]}
-                  />
-                  <ChartLegend content={<ChartLegendContent />} />
-                </BarChart>
-              </ChartContainer>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="gap-0 py-5">
-          <CardHeader className="px-5">
-            <CardTitle className="text-base">Top destination cities</CardTitle>
-          </CardHeader>
-          <CardContent className="px-5">
-            {loading ? (
-              <Skeleton className="aspect-video w-full" />
-            ) : topCities.length === 0 ? (
-              <p className="py-8 text-center text-sm text-muted-foreground">
-                No data yet.
-              </p>
-            ) : (
-              <ChartContainer config={countConfig} className="w-full">
-                <BarChart
-                  data={topCities}
-                  layout="vertical"
-                  margin={{ left: 4, right: 12 }}
-                >
-                  <CartesianGrid horizontal={false} />
-                  <XAxis type="number" tickLine={false} axisLine={false} />
-                  <YAxis
-                    dataKey="name"
-                    type="category"
-                    tickLine={false}
-                    axisLine={false}
-                    width={80}
-                  />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar
-                    dataKey="count"
-                    fill="var(--color-count)"
-                    radius={[0, 4, 4, 0]}
-                  />
-                </BarChart>
-              </ChartContainer>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="gap-0 py-5">
-          <CardHeader className="px-5">
-            <CardTitle className="text-base">Bookings by bus</CardTitle>
-          </CardHeader>
-          <CardContent className="px-5">
-            {loading ? (
-              <Skeleton className="aspect-video w-full" />
-            ) : byBus.length === 0 ? (
-              <p className="py-8 text-center text-sm text-muted-foreground">
-                No data yet.
-              </p>
-            ) : (
-              <ChartContainer config={countConfig} className="w-full">
-                <BarChart data={byBus} margin={{ left: 4, right: 4 }}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="name"
-                    tickLine={false}
-                    axisLine={false}
-                    interval={0}
-                  />
-                  <YAxis tickLine={false} axisLine={false} width={32} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar
-                    dataKey="count"
-                    fill="var(--color-count)"
-                    radius={[4, 4, 0, 0]}
-                  />
-                </BarChart>
-              </ChartContainer>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      <Suspense fallback={<ChartsFallback />}>
+        <DashboardCharts
+          loading={loading}
+          daily={daily}
+          topCities={topCities}
+          byBus={byBus}
+        />
+      </Suspense>
 
       {/* Quick actions */}
       <h2 className="mb-3 mt-8 text-lg font-semibold">Quick actions</h2>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {quickActions.map(({ title, description, link, Icon }) => (
-          <Link key={link} to={link} className="group">
-            <Card className="h-full gap-0 py-5 transition-colors hover:border-primary/50">
+          <Link
+            key={link}
+            to={link}
+            className="group rounded-xl outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          >
+            <Card className="h-full gap-0 py-5 transition-[transform,border-color,box-shadow] duration-fast ease-spring hover:border-primary/50 hover:shadow-md active:scale-[var(--press-scale)]">
               <CardContent className="px-5">
                 <div className="mb-3 flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <Icon className="size-5" />

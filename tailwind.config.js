@@ -47,6 +47,11 @@ export default {
         border: "rgb(var(--border) / <alpha-value>)",
         input: "rgb(var(--input) / <alpha-value>)",
         ring: "rgb(var(--ring) / <alpha-value>)",
+        material: {
+          DEFAULT: "rgb(var(--material-bg))",
+          heavy: "rgb(var(--material-bg-heavy))",
+          border: "rgb(var(--material-border))",
+        },
         // Chart vars are hex (read directly by Recharts) — no alpha modifier used.
         chart: {
           1: "var(--chart-1)",
@@ -66,11 +71,43 @@ export default {
           ring: "rgb(var(--sidebar-ring) / <alpha-value>)",
         },
       },
+      transitionTimingFunction: {
+        spring: "var(--ease-spring)",
+        "spring-bounce": "var(--ease-spring-bounce)",
+        "out-quart": "var(--ease-out-quart)",
+        "in-quart": "var(--ease-in-quart)",
+      },
+      transitionDuration: {
+        fast: "var(--response-fast)",
+        response: "var(--response)",
+        slow: "var(--response-slow)",
+      },
+      backdropBlur: {
+        material: "var(--material-blur)",
+        "material-heavy": "var(--material-blur-heavy)",
+      },
+      letterSpacing: {
+        display: "-0.021em",
+        heading: "-0.014em",
+        body: "0em",
+        caption: "0.01em",
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
         xl: "calc(var(--radius) + 4px)",
+      },
+      // Slightly stronger than Tailwind's defaults so cards read as raised in
+      // light mode. Shadows are invisible on the near-black dark palette, which
+      // separates surfaces by background value instead.
+      boxShadow: {
+        xs: "0px 1px 2px 0px hsl(240 6% 10% / 0.06)",
+        sm: "0px 1px 2px 0px hsl(240 6% 10% / 0.08), 0px 1px 3px 0px hsl(240 6% 10% / 0.10)",
+        DEFAULT:
+          "0px 1px 2px 0px hsl(240 6% 10% / 0.08), 0px 1px 3px 0px hsl(240 6% 10% / 0.10)",
+        md: "0px 2px 4px -1px hsl(240 6% 10% / 0.08), 0px 4px 6px -1px hsl(240 6% 10% / 0.10)",
+        lg: "0px 4px 6px -2px hsl(240 6% 10% / 0.08), 0px 10px 15px -3px hsl(240 6% 10% / 0.10)",
       },
     },
   },

@@ -15,8 +15,18 @@
       rel="stylesheet"
     />
     <title>Parcel Management System</title>
+    <script>
+      // Runs before first paint so dark users don't get a white flash.
+      // Keep in sync with src/hooks/use-theme.ts.
+      var t = localStorage.getItem("theme");
+      if (
+        t === "dark" ||
+        (!t && matchMedia("(prefers-color-scheme: dark)").matches)
+      )
+        document.documentElement.classList.add("dark");
+    </script>
   </head>
-  <body class="dark">
+  <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Database } from "@/lib/supabase/types";
 import router from "@/app/router";
 import { Receipt } from "@/components/custom/Reciept";
+import PageHeader from "@/components/custom/PageHeader";
 import { getWhatsappMessage } from "@/lib/utils";
 
 // Define types
@@ -96,19 +97,17 @@ export default function PrintParcel() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-white">Loading parcel details...</div>
+      <div className="flex items-center justify-center py-24">
+        <div className="text-muted-foreground">Loading parcel details...</div>
       </div>
     );
   }
 
   if (!parcel) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen">
-        <div className="text-white mb-4">Parcel not found</div>
-        <Button
-          onClick={() => router.navigate("/parcels/add")}
-        >
+      <div className="flex flex-col items-center justify-center gap-4 py-24">
+        <div className="text-muted-foreground">Parcel not found</div>
+        <Button onClick={() => router.navigate("/parcels/add")}>
           Create New Parcel
         </Button>
       </div>
@@ -116,37 +115,29 @@ export default function PrintParcel() {
   }
 
   return (
-    <div className="space-y-6 h-full">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold tracking-tight">Print Preview</h1>
-
-        <div className="space-x-2 print:hidden">
-          <Button
-            variant="outline"
-            onClick={handleBackToParcelList}
-          >
+    <div className="h-full">
+      <div className="print:hidden">
+        <PageHeader
+          title="Print Preview"
+          description={`Bill R${parcel.bill_no} · ${parcel.from_city?.name} to ${parcel.to_city?.name}`}
+        >
+          <Button variant="outline" onClick={handleBackToParcelList}>
             <ArrowLeft className="h-4 w-4" />
             Back to List
           </Button>
-          <Button
-            onClick={handleSenderMessageSend}
-          >
+          <Button variant="outline" onClick={handleSenderMessageSend}>
             <MessageSquare className="h-4 w-4" />
-            Send Message(Mokalnar)
+            Mokalnar
           </Button>
-          <Button
-            onClick={handleReceiptMessageSend}
-          >
+          <Button variant="outline" onClick={handleReceiptMessageSend}>
             <MessageSquare className="h-4 w-4" />
-            Send Message(Lenar)
+            Lenar
           </Button>
-          <Button
-            onClick={handlePrint}
-          >
+          <Button onClick={handlePrint}>
             <Printer className="h-4 w-4" />
             Print
           </Button>
-        </div>
+        </PageHeader>
       </div>
 
       <Receipt ref={receiptRef} id="print-section" parcel={parcel} />

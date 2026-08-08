@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
+import { toast } from "sonner";
 
 import { supabase } from "@/lib/supabase/client";
 import { Database } from "@/lib/supabase/types";
@@ -145,7 +146,7 @@ export default function ViewReciept() {
 
       if (error) {
         console.error("Access denied:", error);
-        alert("Receipt not found or access denied.");
+        toast.error("Receipt not found or access denied.");
         return;
       }
 
@@ -172,8 +173,9 @@ export default function ViewReciept() {
       } as Parcel);
     } catch (err) {
       console.error("Error fetching parcel:", err);
-      alert("Failed to load receipt. Please try again.");
-      window.close();
+      // No window.close() — this page opens from a WhatsApp link, so closing
+      // no-ops and strands the customer. Falls through to "Receipt not found."
+      toast.error("Failed to load receipt. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -182,7 +184,7 @@ export default function ViewReciept() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="text-white">Loading Receipt...</div>
+        <div className="text-muted-foreground">Loading Receipt...</div>
       </div>
     );
   }
@@ -220,18 +222,23 @@ export default function ViewReciept() {
       </div>
 
       {/* Main Content */}
-      <div className="space-y-6 h-full pt-10">
-        <div className="flex justify-center items-center">
-          <h1 className="text-2xl font-bold tracking-tight">Booking Receipt</h1>
+      <div className="min-h-svh bg-background px-4 py-10">
+        <div className="mx-auto mb-6 max-w-[210mm] text-center">
+          <h1 className="text-2xl font-bold leading-tight tracking-display">
+            Booking Receipt
+          </h1>
+          {parcel && (
+            <p className="mt-1 text-sm leading-relaxed text-muted-foreground tabular-nums">
+              Bill R{parcel.bill_no}
+            </p>
+          )}
         </div>
         {parcel ? (
           <Receipt ref={receiptRef} id="print-section" parcel={parcel} />
         ) : (
-          <div className="flex justify-center items-center">
-            <h1 className="text-2xl font-bold tracking-tight">
-              Receipt Not Found
-            </h1>
-          </div>
+          <p className="py-24 text-center text-muted-foreground">
+            Receipt not found.
+          </p>
         )}
       </div>
 
