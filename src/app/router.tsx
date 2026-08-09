@@ -4,20 +4,44 @@ import { createHashRouter, Navigate } from "react-router-dom";
 import Layout from "@/app/Layout";
 import { ProtectedRoute } from "@/components/custom/ProtectedRoute";
 
-const AddParcel = lazy(() => import("@/pages/AddParcel"));
-const Buses = lazy(() => import("@/pages/Buses"));
-const BusDriverAssignments = lazy(() => import("@/pages/BusDriverAssignments"));
-const LocalData = lazy(() => import("@/pages/LocalData"));
-const Cities = lazy(() => import("@/pages/Cities"));
-const Dashboard = lazy(() => import("@/pages/Dashboard"));
-const Drivers = lazy(() => import("@/pages/Drivers"));
-const EditParcel = lazy(() => import("@/pages/EditParcel"));
-const ListParcels = lazy(() => import("@/pages/ListParcels"));
-const Login = lazy(() => import("@/pages/Login"));
-const Offices = lazy(() => import("@/pages/Offices"));
-const PrintParcel = lazy(() => import("@/pages/PrintParcel"));
-const Reports = lazy(() => import("@/pages/Reports"));
-const ViewReciept = lazy(() => import("@/pages/ViewReciept"));
+const load = {
+  AddParcel: () => import("@/pages/AddParcel"),
+  Buses: () => import("@/pages/Buses"),
+  BusDriverAssignments: () => import("@/pages/BusDriverAssignments"),
+  LocalData: () => import("@/pages/LocalData"),
+  Cities: () => import("@/pages/Cities"),
+  Dashboard: () => import("@/pages/Dashboard"),
+  Drivers: () => import("@/pages/Drivers"),
+  EditParcel: () => import("@/pages/EditParcel"),
+  ListParcels: () => import("@/pages/ListParcels"),
+  Login: () => import("@/pages/Login"),
+  Offices: () => import("@/pages/Offices"),
+  PrintParcel: () => import("@/pages/PrintParcel"),
+  Reports: () => import("@/pages/Reports"),
+  ViewReciept: () => import("@/pages/ViewReciept"),
+};
+
+/** Warm every route chunk once the browser is idle, so navigation is instant. */
+export function prefetchPages() {
+  const run = () => Object.values(load).forEach((f) => void f().catch(() => {}));
+  if ("requestIdleCallback" in window) requestIdleCallback(run, { timeout: 3000 });
+  else setTimeout(run, 2000); // Safari < 17 has no requestIdleCallback
+}
+
+const AddParcel = lazy(load.AddParcel);
+const Buses = lazy(load.Buses);
+const BusDriverAssignments = lazy(load.BusDriverAssignments);
+const LocalData = lazy(load.LocalData);
+const Cities = lazy(load.Cities);
+const Dashboard = lazy(load.Dashboard);
+const Drivers = lazy(load.Drivers);
+const EditParcel = lazy(load.EditParcel);
+const ListParcels = lazy(load.ListParcels);
+const Login = lazy(load.Login);
+const Offices = lazy(load.Offices);
+const PrintParcel = lazy(load.PrintParcel);
+const Reports = lazy(load.Reports);
+const ViewReciept = lazy(load.ViewReciept);
 
 const router = createHashRouter([
   {

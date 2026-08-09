@@ -1,12 +1,15 @@
+import { useEffect } from "react";
 import { RouterProvider } from "react-router-dom";
 import { Toaster } from "sonner";
-import router from "@/app/router";
+import router, { prefetchPages } from "@/app/router";
 import OfflineBanner from "@/components/custom/OfflineBanner";
 import UpdateBanner from "@/components/custom/UpdateBanner";
 import { ThemeContext, useThemeState } from "@/hooks/use-theme";
 
 function App() {
   const theme = useThemeState();
+
+  useEffect(prefetchPages, []);
 
   return (
     <ThemeContext.Provider value={theme}>
