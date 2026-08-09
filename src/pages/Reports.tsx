@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Printer, Loader2, Calendar as CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
+import { Printer, Loader2, Calendar as CalendarIcon } from "lucide-react";
 import {
   format,
   startOfMonth,
@@ -36,16 +36,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
 import { Calendar } from "@/components/ui/calendar";
-import { cn } from "@/lib/utils";
 import { useOffice } from "@/hooks/use-office";
 
 // Define types
@@ -321,7 +312,7 @@ export default function Reports() {
 
   // City selections (shared across report types)
   const [fromCityId, setFromCityId] = useState<string>("");
-  const [toCityIds, setToCityIds] = useState<string[]>([]);
+  const [toCityId, setToCityId] = useState<string>("");
 
   // Daily Report State
   const [dailyReportDate, setDailyReportDate] = useState<Date | undefined>(
@@ -374,7 +365,7 @@ export default function Reports() {
       setCities(citiesData || []);
       setBuses(busesData || []);
       setFromCityId(fromIdStr);
-      setToCityIds(toIdStr ? [toIdStr] : []);
+      setToCityId(toIdStr);
       setDateReportBusId(firstBusId?.toString() || "");
     } catch (err) {
       console.error("Error fetching initial report data:", err);
@@ -400,58 +391,35 @@ export default function Reports() {
       }
 
       const fromCity = cities.find((city) => city.id === parseInt(fromCityId));
-      const toCities = cities.filter((city) =>
-        toCityIds.includes(city.id.toString())
-      );
-      const toCityNames = toCities.map((c) => c.name).join(", ");
+      const toCity = cities.find((city) => city.id === parseInt(toCityId));
 
       if (reportType === "monthly") {
         if (
           !dateParams.startDate ||
           !dateParams.endDate ||
           !fromCity?.name ||
-          toCities.length === 0
+          !toCity?.name
         ) {
           toast.error("Please select all fields for Monthly Report.");
           return;
         }
 
-        const results = await Promise.all(
-          toCityIds.map((id) =>
-            supabase.rpc("get_parcels_aggregated_by_date", {
-              p_bus_id: parseInt(dateReportBusId),
-              p_from_city_id: parseInt(fromCityId),
-              p_to_city_id: parseInt(id),
-              p_start_date: dateParams.startDate!,
-              p_end_date: dateParams.endDate!,
-            })
-          )
-        );
-
-        const merged = new Map<string, DateWiseAggregation>();
-        for (const { data, error } of results) {
-          if (error) throw error;
-          for (const row of data || []) {
-            const existing = merged.get(row.parcel_date);
-            if (existing) {
-              existing.record_count += row.record_count;
-              existing.total_amount_given += row.total_amount_given;
-              existing.total_amount_remaining += row.total_amount_remaining;
-              existing.total_qty += row.total_qty;
-            } else {
-              merged.set(row.parcel_date, { ...row });
-            }
+        const { data, error } = await supabase.rpc(
+          "get_parcels_aggregated_by_date",
+          {
+            p_bus_id: parseInt(dateReportBusId),
+            p_from_city_id: parseInt(fromCityId),
+            p_to_city_id: parseInt(toCityId),
+            p_start_date: dateParams.startDate,
+            p_end_date: dateParams.endDate,
           }
-        }
-
-        const mergedData = Array.from(merged.values()).sort(
-          (a, b) => a.parcel_date.localeCompare(b.parcel_date)
         );
+        if (error) throw error;
 
         printMonthlyReport(
-          mergedData,
+          data || [],
           fromCity.name,
-          toCityNames,
+          toCity.name,
           monthlyReportMonth
         );
         return;
@@ -471,7 +439,7 @@ export default function Reports() {
         .eq("office_id", office.id)
         .eq("bus_id", parseInt(dateReportBusId))
         .eq("from_city_id", parseInt(fromCityId))
-        .in("to_city_id", toCityIds.map((id) => parseInt(id)))
+        .eq("to_city_id", parseInt(toCityId))
         .order("created_at", { ascending: true });
 
       // Apply date filters based on report type
@@ -497,16 +465,16 @@ export default function Reports() {
       const { data, error } = await query;
       if (error) throw error;
 
-      if (fromCity && toCities.length > 0) {
+      if (fromCity && toCity) {
         printRecordReport(
           data || [],
           fromCity.name,
-          toCityNames,
+          toCity.name,
           reportDateString
         );
       } else {
         console.error(
-          `Cities with ID FROM:${fromCityId} and TO:${toCityIds.join(",")} not found`
+          `Cities with ID FROM:${fromCityId} and TO:${toCityId} not found`
         );
       }
     } catch (err) {
@@ -528,7 +496,7 @@ export default function Reports() {
           !dateReportEndDate ||
           !dateReportBusId ||
           !fromCityId ||
-          toCityIds.length === 0
+          !toCityId
         ) {
           toast.error("Please select all fields for Date Report.");
           return false;
@@ -539,7 +507,7 @@ export default function Reports() {
         }
         break;
       case "daily":
-        if (!dailyReportDate || !dateReportBusId || !fromCityId || toCityIds.length === 0) {
+        if (!dailyReportDate || !dateReportBusId || !fromCityId || !toCityId) {
           toast.error("Please select all fields for Daily Report.");
           return false;
         }
@@ -549,7 +517,7 @@ export default function Reports() {
           !monthlyReportMonth ||
           !dateReportBusId ||
           !fromCityId ||
-          toCityIds.length === 0
+          !toCityId
         ) {
           toast.error("Please select all fields for Monthly Report.");
           return false;
@@ -611,81 +579,6 @@ export default function Reports() {
       </Select>
     </div>
   );
-
-  const renderMultiCitySelector = (
-    label: string,
-    id: string,
-    values: string[],
-    onChange: (values: string[]) => void
-  ) => {
-    const selectedNames = cities
-      .filter((city) => values.includes(city.id.toString()))
-      .map((city) => city.name);
-
-    const displayText =
-      selectedNames.length === 0
-        ? `Select ${label}`
-        : selectedNames.length <= 2
-        ? selectedNames.join(", ")
-        : `${selectedNames.length} cities selected`;
-
-    return (
-      <div className="space-y-1">
-        <Label htmlFor={id}>{label}</Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              id={id}
-              variant="outline"
-              role="combobox"
-              className={cn(
-                "w-full justify-between ",
-                values.length === 0 && "text-muted-foreground"
-              )}
-            >
-              <span className="truncate">{displayText}</span>
-              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-[200px] p-0">
-            <Command>
-              <CommandInput placeholder={`Search ${label.toLowerCase()}...`} />
-              <CommandList>
-                <CommandEmpty>No city found.</CommandEmpty>
-                <CommandGroup>
-                  {cities.map((city) => {
-                    const cityIdStr = city.id.toString();
-                    const isSelected = values.includes(cityIdStr);
-                    return (
-                      <CommandItem
-                        key={city.id}
-                        value={city.name}
-                        onSelect={() => {
-                          if (isSelected) {
-                            onChange(values.filter((v) => v !== cityIdStr));
-                          } else {
-                            onChange([...values, cityIdStr]);
-                          }
-                        }}
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            isSelected ? "opacity-100" : "opacity-0"
-                          )}
-                        />
-                        {city.name}
-                      </CommandItem>
-                    );
-                  })}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
-      </div>
-    );
-  };
 
   // Function to render bus selector (reused in multiple places)
   const renderBusSelector = () => (
@@ -814,8 +707,8 @@ export default function Reports() {
                 {renderCitySelector(
                   "To City",
                   "daily-report-to",
-                  toCityIds[0] ?? "",
-                  (id: string) => setToCityIds(id ? [id] : [])
+                  toCityId,
+                  setToCityId
                 )}
                 {renderPrintButton(() => fetchReport("daily"))}
               </div>
@@ -872,11 +765,11 @@ export default function Reports() {
                   fromCityId,
                   setFromCityId
                 )}
-                {renderMultiCitySelector(
+                {renderCitySelector(
                   "To City",
                   "monthly-report-to",
-                  toCityIds,
-                  setToCityIds
+                  toCityId,
+                  setToCityId
                 )}
                 {renderPrintButton(() => fetchReport("monthly"))}
               </div>
@@ -914,11 +807,11 @@ export default function Reports() {
                   fromCityId,
                   setFromCityId
                 )}
-                {renderMultiCitySelector(
+                {renderCitySelector(
                   "To City",
                   "date-report-to",
-                  toCityIds,
-                  setToCityIds
+                  toCityId,
+                  setToCityId
                 )}
                 {renderPrintButton(() => fetchReport("date"))}
               </div>
