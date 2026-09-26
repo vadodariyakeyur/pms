@@ -17,6 +17,7 @@ import {
   Boxes,
   Sun,
   Moon,
+  Settings as SettingsIcon,
 } from "lucide-react";
 import {
   Select,
@@ -69,7 +70,10 @@ const menuGroups = [
   },
   {
     label: "System",
-    items: [{ title: "Local Data", link: "/local-data", Icon: Database }],
+    items: [
+      { title: "Local Data", link: "/local-data", Icon: Database },
+      { title: "Settings", link: "/settings", Icon: SettingsIcon },
+    ],
   },
 ];
 
@@ -221,7 +225,7 @@ export default function Layout() {
 
         {/* Content */}
         <main
-          className="flex-1 overflow-auto px-6 pb-6 pt-[calc(4rem+1.5rem)] [mask-image:linear-gradient(to_bottom,transparent_3.5rem,black_4.5rem)]"
+          className="flex-1 overflow-auto px-6 pb-6 pt-[calc(4rem+1.5rem)] [mask-image:linear-gradient(to_bottom,transparent_3.5rem,black_4.5rem)] print:[mask-image:none]"
         >
           <div className="mx-auto max-w-7xl">
             <Suspense

@@ -238,12 +238,12 @@ export default function ListParcels() {
     }
   };
 
-  const handlePrintParcel = (billNo: number) => {
-    router.navigate(`/parcel/${billNo}/print`);
+  const handlePrintParcel = (id: number) => {
+    router.navigate(`/parcel/${id}/print`);
   };
 
-  const handleEditParcel = (billNo: number) => {
-    router.navigate(`/parcel/${billNo}/edit`);
+  const handleEditParcel = (id: number) => {
+    router.navigate(`/parcel/${id}/edit`);
   };
 
   const confirmDeleteParcel = (id: number) => {
@@ -555,14 +555,14 @@ export default function ListParcels() {
                             >
                               <DropdownMenuItem
                                 onClick={() =>
-                                  handlePrintParcel(parcel.bill_no)
+                                  handlePrintParcel(parcel.id)
                                 }
                                 className="cursor-pointer"
                               >
                                 <Printer className="mr-2 h-4 w-4" /> Print
                               </DropdownMenuItem>
                               <DropdownMenuItem
-                                onClick={() => handleEditParcel(parcel.bill_no)}
+                                onClick={() => handleEditParcel(parcel.id)}
                                 className="cursor-pointer"
                               >
                                 <Edit className="mr-2 h-4 w-4" /> Edit

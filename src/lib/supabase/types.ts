@@ -103,18 +103,21 @@ export type Database = {
       }
       offices: {
         Row: {
+          address: string | null
           created_at: string
           id: number
           mobile_no: string | null
           name: string
         }
         Insert: {
+          address?: string | null
           created_at?: string
           id?: number
           mobile_no?: string | null
           name: string
         }
         Update: {
+          address?: string | null
           created_at?: string
           id?: number
           mobile_no?: string | null
@@ -148,7 +151,7 @@ export type Database = {
           amount: number
           amount_given: number
           amount_remaining: number
-          bill_no: number
+          bill_no?: number
           bus_id: number
           created_at?: string | null
           description?: string | null
@@ -236,12 +239,8 @@ export type Database = {
           mobile_no: string
         }[]
       }
-      get_next_bill_no: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
-      get_parcel_details_by_bill_no: {
-        Args: { bill_number: number }
+      get_parcel_details_by_id: {
+        Args: { p_id: number }
         Returns: {
           amount: number
           amount_given: number
@@ -250,6 +249,9 @@ export type Database = {
           created_at: string
           description: string
           from_city_name: string
+          id: number
+          office_address: string
+          office_mobile_no: string
           parcel_date: string
           qty: number
           receiver_mobile_no: string
@@ -259,6 +261,10 @@ export type Database = {
           sender_name: string
           to_city_name: string
         }[]
+      }
+      reset_bill_no: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       get_parcels_aggregated_by_date: {
         Args: {

@@ -32,7 +32,7 @@ export function getWhatsappMessage(parcel: Parcel): string {
 *Receiver:* ${parcel.receiver_name}
 
 *View Receipt:*
-${currentHost}/#/reciept/${btoa(billNo)}
+${currentHost}/#/reciept/${btoa(String(parcel.id))}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 _Thank you for choosing *PRAMUKHRAJ TRAVELS & CARGO* service!_

@@ -47,16 +47,9 @@ export default function AddParcel() {
 
     setIsProcessing(true);
     try {
-      const { data: nextBillNo, error: billNoError } = await supabase.rpc(
-        "get_next_bill_no"
-      );
-
-      if (billNoError) throw billNoError;
-
       const { data: parcel, error: parcelError } = await supabase
         .from("parcels")
         .insert({
-          bill_no: nextBillNo,
           parcel_date: format(parcelDate, "yyyy-MM-dd"),
           driver_id: busDriverAssignment?.driver_id!,
           bus_id: busDriverAssignment?.bus_id!,
@@ -79,7 +72,7 @@ export default function AddParcel() {
 
       if (parcelError) throw parcelError;
 
-      router.navigate(`/parcel/${parcel.bill_no}/print`);
+      router.navigate(`/parcel/${parcel.id}/print`);
     } catch (err: any) {
       console.error("Error adding parcel:", err);
       throw err;

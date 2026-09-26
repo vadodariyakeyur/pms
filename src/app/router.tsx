@@ -18,6 +18,7 @@ const load = {
   Offices: () => import("@/pages/Offices"),
   PrintParcel: () => import("@/pages/PrintParcel"),
   Reports: () => import("@/pages/Reports"),
+  Settings: () => import("@/pages/Settings"),
   ViewReciept: () => import("@/pages/ViewReciept"),
 };
 
@@ -41,6 +42,7 @@ const Login = lazy(load.Login);
 const Offices = lazy(load.Offices);
 const PrintParcel = lazy(load.PrintParcel);
 const Reports = lazy(load.Reports);
+const Settings = lazy(load.Settings);
 const ViewReciept = lazy(load.ViewReciept);
 
 const router = createHashRouter([
@@ -49,7 +51,7 @@ const router = createHashRouter([
     element: <Login />,
   },
   {
-    path: "/reciept/:billNo",
+    path: "/reciept/:id",
     element: <ViewReciept />,
   },
   {
@@ -93,11 +95,11 @@ const router = createHashRouter([
         element: <AddParcel />,
       },
       {
-        path: "/parcel/:billNo/edit",
+        path: "/parcel/:id/edit",
         element: <EditParcel />,
       },
       {
-        path: "/parcel/:billNo/print",
+        path: "/parcel/:id/print",
         element: <PrintParcel />,
       },
       {
@@ -111,6 +113,10 @@ const router = createHashRouter([
       {
         path: "/local-data",
         element: <LocalData />,
+      },
+      {
+        path: "settings",
+        element: <Settings />,
       },
     ],
   },

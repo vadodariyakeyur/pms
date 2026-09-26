@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
-import { Search, Loader2, RefreshCw, UploadIcon } from "lucide-react";
+import {
+  Search,
+  Loader2,
+  RefreshCw,
+  UploadIcon,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import {
@@ -16,6 +23,8 @@ import { supabase } from "@/lib/supabase/client";
 import { Customer } from "@/db/db.types";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+const PAGE_SIZE = 10;
+
 export default function LocalData() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [descriptions, setDescriptions] = useState<string[]>([]);
@@ -23,6 +32,9 @@ export default function LocalData() {
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [customerPage, setCustomerPage] = useState(1);
+  const [descriptionPage, setDescriptionPage] = useState(1);
+  const [remarkPage, setRemarkPage] = useState(1);
 
   useEffect(() => {
     localDB.getAllCustomers().then((dbCustomers) => {
@@ -88,6 +100,30 @@ export default function LocalData() {
       cus.mobile_no.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const customerTotalPages = Math.max(
+    1,
+    Math.ceil(filteredCustomers.length / PAGE_SIZE)
+  );
+  const paginatedCustomers = filteredCustomers.slice(
+    (customerPage - 1) * PAGE_SIZE,
+    customerPage * PAGE_SIZE
+  );
+
+  const descriptionTotalPages = Math.max(
+    1,
+    Math.ceil(descriptions.length / PAGE_SIZE)
+  );
+  const paginatedDescriptions = descriptions.slice(
+    (descriptionPage - 1) * PAGE_SIZE,
+    descriptionPage * PAGE_SIZE
+  );
+
+  const remarkTotalPages = Math.max(1, Math.ceil(remarks.length / PAGE_SIZE));
+  const paginatedRemarks = remarks.slice(
+    (remarkPage - 1) * PAGE_SIZE,
+    remarkPage * PAGE_SIZE
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between">
@@ -131,7 +167,10 @@ export default function LocalData() {
                 <Input
                   placeholder="Search customers/mobile no's..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setCustomerPage(1);
+                  }}
                   className="pl-10"
                 />
               </div>
@@ -175,11 +214,13 @@ export default function LocalData() {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredCustomers.map((customer, idx) => (
+                    paginatedCustomers.map((customer, idx) => (
                       <TableRow
                         key={customer.mobile_no}
                       >
-                        <TableCell>{idx + 1}</TableCell>
+                        <TableCell>
+                          {(customerPage - 1) * PAGE_SIZE + idx + 1}
+                        </TableCell>
                         <TableCell>{customer.customer_name}</TableCell>
                         <TableCell>{customer.mobile_no}</TableCell>
                       </TableRow>
@@ -188,6 +229,34 @@ export default function LocalData() {
                 </TableBody>
               </Table>
             </div>
+
+            {customerTotalPages > 1 && (
+              <div className="flex items-center justify-end space-x-2 py-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCustomerPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={customerPage === 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  <span className="sr-only">Previous Page</span>
+                </Button>
+                <div className="text-sm text-muted-foreground">
+                  Page {customerPage} of {customerTotalPages}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    setCustomerPage((prev) => Math.min(prev + 1, customerTotalPages))
+                  }
+                  disabled={customerPage === customerTotalPages}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                  <span className="sr-only">Next Page</span>
+                </Button>
+              </div>
+            )}
           </div>
         </TabsContent>
 
@@ -223,17 +292,50 @@ export default function LocalData() {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      descriptions.map((desc, idx) => (
+                      paginatedDescriptions.map((desc, idx) => (
                         <TableRow
                           key={`${desc}-${idx}`}
                         >
-                          <TableCell>{idx + 1}</TableCell>
+                          <TableCell>
+                            {(descriptionPage - 1) * PAGE_SIZE + idx + 1}
+                          </TableCell>
                           <TableCell>{desc}</TableCell>
                         </TableRow>
                       ))
                     )}
                   </TableBody>
                 </Table>
+                {descriptionTotalPages > 1 && (
+                  <div className="flex items-center justify-end space-x-2 py-4 px-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setDescriptionPage((prev) => Math.max(prev - 1, 1))
+                      }
+                      disabled={descriptionPage === 1}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      <span className="sr-only">Previous Page</span>
+                    </Button>
+                    <div className="text-sm text-muted-foreground">
+                      Page {descriptionPage} of {descriptionTotalPages}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setDescriptionPage((prev) =>
+                          Math.min(prev + 1, descriptionTotalPages)
+                        )
+                      }
+                      disabled={descriptionPage === descriptionTotalPages}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                      <span className="sr-only">Next Page</span>
+                    </Button>
+                  </div>
+                )}
               </div>
 
               <div className="max-h-140 overflow-y-auto flex-1 rounded-lg border bg-card">
@@ -254,17 +356,46 @@ export default function LocalData() {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      remarks.map((remark, idx) => (
+                      paginatedRemarks.map((remark, idx) => (
                         <TableRow
                           key={`${remark}-${idx}`}
                         >
-                          <TableCell>{idx + 1}</TableCell>
+                          <TableCell>
+                            {(remarkPage - 1) * PAGE_SIZE + idx + 1}
+                          </TableCell>
                           <TableCell>{remark}</TableCell>
                         </TableRow>
                       ))
                     )}
                   </TableBody>
                 </Table>
+                {remarkTotalPages > 1 && (
+                  <div className="flex items-center justify-end space-x-2 py-4 px-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setRemarkPage((prev) => Math.max(prev - 1, 1))}
+                      disabled={remarkPage === 1}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      <span className="sr-only">Previous Page</span>
+                    </Button>
+                    <div className="text-sm text-muted-foreground">
+                      Page {remarkPage} of {remarkTotalPages}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setRemarkPage((prev) => Math.min(prev + 1, remarkTotalPages))
+                      }
+                      disabled={remarkPage === remarkTotalPages}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                      <span className="sr-only">Next Page</span>
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
           </div>

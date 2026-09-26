@@ -16,14 +16,15 @@ export type Parcel = Database["public"]["Tables"]["parcels"]["Row"] & {
   drivers?: { name: string } | null;
   from_city?: { name: string } | null;
   to_city?: { name: string } | null;
-  offices?: { mobile_no: string | null } | null;
+  offices?: { mobile_no: string | null; address: string | null } | null;
   bus_registration?: string;
   driver_name?: string;
   office_mobile_no?: string | null;
+  office_address?: string | null;
 };
 
 export default function PrintParcel() {
-  const { billNo } = useParams();
+  const { id } = useParams();
 
   const [parcel, setParcel] = useState<Parcel | null>(null);
   const [loading, setLoading] = useState(true);
@@ -31,10 +32,10 @@ export default function PrintParcel() {
   const receiptRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (billNo) {
+    if (id) {
       fetchParcelData();
     }
-  }, [billNo]);
+  }, [id]);
 
   const fetchParcelData = async () => {
     setLoading(true);
@@ -48,10 +49,10 @@ export default function PrintParcel() {
           drivers (name),
           from_city:cities!parcels_from_city_id_fkey (name),
           to_city:cities!parcels_to_city_id_fkey (name),
-          offices (mobile_no)
+          offices (mobile_no, address)
         `
         )
-        .eq("bill_no", parseInt(billNo!))
+        .eq("id", parseInt(id!))
         .single();
 
       if (error) throw error;
@@ -61,6 +62,7 @@ export default function PrintParcel() {
         bus_registration: data.buses?.registration_no,
         driver_name: data.drivers?.name,
         office_mobile_no: data.offices?.mobile_no,
+        office_address: data.offices?.address,
       });
     } catch (err) {
       console.error("Error fetching parcel:", err);

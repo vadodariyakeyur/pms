@@ -38,6 +38,7 @@ export default function Offices() {
     const [currentOffice, setCurrentOffice] = useState<Office | null>(null);
     const [officeName, setOfficeName] = useState("");
     const [officeMobile, setOfficeMobile] = useState("");
+    const [officeAddress, setOfficeAddress] = useState("");
     const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
@@ -73,6 +74,7 @@ export default function Offices() {
                 {
                     name: officeName,
                     mobile_no: officeMobile.trim() || null,
+                    address: officeAddress.trim() || null,
                 },
             ]);
 
@@ -103,6 +105,7 @@ export default function Offices() {
                 .update({
                     name: officeName,
                     mobile_no: officeMobile.trim() || null,
+                    address: officeAddress.trim() || null,
                 })
                 .eq("id", currentOffice.id);
 
@@ -149,6 +152,7 @@ export default function Offices() {
     const resetForm = () => {
         setOfficeName("");
         setOfficeMobile("");
+        setOfficeAddress("");
         setCurrentOffice(null);
     };
 
@@ -156,6 +160,7 @@ export default function Offices() {
         setCurrentOffice(office);
         setOfficeName(office.name);
         setOfficeMobile(office.mobile_no ?? "");
+        setOfficeAddress(office.address ?? "");
         setIsEditDialogOpen(true);
     };
 
@@ -211,6 +216,7 @@ export default function Offices() {
                             <TableHead>#</TableHead>
                             <TableHead>Name</TableHead>
                             <TableHead>Mobile</TableHead>
+                            <TableHead>Address</TableHead>
                             <TableHead className="w-[100px] text-right">
                                 Actions
                             </TableHead>
@@ -219,7 +225,7 @@ export default function Offices() {
                     <TableBody>
                         {loading ? (
                             <TableRow>
-                                <TableCell colSpan={4} className="text-center py-10">
+                                <TableCell colSpan={5} className="text-center py-10">
                                     <div className="space-y-2">
 {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-9 w-full" />)}
 </div>
@@ -228,7 +234,7 @@ export default function Offices() {
                         ) : filteredOffices.length === 0 ? (
                             <TableRow>
                                 <TableCell
-                                    colSpan={4}
+                                    colSpan={5}
                                     className="text-center py-10 text-muted-foreground"
                                 >
                                     {searchQuery
@@ -243,6 +249,11 @@ export default function Offices() {
                                     <TableCell>{office.name}</TableCell>
                                     <TableCell>
                                         {office.mobile_no || (
+                                            <span className="text-muted-foreground">—</span>
+                                        )}
+                                    </TableCell>
+                                    <TableCell>
+                                        {office.address || (
                                             <span className="text-muted-foreground">—</span>
                                         )}
                                     </TableCell>
@@ -298,6 +309,15 @@ export default function Offices() {
                                 placeholder="Enter mobile number"
                             />
                         </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="address">Address (optional)</Label>
+                            <Input
+                                id="address"
+                                value={officeAddress}
+                                onChange={(e) => setOfficeAddress(e.target.value)}
+                                placeholder="Enter address"
+                            />
+                        </div>
                     </div>
                     <DialogFooter>
                         <Button
@@ -346,6 +366,15 @@ export default function Offices() {
                                 value={officeMobile}
                                 onChange={(e) => setOfficeMobile(e.target.value)}
                                 placeholder="Enter mobile number"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="edit-address">Address (optional)</Label>
+                            <Input
+                                id="edit-address"
+                                value={officeAddress}
+                                onChange={(e) => setOfficeAddress(e.target.value)}
+                                placeholder="Enter address"
                             />
                         </div>
                     </div>

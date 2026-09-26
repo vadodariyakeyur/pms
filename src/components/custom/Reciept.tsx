@@ -54,8 +54,9 @@ export function Receipt({ parcel, ...rest }: ReceiptProps) {
                   (PRAMUKHRAJ) SHREE NATHJI TRAVELS &amp; CARGO
                 </h1>
                 <p className="text-sm font-bold leading-snug mt-0.5">
-                  રાજકોટ :- 150 ફુટ રિંગ રોડ, ગોવર્ધન ચોક ની પાસે, સ્કાય હેઈટ્સ
-                  બિલ્ડીંગ ની સામે, મો. -{" "}
+                  {parcel.office_address ||
+                    "રાજકોટ :- 150 ફુટ રિંગ રોડ, ગોવર્ધન ચોક ની પાસે, સ્કાય હેઈટ્સ બિલ્ડીંગ ની સામે"}
+                  , મો. -{" "}
                   <b className="text-base whitespace-nowrap">
                     {parcel.office_mobile_no || "84019 39945 / 81550 66443"}
                   </b>

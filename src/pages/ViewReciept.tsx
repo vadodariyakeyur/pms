@@ -14,6 +14,8 @@ export type Parcel = Database["public"]["Tables"]["parcels"]["Row"] & {
   to_city?: { name: string } | null;
   bus_registration?: string;
   driver_name?: string;
+  office_mobile_no?: string | null;
+  office_address?: string | null;
 };
 
 // Security: Watermark overlay style
@@ -39,7 +41,7 @@ const watermarkStyle = {
 };
 
 export default function ViewReciept() {
-  const { billNo } = useParams();
+  const { id } = useParams();
 
   const [parcel, setParcel] = useState<Parcel | null>(null);
   const [loading, setLoading] = useState(true);
@@ -128,19 +130,19 @@ export default function ViewReciept() {
   }, []);
 
   useEffect(() => {
-    if (billNo) {
+    if (id) {
       fetchParcelData();
     }
-  }, [billNo]);
+  }, [id]);
 
   const fetchParcelData = async () => {
-    if (!billNo) return;
+    if (!id) return;
 
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .rpc("get_parcel_details_by_bill_no", {
-          bill_number: parseInt(atob(billNo)!),
+        .rpc("get_parcel_details_by_id", {
+          p_id: parseInt(atob(id)!),
         })
         .single();
 
@@ -170,6 +172,8 @@ export default function ViewReciept() {
         remark: data.remark,
         amount: data.amount,
         amount_given: data.amount_given,
+        office_mobile_no: data.office_mobile_no,
+        office_address: data.office_address,
       } as Parcel);
     } catch (err) {
       console.error("Error fetching parcel:", err);

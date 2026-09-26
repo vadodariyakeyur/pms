@@ -11,7 +11,7 @@ import { Loader2 } from "lucide-react";
 import router from "@/app/router";
 
 export default function EditParcel() {
-  const { billNo } = useParams();
+  const { id } = useParams();
 
   const [loading, setLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -36,10 +36,10 @@ export default function EditParcel() {
   });
 
   useEffect(() => {
-    if (billNo) {
+    if (id) {
       fetchParcelData();
     }
-  }, [billNo]);
+  }, [id]);
 
   const fetchParcelData = async () => {
     setLoading(true);
@@ -47,7 +47,7 @@ export default function EditParcel() {
       const { data, error } = await supabase
         .from("parcels")
         .select("*")
-        .eq("bill_no", parseInt(billNo!))
+        .eq("id", parseInt(id!))
         .single();
 
       if (error) throw error;
@@ -90,7 +90,6 @@ export default function EditParcel() {
 
   const onSubmit = async () => {
     const {
-      nextBillNo,
       parcelDate,
       busDriverAssignment,
       senderName,
@@ -101,18 +100,15 @@ export default function EditParcel() {
       amountGiven,
     } = formData;
 
-    if (!nextBillNo) throw nextBillNo;
-
     const totalAmount = parcelItem.amount;
     const amountRemaining = (parcelItem.amount || 0) - (amountGiven || 0);
 
     setIsProcessing(true);
     try {
-      // Insert parcel
+      // Update parcel
       const { error: parcelError } = await supabase
         .from("parcels")
         .update({
-          bill_no: nextBillNo,
           parcel_date: format(parcelDate, "yyyy-MM-dd"),
           driver_id: busDriverAssignment?.driver_id!,
           bus_id: busDriverAssignment?.bus_id!,
@@ -129,12 +125,12 @@ export default function EditParcel() {
           amount_given: amountGiven || 0,
           amount_remaining: amountRemaining,
         })
-        .eq("bill_no", nextBillNo);
+        .eq("id", parseInt(id!));
 
       if (parcelError) throw parcelError;
 
       // Navigate to print preview with parcel data
-      router.navigate(`/parcel/${nextBillNo}/print`);
+      router.navigate(`/parcel/${id}/print`);
     } catch (err: any) {
       console.error("Error adding parcel:", err);
       throw err;
