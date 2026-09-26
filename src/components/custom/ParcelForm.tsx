@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Loader2, User, Phone, Receipt, Save } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
+import { amountRemaining as remaining } from "@/lib/parcel-money";
+import { formatBillNo } from "@/lib/bill";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,17 +37,9 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { Database } from "@/lib/supabase/types";
+import type { BusDriverAssignment, City } from "@/lib/domain";
 import localDb from "@/db/db";
 import AutocompleteInput from "@/components/ui/autocomplete";
-
-// Define types
-type City = Database["public"]["Tables"]["cities"]["Row"];
-export type BusDriverAssignment =
-  Database["public"]["Tables"]["bus_driver_assignments"]["Row"] & {
-    buses: { registration_no: string } | null;
-    drivers: { name: string } | null;
-  };
 
 type ParcelItem = {
   from_city_id: number | null;
@@ -72,7 +66,7 @@ type ParcelFormProps = {
   formData: ParcelFormData;
   setFormData: React.Dispatch<React.SetStateAction<ParcelFormData>>;
   isProcessing?: boolean;
-  onSubmit?: VoidFunction;
+  onSubmit?: () => void | Promise<void>;
   actionButton?: string;
 };
 
@@ -94,8 +88,10 @@ export default function ParcelForm({
   });
   const formRef = useRef(document.createElement("div"));
 
-  const amountRemaining =
-    (formData.parcelItem.amount || 0) - (formData.amountGiven || 0);
+  const amountRemaining = remaining({
+    amount: formData.parcelItem.amount,
+    amount_given: formData.amountGiven,
+  });
 
   useEffect(() => {
     fetchBusDriverAssignments();
@@ -286,7 +282,7 @@ export default function ParcelForm({
       localDb.addOrUpdateCustomer(receiverName, receiverMobile);
       localDb.addDescription(parcelItem.description);
       localDb.addRemark(parcelItem.remark);
-      onSubmit?.();
+      await onSubmit?.();
     } catch (err: any) {
       console.error("Error adding parcel:", err);
       setError(err.message);
@@ -340,7 +336,7 @@ export default function ParcelForm({
               <Label htmlFor="bill-no">Bill No.</Label>
               <Input
                 id="bill-no"
-                value={formData.nextBillNo ? `R${formData.nextBillNo}` : "Auto-generated"}
+                value={formData.nextBillNo ? formatBillNo(formData.nextBillNo) : "Auto-generated"}
                 data-index={1}
                 onKeyDown={handleKeyDown}
                 readOnly

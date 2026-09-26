@@ -4,11 +4,13 @@ import { supabase } from "@/lib/supabase/client";
 
 import { format } from "date-fns";
 import ParcelForm, {
-  type BusDriverAssignment,
   type ParcelFormData,
 } from "@/components/custom/ParcelForm";
+import type { BusDriverAssignment } from "@/lib/domain";
+import { findById, updateById } from "@/lib/parcels";
 import { Loader2 } from "lucide-react";
 import router from "@/app/router";
+import { amountColumns } from "@/lib/parcel-money";
 
 export default function EditParcel() {
   const { id } = useParams();
@@ -44,13 +46,7 @@ export default function EditParcel() {
   const fetchParcelData = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("parcels")
-        .select("*")
-        .eq("id", parseInt(id!))
-        .single();
-
-      if (error) throw error;
+      const data = await findById(parseInt(id!));
 
       let busDriverAssignment;
       if (data.bus_id && data.driver_id) {
@@ -100,15 +96,9 @@ export default function EditParcel() {
       amountGiven,
     } = formData;
 
-    const totalAmount = parcelItem.amount;
-    const amountRemaining = (parcelItem.amount || 0) - (amountGiven || 0);
-
     setIsProcessing(true);
     try {
-      // Update parcel
-      const { error: parcelError } = await supabase
-        .from("parcels")
-        .update({
+      await updateById(parseInt(id!), {
           parcel_date: format(parcelDate, "yyyy-MM-dd"),
           driver_id: busDriverAssignment?.driver_id!,
           bus_id: busDriverAssignment?.bus_id!,
@@ -121,13 +111,11 @@ export default function EditParcel() {
           description: parcelItem.description,
           qty: parcelItem.qty,
           remark: parcelItem.remark,
-          amount: totalAmount || 0,
-          amount_given: amountGiven || 0,
-          amount_remaining: amountRemaining,
-        })
-        .eq("id", parseInt(id!));
-
-      if (parcelError) throw parcelError;
+          ...amountColumns({
+            amount: parcelItem.amount,
+            amount_given: amountGiven,
+          }),
+      });
 
       // Navigate to print preview with parcel data
       router.navigate(`/parcel/${id}/print`);

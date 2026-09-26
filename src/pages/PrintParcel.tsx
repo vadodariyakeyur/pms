@@ -2,26 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Printer, ArrowLeft, MessageSquare } from "lucide-react";
 
-import { supabase } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Database } from "@/lib/supabase/types";
+import type { Parcel } from "@/lib/domain";
+import { findById } from "@/lib/parcels";
+import { formatBillNo } from "@/lib/bill";
 import router from "@/app/router";
 import { Receipt } from "@/components/custom/Reciept";
 import PageHeader from "@/components/custom/PageHeader";
 import { getWhatsappMessage } from "@/lib/utils";
-
-// Define types
-export type Parcel = Database["public"]["Tables"]["parcels"]["Row"] & {
-  buses?: { registration_no: string } | null;
-  drivers?: { name: string } | null;
-  from_city?: { name: string } | null;
-  to_city?: { name: string } | null;
-  offices?: { mobile_no: string | null; address: string | null } | null;
-  bus_registration?: string;
-  driver_name?: string;
-  office_mobile_no?: string | null;
-  office_address?: string | null;
-};
 
 export default function PrintParcel() {
   const { id } = useParams();
@@ -40,30 +28,7 @@ export default function PrintParcel() {
   const fetchParcelData = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("parcels")
-        .select(
-          `
-          *,
-          buses (registration_no),
-          drivers (name),
-          from_city:cities!parcels_from_city_id_fkey (name),
-          to_city:cities!parcels_to_city_id_fkey (name),
-          offices (mobile_no, address)
-        `
-        )
-        .eq("id", parseInt(id!))
-        .single();
-
-      if (error) throw error;
-
-      setParcel({
-        ...data,
-        bus_registration: data.buses?.registration_no,
-        driver_name: data.drivers?.name,
-        office_mobile_no: data.offices?.mobile_no,
-        office_address: data.offices?.address,
-      });
+      setParcel(await findById(parseInt(id!), { withOffice: true }));
     } catch (err) {
       console.error("Error fetching parcel:", err);
     } finally {
@@ -121,7 +86,7 @@ export default function PrintParcel() {
       <div className="print:hidden">
         <PageHeader
           title="Print Preview"
-          description={`Bill R${parcel.bill_no} · ${parcel.from_city?.name} to ${parcel.to_city?.name}`}
+          description={`Bill ${formatBillNo(parcel.bill_no)} · ${parcel.from_city?.name} to ${parcel.to_city?.name}`}
         >
           <Button variant="outline" onClick={handleBackToParcelList}>
             <ArrowLeft className="h-4 w-4" />

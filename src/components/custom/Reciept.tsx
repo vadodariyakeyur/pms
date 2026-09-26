@@ -1,9 +1,14 @@
-import { Parcel } from "@/pages/PrintParcel";
+import { COMPANY_NAME, contactLine, formatBillNo } from "@/lib/bill";
+import type { PublicParcel } from "@/lib/domain";
+import { amountRemaining } from "@/lib/parcel-money";
 import { format } from "date-fns";
 import { ComponentPropsWithRef, useEffect, useRef } from "react";
 
+// Takes the narrow public projection, not the full row: the receipt renders
+// the same fields whether it came from an authenticated query or the public
+// RPC, and a full `Parcel` is assignable to this.
 type ReceiptProps = ComponentPropsWithRef<"div"> & {
-  parcel: Parcel;
+  parcel: PublicParcel;
 };
 
 export function Receipt({ parcel, ...rest }: ReceiptProps) {
@@ -51,14 +56,14 @@ export function Receipt({ parcel, ...rest }: ReceiptProps) {
             <div className="border-b-2 border-black pb-2 mb-3">
               <div className="relative text-center">
                 <h1 className="text-[26px] font-bold uppercase leading-[1.1] tracking-[-0.02em]">
-                  (PRAMUKHRAJ) SHREE NATHJI TRAVELS &amp; CARGO
+                  {COMPANY_NAME}
                 </h1>
                 <p className="text-sm font-bold leading-snug mt-0.5">
                   {parcel.office_address ||
                     "રાજકોટ :- 150 ફુટ રિંગ રોડ, ગોવર્ધન ચોક ની પાસે, સ્કાય હેઈટ્સ બિલ્ડીંગ ની સામે"}
                   , મો. -{" "}
                   <b className="text-base whitespace-nowrap">
-                    {parcel.office_mobile_no || "84019 39945 / 81550 66443"}
+                    {contactLine(parcel.office_mobile_no)}
                   </b>
                 </p>
               </div>
@@ -82,7 +87,7 @@ export function Receipt({ parcel, ...rest }: ReceiptProps) {
                       <strong>Bill No:</strong>
                     </td>
                     <td className="border-2 border-black px-1 py-0.5 text-xl leading-tight tabular-nums tracking-[-0.01em] align-middle">
-                      R{parcel.bill_no}
+                      {formatBillNo(parcel.bill_no)}
                     </td>
                   </tr>
                   <tr>
@@ -200,7 +205,7 @@ export function Receipt({ parcel, ...rest }: ReceiptProps) {
                       {parcel.amount_given}
                     </td>
                     <td className="border-2 border-black p-1 text-right tabular-nums">
-                      {parcel.amount - parcel.amount_given}
+                      {amountRemaining(parcel)}
                     </td>
                   </tr>
                 </tbody>

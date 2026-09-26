@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { format } from "date-fns";
 
-import { supabase } from "@/lib/supabase/client";
+import { create } from "@/lib/parcels";
 import ParcelForm, {
   type ParcelFormData,
 } from "@/components/custom/ParcelForm";
 import router from "@/app/router";
 import { useOffice } from "@/hooks/use-office";
+import { amountColumns } from "@/lib/parcel-money";
 
 export default function AddParcel() {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -42,14 +43,9 @@ export default function AddParcel() {
       amountGiven,
     } = formData;
 
-    const totalAmount = parcelItem.amount || 0;
-    const amountRemaining = (parcelItem.amount || 0) - (amountGiven || 0);
-
     setIsProcessing(true);
     try {
-      const { data: parcel, error: parcelError } = await supabase
-        .from("parcels")
-        .insert({
+      const parcel = await create({
           parcel_date: format(parcelDate, "yyyy-MM-dd"),
           driver_id: busDriverAssignment?.driver_id!,
           bus_id: busDriverAssignment?.bus_id!,
@@ -62,15 +58,12 @@ export default function AddParcel() {
           description: parcelItem.description,
           qty: parcelItem.qty || 1,
           remark: parcelItem.remark,
-          amount: totalAmount,
-          amount_given: amountGiven || 0,
-          amount_remaining: amountRemaining,
+          ...amountColumns({
+            amount: parcelItem.amount,
+            amount_given: amountGiven,
+          }),
           office_id: office.id
-        })
-        .select()
-        .single();
-
-      if (parcelError) throw parcelError;
+      });
 
       router.navigate(`/parcel/${parcel.id}/print`);
     } catch (err: any) {

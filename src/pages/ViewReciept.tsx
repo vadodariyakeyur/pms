@@ -3,20 +3,9 @@ import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 
 import { supabase } from "@/lib/supabase/client";
-import { Database } from "@/lib/supabase/types";
+import { formatBillNo, parseReceiptToken } from "@/lib/bill";
+import type { PublicParcel } from "@/lib/domain";
 import { Receipt } from "@/components/custom/Reciept";
-
-// Define types
-export type Parcel = Database["public"]["Tables"]["parcels"]["Row"] & {
-  buses?: { registration_no: string } | null;
-  drivers?: { name: string } | null;
-  from_city?: { name: string } | null;
-  to_city?: { name: string } | null;
-  bus_registration?: string;
-  driver_name?: string;
-  office_mobile_no?: string | null;
-  office_address?: string | null;
-};
 
 // Security: Watermark overlay style
 const watermarkStyle = {
@@ -43,7 +32,7 @@ const watermarkStyle = {
 export default function ViewReciept() {
   const { id } = useParams();
 
-  const [parcel, setParcel] = useState<Parcel | null>(null);
+  const [parcel, setParcel] = useState<PublicParcel | null>(null);
   const [loading, setLoading] = useState(true);
 
   const watermarkText = useMemo(() => {
@@ -140,9 +129,17 @@ export default function ViewReciept() {
 
     setLoading(true);
     try {
+      // A truncated or hand-edited link decodes to null rather than throwing
+      // out of atob into the generic "failed to load" catch below.
+      const parcelId = parseReceiptToken(id);
+      if (parcelId === null) {
+        toast.error("This receipt link is not valid.");
+        return;
+      }
+
       const { data, error } = await supabase
         .rpc("get_parcel_details_by_id", {
-          p_id: parseInt(atob(id)!),
+          p_id: parcelId,
         })
         .single();
 
@@ -174,7 +171,7 @@ export default function ViewReciept() {
         amount_given: data.amount_given,
         office_mobile_no: data.office_mobile_no,
         office_address: data.office_address,
-      } as Parcel);
+      });
     } catch (err) {
       console.error("Error fetching parcel:", err);
       // No window.close() — this page opens from a WhatsApp link, so closing
@@ -233,7 +230,7 @@ export default function ViewReciept() {
           </h1>
           {parcel && (
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground tabular-nums">
-              Bill R{parcel.bill_no}
+              Bill {formatBillNo(parcel.bill_no)}
             </p>
           )}
         </div>

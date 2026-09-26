@@ -12,7 +12,8 @@ import {
   TrendingDown,
 } from "lucide-react";
 
-import { supabase } from "@/lib/supabase/client";
+import { findForDashboard } from "@/lib/parcels";
+import { amountPaid, amountRemaining, inr } from "@/lib/parcel-money";
 import { useOffice } from "@/hooks/use-office";
 import PageHeader from "@/components/custom/PageHeader";
 import { Card, CardContent } from "@/components/ui/card";
@@ -58,8 +59,6 @@ const quickActions = [
   },
 ];
 
-const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
-
 export default function Dashboard() {
   const office = useOffice();
   const [loading, setLoading] = useState(true);
@@ -86,42 +85,21 @@ export default function Dashboard() {
         const today = format(end, "yyyy-MM-dd");
         const startStr = format(start, "yyyy-MM-dd");
 
-        const [{ data, error }, { data: allOfficeRows, error: officeError }] =
-          await Promise.all([
-            supabase
-              .from("parcels")
-              .select(
-                "parcel_date, amount, amount_given, qty, to_city:cities!parcels_to_city_id_fkey(name)"
-              )
-              .eq("office_id", office.id)
-              .gte("parcel_date", startStr)
-              .lte("parcel_date", today),
-            // Every office, so revenue can be compared day by day and split
-            // by destination city.
-            supabase
-              .from("parcels")
-              .select(
-                "parcel_date, amount, offices(name), to_city:cities!parcels_to_city_id_fkey(name)"
-              )
-              .gte("parcel_date", startStr)
-              .lte("parcel_date", today),
-          ]);
+        const { officeRows, allOfficeRows } = await findForDashboard({
+          officeId: office.id,
+          startDate: startStr,
+          endDate: today,
+        });
 
-        if (error) throw error;
-        if (officeError) throw officeError;
-
-        const rows = data || [];
+        const rows = officeRows;
         const yesterday = format(subDays(end, 1), "yyyy-MM-dd");
         const sum = (day: string) => {
           const dayRows = rows.filter((r) => r.parcel_date === day);
           return {
             bookings: dayRows.length,
             qty: dayRows.reduce((a, r) => a + (r.qty || 0), 0),
-            collected: dayRows.reduce((a, r) => a + (r.amount_given || 0), 0),
-            pending: dayRows.reduce(
-              (a, r) => a + ((r.amount || 0) - (r.amount_given || 0)),
-              0
-            ),
+            collected: dayRows.reduce((a, r) => a + amountPaid(r), 0),
+            pending: dayRows.reduce((a, r) => a + amountRemaining(r), 0),
           };
         };
 
@@ -136,8 +114,8 @@ export default function Dashboard() {
         for (const r of rows) {
           const p = byDay.get(r.parcel_date);
           if (!p) continue;
-          p.collected += r.amount_given || 0;
-          p.pending += (r.amount || 0) - (r.amount_given || 0);
+          p.collected += amountPaid(r);
+          p.pending += amountRemaining(r);
         }
         setDaily(Array.from(byDay.values()));
 

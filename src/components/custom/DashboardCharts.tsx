@@ -18,6 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { inr } from "@/lib/parcel-money";
 import {
   ChartConfig,
   ChartContainer,
@@ -38,7 +39,6 @@ export type OfficeCity = NameCount & { office: string; officeIndex: number };
 /** One day, with a rupee total per office name. */
 export type OfficeDayPoint = { date: string } & Record<string, string | number>;
 
-const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 const dayTick = (v: string) => format(new Date(v), "d MMM");
 
 const officeConfig = (names: string[]): ChartConfig =>

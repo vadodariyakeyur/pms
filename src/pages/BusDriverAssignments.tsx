@@ -37,7 +37,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Database } from "@/lib/supabase/types";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import {
@@ -47,18 +46,16 @@ import {
 } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 
-type BusDriverAssignment =
-  Database["public"]["Tables"]["bus_driver_assignments"]["Row"] & {
-    buses: { registration_no: string } | null;
-    drivers: { name: string } | null;
-  };
-
-type Bus = Database["public"]["Tables"]["buses"]["Row"];
-type Driver = Database["public"]["Tables"]["drivers"]["Row"];
+// `Bus` is aliased — the bare name is the lucide icon imported above.
+import type {
+  Bus as BusRow,
+  BusDriverAssignment,
+  Driver,
+} from "@/lib/domain";
 
 export default function BusDriverAssignments() {
   const [assignments, setAssignments] = useState<BusDriverAssignment[]>([]);
-  const [buses, setBuses] = useState<Bus[]>([]);
+  const [buses, setBuses] = useState<BusRow[]>([]);
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");

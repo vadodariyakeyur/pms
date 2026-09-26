@@ -1,0 +1,109 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  # Lets you re-run the suite by hand from the Actions tab.
+  workflow_dispatch:
+
+# A new push to the same branch cancels the run still in flight for it.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Typecheck, unit tests and the production build. Fast — gives a red X in
+  # under a minute when something obvious is broken.
+  unit:
+    name: Typecheck, unit tests & build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck app
+        run: pnpm exec tsc -b
+
+      - name: Typecheck e2e sources
+        # `tsconfig.app.json` only includes `src`, so the e2e specs are not
+        # covered by the build above and need their own pass.
+        run: pnpm exec tsc -p e2e/tsconfig.json --noEmit
+
+      - name: Unit tests
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+        env:
+          # The build inlines these; they are never used at test time because
+          # every request is intercepted in-browser, but Vite needs them
+          # defined for `import.meta.env` to typecheck and substitute.
+          VITE_SUPABASE_URL: https://test-project.supabase.co
+          VITE_SUPABASE_ANON_KEY: test-anon-key
+
+  e2e:
+    name: End-to-end tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # The image ships the browsers and every system library they need, so
+    # there is no `playwright install-deps` step and no drift between the
+    # browser build and the client. Keep this tag in step with the
+    # @playwright/test version in package.json.
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --user 1001
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Playwright tests
+        run: pnpm exec playwright test
+        env:
+          # Turns on retries and the CI reporter, and forbids `test.only`
+          # from reaching main. Set explicitly rather than relied upon.
+          CI: "true"
+
+      - name: Upload report
+        # Runs on failure too — that is when the trace and screenshots for the
+        # failing test are actually worth reading.
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
+
+      - name: Upload failure traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: test-results/
+          retention-days: 14

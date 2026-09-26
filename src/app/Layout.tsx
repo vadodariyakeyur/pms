@@ -44,7 +44,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import router from "@/app/router";
 import { Link, Outlet, useLocation } from "react-router-dom";
-import { Database as DatabaseType } from "@/lib/supabase/types";
+import type { Office } from "@/lib/domain";
 import { OfficeContext } from "@/hooks/use-office";
 import { useTheme } from "@/hooks/use-theme";
 
@@ -77,7 +77,6 @@ const menuGroups = [
   },
 ];
 
-type Office = DatabaseType["public"]["Tables"]["offices"]["Row"];
 
 export default function Layout() {
   const location = useLocation();

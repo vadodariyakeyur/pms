@@ -1,19 +1,17 @@
 import { useState, useEffect } from "react";
 import { Printer, Loader2, Calendar as CalendarIcon } from "lucide-react";
-import {
-  format,
-  startOfMonth,
-  endOfMonth,
-  getYear,
-  getMonth,
-  setMonth,
-  setYear,
-} from "date-fns";
+import { format, getYear, getMonth, setMonth } from "date-fns";
 
 import { toast } from "sonner";
 
 import { supabase } from "@/lib/supabase/client";
-import { Database } from "@/lib/supabase/types";
+import { findForReport } from "@/lib/parcels";
+import {
+  monthlyReportHtml,
+  recordReportHtml,
+} from "@/lib/report-document";
+import { monthNames, resolvePeriod } from "@/lib/report-period";
+import type { Bus, City } from "@/lib/domain";
 import {
   Card,
   CardContent,
@@ -39,46 +37,6 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { useOffice } from "@/hooks/use-office";
 
-// Define types
-type City = Database["public"]["Tables"]["cities"]["Row"];
-type Bus = Database["public"]["Tables"]["buses"]["Row"];
-type ParcelReportItem = Database["public"]["Tables"]["parcels"]["Row"] & {
-  buses?: { registration_no: string } | null;
-  from_city?: { name: string } | null;
-  to_city?: { name: string } | null;
-};
-
-type DateWiseAggregation = {
-  parcel_date: string;
-  record_count: number;
-  total_amount_given: number;
-  total_amount_remaining: number;
-  total_qty: number;
-};
-
-// Helper to generate month options
-const monthNames = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
-// Escape user data before interpolating into print HTML
-const esc = (v: unknown) =>
-  String(v ?? "").replace(
-    /[&<>"]/g,
-    (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[m]!)
-  );
-
 function openPrintDialog(printContent: string) {
   const printWindow = window.open("", "_blank");
   if (!printWindow) {
@@ -91,207 +49,6 @@ function openPrintDialog(printContent: string) {
   printWindow.document.close();
   printWindow.print();
 }
-
-function printMonthlyReport(
-  data: DateWiseAggregation[],
-  from_city: string,
-  to_city: string,
-  date: string
-) {
-  const printContent = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Parcel Report</title>
-      <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #000; padding: 4px; text-align: center; }
-        th { background-color: #f2f2f2; }
-        .header { position: relative; text-align: center; margin-bottom: 20px; }
-        .city { position: absolute; top: -34px; left: 4px }
-        .date { position: absolute; top: -34px; right: 4px }
-        @media print {
-          button { display: none; }
-        }
-      </style>
-    </head>
-    <body>
-      <button onclick="window.print();" style="float: right; padding: 8px 16px; background: #4a5568; color: white; border: none; border-radius: 4px; cursor: pointer; margin-bottom: 20px;">Print Report</button>
-      <table>
-        <thead>
-          <tr>
-            <th colspan="6">
-              <div class="header">
-                <h2>Pramukhraj Travels & Cargo</h2>
-                <p class="city">
-                  From ${esc(from_city)} to ${esc(to_city)}
-                </p>
-                <p class="date">Date: ${esc(date)}</p>
-              </div>
-            </th>
-          </tr>
-          <tr>
-            <th>ક્રમ</th>
-            <th>તારીખ</th>
-            <th>ટોટલ બીલ</th>
-            <th>જથ્થો</th>
-            <th>જમા</th>
-            <th>બાકી</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${data
-            .map(
-              (date, index) => `
-            <tr>
-              <td>${index + 1}</td>
-              <td>${format(date.parcel_date, "dd/MM/yyyy") || ""}</td>
-              <td>${date.record_count || "0"}</td>
-              <td>${date.total_qty || "0"}</td>
-              <td>${date.total_amount_given || "0"}</td>
-              <td>${date.total_amount_remaining || "0"}</td>
-            </tr>
-          `
-            )
-            .join("")}
-            <tr>
-              <td colspan="2" style="text-align: right;"><strong>Total</strong></td>
-              <td>
-                <strong>
-                  ${data.reduce((a, c) => a + (c.record_count || 0), 0)}
-                </strong>
-              </td>
-              <td>
-                <strong>
-                  ${data.reduce((a, c) => a + c.total_qty, 0)}
-                </strong>
-              </td>
-              <td>
-                <strong>
-                  ${data.reduce((a, c) => a + c.total_amount_given, 0)}
-                </strong>
-              </td>
-              <td>
-                <strong>
-                  ${data.reduce((a, c) => a + c.total_amount_remaining, 0)}
-                </strong>
-              </td>
-            </tr>
-        </tbody>
-      </table>
-    </body>
-    </html>
-  `;
-
-  openPrintDialog(printContent);
-}
-
-const printRecordReport = (
-  data: ParcelReportItem[],
-  from_city: string,
-  to_city: string,
-  date: string
-) => {
-  // Create the HTML content for the print window
-  const printContent = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Parcel Report</title>
-      <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #000; padding: 4px; text-align: center; }
-        th { background-color: #f2f2f2; }
-        .header { position: relative; text-align: center; margin-bottom: 20px; }
-        .city { position: absolute; top: -34px; left: 4px }
-        .date { position: absolute; top: -34px; right: 4px }
-        @media print {
-          button { display: none; }
-        }
-      </style>
-    </head>
-    <body>
-      <button onclick="window.print();" style="float: right; padding: 8px 16px; background: #4a5568; color: white; border: none; border-radius: 4px; cursor: pointer; margin-bottom: 20px;">Print Report</button>
-      <table>
-        <thead>
-          <tr>
-            <th colspan="12">
-              <div class="header">
-                <h2>Pramukhraj Travels & Cargo</h2>
-                <p class="city">
-                  From ${esc(from_city)} to ${esc(to_city)}
-                </p>
-                <p class="date">Date: ${esc(date)}</p>
-              </div>
-            </th>
-          </tr>
-          <tr>
-            <th>ક્રમ</th>
-            <th>મોકલનાર</th>
-            <th>મોકલનાર<br/>મોબાઈલ</th>
-            <th>લેનાર</th>
-            <th>લેનાર<br/>મોબાઈલ</th>
-            <th>બિલ નં</th>
-            <th>જથ્થો</th>
-            <th>વર્ણન</th>
-            <th>રિમાર્ક</th>
-            <th>જમા</th>
-            <th>બાકી</th>
-            <th>સહી</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${data
-            .map(
-              (parcel, index) => `
-            <tr>
-              <td>${index + 1}</td>
-              <td>${esc(parcel.sender_name)}</td>
-              <td>${esc(parcel.sender_mobile_no)}</td>
-              <td>${esc(parcel.receiver_name)}</td>
-              <td>${esc(parcel.receiver_mobile_no)}</td>
-              <td>R${esc(parcel.bill_no)}</td>
-              <td>${parcel.qty || ""}</td>
-              <td>${esc(parcel.description)}</td>
-              <td>${esc(parcel.remark)}</td>
-              <td>${parcel.amount_given || "0"}</td>
-              <td>${parcel.amount - parcel.amount_given || "0"}</td>
-              <td class="signature-cell"></td>
-            </tr>
-          `
-            )
-            .join("")}
-            <tr>
-              <td colspan="6" style="text-align: right;"><strong>Total</strong></td>
-              <td>
-                <strong>
-                  ${data.reduce((a, c) => a + (c.qty || 0), 0)}
-                </strong>
-              </td>
-              <td></td>
-              <td></td>
-              <td>
-                <strong>
-                  ${data.reduce((a, c) => a + (c.amount_given || 0), 0)}
-                </strong>
-              </td>
-              <td>
-                <strong>
-                  ${data.reduce((a, c) => a + (c.amount - c.amount_given || 0), 0)}
-                </strong>
-              </td>
-              <td></td>
-            </tr>
-        </tbody>
-      </table>
-    </body>
-    </html>
-  `;
-
-  openPrintDialog(printContent);
-};
 
 export default function Reports() {
   // --- Common State ---
@@ -387,6 +144,7 @@ export default function Reports() {
         console.error(
           `cannot get date params from getDateParameters for REPORT TYPE: ${reportType}`
         );
+        toast.error("Invalid date selection. Please pick the date again.");
         return;
       }
 
@@ -416,34 +174,16 @@ export default function Reports() {
         );
         if (error) throw error;
 
-        printMonthlyReport(
-          data || [],
-          fromCity.name,
-          toCity.name,
-          monthlyReportMonth
+        openPrintDialog(
+          monthlyReportHtml(data || [], {
+            fromCity: fromCity.name,
+            toCity: toCity.name,
+            date: monthlyReportMonth,
+          })
         );
         return;
       }
 
-      // Common query parameters
-      const baseQuery = supabase
-        .from("parcels")
-        .select(
-          `
-          *,
-          buses (registration_no),
-          from_city:cities!parcels_from_city_id_fkey (name),
-          to_city:cities!parcels_to_city_id_fkey (name)
-        `
-        )
-        .eq("office_id", office.id)
-        .eq("bus_id", parseInt(dateReportBusId))
-        .eq("from_city_id", parseInt(fromCityId))
-        .eq("to_city_id", parseInt(toCityId))
-        .order("created_at", { ascending: true });
-
-      // Apply date filters based on report type
-      let query = baseQuery;
       let reportDateString = format(new Date(), "dd/MM/yyyy");
       if (reportType === "date") {
         if (dateReportStartDate && dateReportEndDate) {
@@ -452,30 +192,33 @@ export default function Reports() {
             "dd/MM/yyyy"
           )} - ${format(dateReportEndDate, "dd/MM/yyyy")}`;
         }
-
-        query = query
-          .gte("parcel_date", dateParams.startDate)
-          .lte("parcel_date", dateParams.endDate);
       } else if (dateParams.date) {
-        // Daily report
         reportDateString = `${format(dateParams.date, "dd/MM/yyyy")}`;
-        query = query.eq("parcel_date", dateParams.date);
       }
 
-      const { data, error } = await query;
-      if (error) throw error;
+      const data = await findForReport({
+        officeId: office.id,
+        busId: parseInt(dateReportBusId),
+        fromCityId: parseInt(fromCityId),
+        toCityId: parseInt(toCityId),
+        date: reportType === "date" ? undefined : dateParams.date,
+        startDate: reportType === "date" ? dateParams.startDate : undefined,
+        endDate: reportType === "date" ? dateParams.endDate : undefined,
+      });
 
       if (fromCity && toCity) {
-        printRecordReport(
-          data || [],
-          fromCity.name,
-          toCity.name,
-          reportDateString
+        openPrintDialog(
+          recordReportHtml(data || [], {
+            fromCity: fromCity.name,
+            toCity: toCity.name,
+            date: reportDateString,
+          })
         );
       } else {
         console.error(
           `Cities with ID FROM:${fromCityId} and TO:${toCityId} not found`
         );
+        toast.error("Selected city not found. Please reselect From and To cities.");
       }
     } catch (err) {
       console.error(`Error fetching ${reportType} report:`, err);
@@ -527,34 +270,15 @@ export default function Reports() {
     return true;
   };
 
-  // Helper to get date parameters for each report type
-  const getDateParameters = (reportType: "date" | "daily" | "monthly") => {
-    switch (reportType) {
-      case "date":
-        return {
-          startDate: format(dateReportStartDate!, "yyyy-MM-dd"),
-          endDate: format(dateReportEndDate!, "yyyy-MM-dd"),
-        };
-      case "daily":
-        return { date: format(dailyReportDate!, "yyyy-MM-dd") };
-      case "monthly": {
-        const [month, year] = monthlyReportMonth.split("-");
-        const startDate = startOfMonth(
-          setYear(
-            setMonth(new Date(), monthNames.indexOf(month)),
-            parseInt(year)
-          )
-        );
-        const endDate = endOfMonth(startDate);
-        return {
-          startDate: format(startDate, "yyyy-MM-dd"),
-          endDate: format(endDate, "yyyy-MM-dd"),
-        };
-      }
-      default:
-        return null;
-    }
-  };
+  // Date-range resolution lives in report-period.ts, where it is tested.
+  const getDateParameters = (reportType: "date" | "daily" | "monthly") =>
+    resolvePeriod({
+      reportType,
+      startDate: dateReportStartDate,
+      endDate: dateReportEndDate,
+      dailyDate: dailyReportDate,
+      monthKey: monthlyReportMonth,
+    });
 
   // Function to render city selector (reused in multiple places)
   const renderCitySelector = (

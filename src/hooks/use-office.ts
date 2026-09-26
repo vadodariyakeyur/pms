@@ -1,8 +1,6 @@
 import { createContext, useContext } from "react";
-import { Database } from "@/lib/supabase/types";
+import type { Office } from "@/lib/domain";
 
-type OfficeContextType = Database["public"]["Tables"]["offices"]["Row"];
-
-export const OfficeContext = createContext<OfficeContextType>({id: -1, name: '', created_at: '', mobile_no: null, address: null});
+export const OfficeContext = createContext<Office>({id: -1, name: '', created_at: '', mobile_no: null, address: null});
 
 export const useOffice = () => useContext(OfficeContext);

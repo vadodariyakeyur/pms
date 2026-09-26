@@ -58,20 +58,14 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { Database } from "@/lib/supabase/types";
+import type { City, Parcel } from "@/lib/domain";
 import router from "@/app/router";
 import { cn } from "@/lib/utils";
+import { isUnpaid } from "@/lib/parcel-money";
+import { findPage, parseBillNo, remove } from "@/lib/parcels";
+import { formatBillNo } from "@/lib/bill";
 import { useOffice } from "@/hooks/use-office";
-
-// Define types
-type Parcel = Database["public"]["Tables"]["parcels"]["Row"] & {
-  buses?: { registration_no: string } | null;
-  drivers?: { name: string } | null;
-  from_city?: { name: string } | null;
-  to_city?: { name: string } | null;
-};
-
-type City = Database["public"]["Tables"]["cities"]["Row"];
+import { toast } from "sonner";
 
 const PAGE_SIZE = 10;
 
@@ -128,111 +122,27 @@ export default function ListParcels() {
   const fetchParcels = async () => {
     setLoading(true);
     try {
-      // 1. Construct the base query for counting
-      let countQuery = supabase
-        .from("parcels")
-        .select("*", { count: "exact", head: true })
-        .eq('office_id', office.id);
+      const { parcels, total } = await findPage({
+        filter: {
+          officeId: office.id,
+          searchTerm,
+          fromCityId,
+          toCityId,
+          startDate: dateRange.from
+            ? format(dateRange.from, "yyyy-MM-dd")
+            : null,
+          endDate: dateRange.to ? format(dateRange.to, "yyyy-MM-dd") : null,
+        },
+        billNo: parseBillNo(billNo),
+        page,
+        pageSize: PAGE_SIZE,
+      });
 
-      const updatedBillNo = billNo.toLowerCase().startsWith("r")
-        ? billNo.slice(1)
-        : billNo;
-      if (updatedBillNo) {
-        countQuery = countQuery.eq("bill_no", parseInt(updatedBillNo));
-      } else {
-        // 2. Apply filters to the count query
-        if (searchTerm) {
-          countQuery = countQuery.or(
-            `sender_name.ilike.%${searchTerm}%,receiver_name.ilike.%${searchTerm}%,sender_mobile_no.ilike.%${searchTerm}%,receiver_mobile_no.ilike.%${searchTerm}%`
-          );
-        }
-
-        if (fromCityId) {
-          countQuery = countQuery.eq("from_city_id", fromCityId);
-        }
-
-        if (toCityId) {
-          countQuery = countQuery.eq("to_city_id", toCityId);
-        }
-
-        if (dateRange.from && dateRange.to) {
-          const fromDate = format(dateRange.from, "yyyy-MM-dd");
-          const toDate = format(dateRange.to, "yyyy-MM-dd");
-          countQuery = countQuery
-            .gte("parcel_date", fromDate)
-            .lte("parcel_date", toDate);
-        }
-      }
-
-      // 3. Execute the count query
-      const { error: countError, count } = await countQuery;
-
-      if (countError) {
-        throw countError;
-      }
-
-      if (count === null) {
-        setTotalPages(1);
-        setParcels([]);
-        return;
-      }
-
-      // 4. Calculate total pages
-      setTotalPages(Math.ceil(count / PAGE_SIZE));
-
-      // 5. Construct the query for fetching paginated data
-      let dataQuery = supabase.from("parcels").select(`
-          *,
-          buses (registration_no),
-          drivers (name),
-          from_city:cities!parcels_from_city_id_fkey (name),
-          to_city:cities!parcels_to_city_id_fkey (name)
-        `)
-        .eq('office_id', office.id);
-
-      // 6. Apply the SAME filters to the data query
-      if (updatedBillNo) {
-        dataQuery = dataQuery.eq("bill_no", parseInt(updatedBillNo));
-      } else {
-        if (searchTerm) {
-          dataQuery = dataQuery.or(
-            `sender_name.ilike.%${searchTerm}%,receiver_name.ilike.%${searchTerm}%,sender_mobile_no.ilike.%${searchTerm}%,receiver_mobile_no.ilike.%${searchTerm}%`
-          );
-        }
-
-        if (fromCityId) {
-          dataQuery = dataQuery.eq("from_city_id", fromCityId);
-        }
-
-        if (toCityId) {
-          dataQuery = dataQuery.eq("to_city_id", toCityId);
-        }
-
-        if (dateRange.from && dateRange.to) {
-          const fromDate = format(dateRange.from, "yyyy-MM-dd");
-          const toDate = format(dateRange.to, "yyyy-MM-dd");
-          dataQuery = dataQuery
-            .gte("parcel_date", fromDate)
-            .lte("parcel_date", toDate);
-        }
-
-        // 7. Apply pagination and order to the data query
-        dataQuery = dataQuery
-          .order("parcel_date", { ascending: false })
-          .order("bill_no", { ascending: false })
-          .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
-      }
-
-      // 8. Execute the data query
-      const { data, error: dataError } = await dataQuery;
-
-      if (dataError) {
-        throw dataError;
-      }
-
-      setParcels(data || []);
+      setTotalPages(Math.max(1, Math.ceil(total / PAGE_SIZE)));
+      setParcels(parcels);
     } catch (err) {
       console.error("Error fetching parcels:", err);
+      toast.error("Could not load parcels. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -255,18 +165,17 @@ export default function ListParcels() {
     if (!parcelToDelete) return;
 
     try {
-      const { error } = await supabase
-        .from("parcels")
-        .delete()
-        .eq("id", parcelToDelete);
-
-      if (error) throw error;
+      await remove(parcelToDelete);
 
       // Refresh the list
       fetchParcels();
       setDeleteDialogOpen(false);
     } catch (err) {
       console.error("Error deleting parcel:", err);
+      // Previously this failed silently and left the dialog open, so a failed
+      // delete looked identical to an unresponsive button.
+      toast.error("Could not delete the parcel. Please try again.");
+      setDeleteDialogOpen(false);
     }
   };
 
@@ -510,7 +419,7 @@ export default function ListParcels() {
                     {parcels.map((parcel) => (
                       <TableRow key={parcel.id}>
                         <TableCell className="font-medium">
-                          R{parcel.bill_no}
+                          {formatBillNo(parcel.bill_no)}
                         </TableCell>
                         <TableCell>
                           {format(new Date(parcel.parcel_date), "MMM dd, yyyy")}
@@ -533,7 +442,7 @@ export default function ListParcels() {
                           <div
                             className={cn(
                               "flex items-center gap-1",
-                              parcel.amount - parcel.amount_given > 0
+                              isUnpaid(parcel)
                                 ? "text-destructive"
                                 : "text-green-400"
                             )}

@@ -1,13 +1,20 @@
-import type { Parcel } from "@/pages/PrintParcel";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+
+import {
+  COMPANY_NAME,
+  FALLBACK_CONTACTS,
+  contactLine,
+  formatBillNo,
+  receiptUrl,
+} from "@/lib/bill";
+import type { Parcel } from "@/lib/domain";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
 export function getWhatsappMessage(parcel: Parcel): string {
-  const billNo = `${parcel.bill_no}`;
   const currentDate = new Date().toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "2-digit",
@@ -19,12 +26,14 @@ export function getWhatsappMessage(parcel: Parcel): string {
 
   const currentHost = `${window.location.protocol}//${window.location.host}`;
 
-  const message = `*(PRAMUKHRAJ) SHREE NATHJI TRAVELS & CARGO*
+  // Bill number goes through formatBillNo so it matches what the search box
+  // parses — this used to render "R-123", which the parser rejected.
+  const message = `*${COMPANY_NAME}*
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 *PARCEL BOOKING CONFIRMATION*
 
-*Bill Number:* R-${billNo}
+*Bill Number:* ${formatBillNo(parcel.bill_no)}
 *Date:* ${currentDate}
 *Route:* ${parcel.from_city?.name} to ${parcel.to_city?.name}
 
@@ -32,14 +41,14 @@ export function getWhatsappMessage(parcel: Parcel): string {
 *Receiver:* ${parcel.receiver_name}
 
 *View Receipt:*
-${currentHost}/#/reciept/${btoa(String(parcel.id))}
+${receiptUrl(parcel.id, currentHost)}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 _Thank you for choosing *PRAMUKHRAJ TRAVELS & CARGO* service!_
 
 *Important:* Goods will only be delivered against this bill.
-*Contact(Rajkot):* 84019 39945 / 81550 66443
-*Contact(Surat):* 90992 66443
+*Contact(Rajkot):* ${contactLine(parcel.office_mobile_no)}
+*Contact(Surat):* ${FALLBACK_CONTACTS.surat}
 `;
 
   return encodeURIComponent(message);
